@@ -344,7 +344,7 @@ document.getElementById('announcementForm').addEventListener('submit',async e=>{
  btn.disabled=true;status.textContent='جارٍ نشر الإعلان...';let imageUrl=null,uploadedPath=null;
  try{
   if(file){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';uploadedPath=`${codmUser.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;const up=await sb.storage.from(ANNOUNCEMENT_BUCKET).upload(uploadedPath,file,{contentType:file.type,upsert:false});if(up.error)throw up.error;imageUrl=sb.storage.from(ANNOUNCEMENT_BUCKET).getPublicUrl(uploadedPath).data.publicUrl;}
-  const eventDate=fd.get('date');const payload={title:String(fd.get('title')).trim(),announcement_type:fd.get('type'),details:String(fd.get('details')||'').trim()||null,event_date:eventDate?new Date(eventDate).toISOString():null,location:String(fd.get('location')||'').trim()||null,created_by:codmUser.id,image_url:imageUrl};
+  const eventDate=fd.get('date');const payload={title:String(fd.get('title')).trim(),announcement_type:fd.get('type'),details:String(fd.get('details')||'').trim()||null,event_date:eventDate?new Date(eventDate).toISOString():null,location:String(fd.get('location')||'').trim()||null,created_by:codmProfile.id,image_url:imageUrl};
   const ins=await sb.from('announcements').insert(payload).select('*').single();if(ins.error)throw ins.error;
   announcementRows.unshift(ins.data);renderAnnouncements();form.reset();document.getElementById('announcementPreview').style.display='none';status.textContent='تم نشر الإعلان بنجاح.';
  }catch(err){if(uploadedPath){try{await sb.storage.from(ANNOUNCEMENT_BUCKET).remove([uploadedPath])}catch{}}status.textContent='تعذر نشر الإعلان: '+(err.message||err);alert(status.textContent)}finally{btn.disabled=false}
