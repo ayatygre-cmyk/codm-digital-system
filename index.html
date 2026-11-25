@@ -336,7 +336,7 @@ async function loadRemote(){
  normalizeLocalIds();localStorage.setItem(KEY,JSON.stringify(db));render();if(typeof fillClubCompetitionAthletes==='function')fillClubCompetitionAthletes();
 }
 async function syncAll(){
- if(!codmUser||syncing)return;syncing=true;
+ if(!codmUser||syncing)return false;syncing=true;
  try{
   normalizeLocalIds();
   const athletes=(db.athletes||[]).map(a=>({id:a.id,full_name:a.name,birth_date:a.birth||null,gender:a.gender||null,category:a.category||null,weight:a.weight===''?null:Number(a.weight),height:a.height===''?null:Number(a.height),stance:a.stance||null,phone:a.phone||null,guardian:a.guardian||null,guardian_phone:a.guardianPhone||null,notes:a.notes||null,photo_url:(a.photo||'').startsWith('http')?a.photo:null,registration_date:a.joined||null,active:(a.status||'نشط')==='نشط',club_status:a.status||'نشط',status_reason:a.status_reason||null,status_start_date:a.status_start_date||null,status_end_date:a.status_end_date||null}));
@@ -350,7 +350,8 @@ async function syncAll(){
   const events=(db.events||[]).map(e=>({id:e.id,athlete_id:e.athlete||null,title:e.name,event_type:e.type,event_date:e.start||null,location:e.place||null,details:JSON.stringify({end:e.end||'',status:e.status||'',notes:e.notes||''}),result:e.result||null,created_by:codmUser.id}));
   if(events.length){const r=await sb.from('events').upsert(events,{onConflict:'id'});if(r.error)throw r.error}
   localStorage.setItem(KEY,JSON.stringify(db));
- }catch(err){console.error('CODM sync:',err);alert('تم الحفظ محلياً، لكن تعذر مزامنة البيانات مع قاعدة النادي: '+(err.message||err))}finally{syncing=false}
+  return true;
+ }catch(err){console.error('CODM sync:',err);alert('تم الحفظ محلياً، لكن تعذر مزامنة البيانات مع قاعدة النادي: '+(err.message||err));return false}finally{syncing=false}
 }
 // Override the local save hook: keep local backup and send supported records to Supabase.
 window.save=function(){localStorage.setItem(KEY,JSON.stringify(db));render();syncAll()};
@@ -664,7 +665,25 @@ async function authenticate(){
  await Promise.allSettled([announcementsTask,requestsTask,competitionsTask,videosTask]);
 }
 document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ تسجيل الدخول...';try{const {error}=await sb.auth.signInWithPassword({email:document.getElementById('loginEmail').value.trim(),password:document.getElementById('loginPassword').value});if(error)throw error;await authenticate()}catch(err){authMsg.textContent='تعذر الدخول: '+err.message}finally{b.disabled=false}});
-document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();codmUser=null;showGate('تم تسجيل الخروج.')};
+document.getElementById('logoutBtn').onclick=async()=>{
+ const button=document.getElementById('logoutBtn');
+ if(!codmUser)return;
+ if(!confirm('قبل تسجيل الخروج، سيُزامَن العمل مع قاعدة بيانات النادي. بعد نجاح المزامنة ستُمسح النسخة المحلية من هذا الجهاز لحماية بيانات الملاكمين. إذا لم يتوفر الاتصال أو فشلت المزامنة فلن يتم تسجيل الخروج ولن تُمسح البيانات المحلية. متابعة؟'))return;
+ button.disabled=true;
+ try{
+  const synced=await syncAll();
+  if(!synced){authMsg.textContent='لم يتم تسجيل الخروج: تعذرت مزامنة جميع البيانات. تحققي من الاتصال ثم حاولي مجدداً. بقيت النسخة المحلية محفوظة حتى لا نفقد أي عمل.';return;}
+  const {error}=await sb.auth.signOut();
+  if(error)throw error;
+  codmUser=null;codmProfile=null;
+  localStorage.removeItem(KEY);
+  db={athletes:[],dues:[],progress:[],events:[],attendance:[]};
+  document.getElementById('loginPassword').value='';
+  render();
+  showGate('تم تسجيل الخروج ومزامنة البيانات ومسح النسخة المحلية من هذا الجهاز.');
+ }catch(err){authMsg.textContent='تعذر تسجيل الخروج بأمان: '+(err.message||err)+' . لم تُمسح النسخة المحلية.'}
+ finally{button.disabled=false;}
+};
 document.getElementById('forgotPassword').onclick=async()=>{const email=document.getElementById('loginEmail').value.trim();if(!email)return authMsg.textContent='اكتبي البريد الإلكتروني أولاً.';const {error}=await sb.auth.resetPasswordForEmail(email);authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
 showGate();authenticate().catch(err=>{console.error(err);showGate('تعذر الاتصال بـ Supabase: '+err.message)});
 
