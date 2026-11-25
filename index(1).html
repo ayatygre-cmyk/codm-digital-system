@@ -165,7 +165,12 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <div class="card"><h2>نشر إعلان جديد</h2>
 <form id="announcementForm"><div class="grid">
 <div><label>عنوان الإعلان *</label><input name="title" required maxlength="150" placeholder="مثلاً: برنامج تدريبات الملاكمة لفئة الإناث"></div>
-<div><label>نوع الإعلان *</label><select name="type" required><option value="training">برنامج تدريبي</option><option value="bout">يوم نزال</option><option value="event">موعد تدريب</option><option value="general">إعلان عام</option></select></div>
+<div><label>نوع الإعلان *</label><select name="type" required>
+<option value="training">برنامج تدريبي</option>
+<option value="bout">يوم نزال</option>
+<option value="event">موعد تدريب</option>
+<option value="general">إعلان عام</option>
+</select></div>
 <div><label>التاريخ (اختياري)</label><input name="date" type="datetime-local"></div>
 <div><label>المكان (اختياري)</label><input name="location" placeholder="قاعة النادي"></div>
 <div style="grid-column:1/-1"><label>تفاصيل الإعلان</label><textarea name="details" placeholder="اكتبي تفاصيل الإعلان هنا"></textarea></div>
