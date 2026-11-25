@@ -53,7 +53,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <main>
 <div class="warning" id="privacy">🔒 نظام متصل بقاعدة بيانات النادي. يلزم تسجيل الدخول، وتُحفظ بيانات النادي على Supabase وفق صلاحيات الحساب.</div>
 <nav class="no-print">
-<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="announcements">الإعلانات</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
+<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="membershipRequests">طلبات الانضمام <span id="requestCount" class="pill no" style="margin-right:3px">0</span></button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="announcements">الإعلانات</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
 </nav>
 <section class="panel active" id="p-dashboard">
 <div class="card"><h2 data-ar="لوحة قيادة النادي" data-fr="Tableau de bord du club">لوحة قيادة النادي</h2><div class="stats">
@@ -64,6 +64,10 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 </div></div>
 <div class="card"><h2 data-ar="آخر المستحقات" data-fr="Dernières cotisations">آخر المستحقات</h2><div id="dueSummary" class="muted">لا توجد بيانات بعد</div></div>
 <div class="card"><h2 data-ar="الاستحقاقات القادمة" data-fr="Prochaines compétitions">الاستحقاقات القادمة</h2><div id="eventSummary" class="muted">لا توجد بطولات مسجلة</div></div>
+</section>
+
+<section class="panel" id="p-membershipRequests">
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h2>طلبات الانضمام إلى النادي</h2><p class="muted">راجعي بيانات المترشحين ثم وافقي على الطلب أو ارفضيْه. الموافقة هنا لا تنشئ حساب دخول أو ملف ملاكم تلقائياً.</p></div><button class="btn light" id="refreshMembershipRequests" type="button">تحديث الطلبات</button></div><div id="membershipRequestList"><p class="empty">جارٍ تحميل الطلبات...</p></div></div>
 </section>
 
 <section class="panel" id="p-athletes">
@@ -341,6 +345,40 @@ document.getElementById('announcementForm').addEventListener('submit',async e=>{
 });
 document.getElementById('announcementReset').addEventListener('click',()=>{document.getElementById('announcementPreview').style.display='none';document.getElementById('announcementStatus').textContent=''});
 
+// إدارة طلبات الانضمام: متاحة فقط لحسابات الرئيس والمدرب، وتخضع لسياسات RLS في Supabase.
+let membershipRequestRows=[];
+function renderMembershipRequests(){
+ const host=document.getElementById('membershipRequestList');
+ const pending=membershipRequestRows.filter(r=>(r.status||'pending')==='pending').length;
+ const count=document.getElementById('requestCount');if(count)count.textContent=String(pending);
+ if(!membershipRequestRows.length){host.innerHTML='<p class="empty">لا توجد طلبات انضمام حالياً.</p>';return}
+ host.innerHTML=membershipRequestRows.map(r=>{
+  const status=r.status||'pending';
+  const statusLabel=status==='approved'?'مقبول':status==='rejected'?'مرفوض':'قيد المراجعة';
+  const statusClass=status==='approved'?'':status==='rejected'?'no':'no';
+  const date=r.created_at?new Date(r.created_at).toLocaleString('ar-DZ'):'—';
+  return `<article class="card" style="margin:10px 0;border-right:4px solid ${status==='approved'?'#16804a':status==='rejected'?'#a4262c':'#c8a45d'}">
+   <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(r.full_name||'بدون اسم')}</h3><span class="pill ${statusClass}">${statusLabel}</span></div>
+   <div class="grid"><div><b>تاريخ الميلاد:</b> ${esc(r.birth_date||'—')}</div><div><b>الجنس:</b> ${esc(r.gender||'—')}</div><div><b>الفئة:</b> ${esc(r.category||'—')}</div><div><b>هاتف الرياضي:</b> ${esc(r.phone||'—')}</div><div><b>ولي الأمر:</b> ${esc(r.guardian||'—')}</div><div><b>هاتف ولي الأمر:</b> ${esc(r.guardian_phone||'—')}</div><div><b>تاريخ الإرسال:</b> ${esc(date)}</div></div>
+   ${r.notes?`<p><b>ملاحظات:</b> ${esc(r.notes)}</p>`:''}
+   ${status==='pending'?`<div><button class="btn tiny" type="button" onclick="reviewMembershipRequest('${r.id}','approved')">قبول الطلب</button><button class="btn tiny danger" type="button" onclick="reviewMembershipRequest('${r.id}','rejected')">رفض الطلب</button></div>`:''}
+  </article>`;
+ }).join('');
+}
+async function loadMembershipRequests(){
+ const host=document.getElementById('membershipRequestList');if(!codmUser||!host)return;
+ host.innerHTML='<p class="empty">جارٍ تحميل الطلبات...</p>';
+ try{const {data,error}=await sb.from('membership_requests').select('*').order('created_at',{ascending:false});if(error)throw error;membershipRequestRows=data||[];renderMembershipRequests();}
+ catch(err){host.innerHTML=`<p class="empty">تعذر تحميل الطلبات: ${esc(err.message)}. تأكدي من صلاحيات جدول membership_requests.</p>`;console.error('Membership requests:',err)}
+}
+window.reviewMembershipRequest=async function(id,status){
+ if(!codmUser||!['approved','rejected'].includes(status))return;
+ const label=status==='approved'?'قبول':'رفض';if(!confirm(`هل تريدين ${label} هذا الطلب؟`))return;
+ try{const {error}=await sb.from('membership_requests').update({status,reviewed_at:new Date().toISOString(),reviewed_by:codmUser.id}).eq('id',id);if(error)throw error;await loadMembershipRequests();alert(status==='approved'?'تمت الموافقة على الطلب. يجب إنشاء ملف الملاكم وحساب الدخول بشكل منفصل.':'تم رفض الطلب.');}
+ catch(err){alert('تعذر تحديث الطلب: '+err.message)}
+};
+document.getElementById('refreshMembershipRequests').addEventListener('click',loadMembershipRequests);
+
 // الواجهة العامة: تعرض الإعلانات فقط، ولا تكشف بيانات الرياضيين أو ملفاتهم.
 const publicPortal=document.getElementById('publicPortal');
 document.getElementById('publicAccess').addEventListener('click',async()=>{
@@ -370,7 +408,7 @@ async function authenticate(){
  if(pe)throw pe;if(!p){await sb.auth.signOut();showGate('هذا الحساب غير مربوط بملف في جدول profiles. يجب أن يربطه مسؤول النادي أولاً.');return}
  codmProfile=p;
  if(!['president','coach'].includes(p.role)){await sb.auth.signOut();showGate('هذه الواجهة الإدارية مخصصة لحساب الرئيس والمدرب. يمكن للزوار استعمال الواجهة العامة.');return}
- showApp();await loadRemote();await syncAll();await loadAnnouncements();
+ showApp();await loadRemote();await syncAll();await loadAnnouncements();await loadMembershipRequests();
 }
 document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ تسجيل الدخول...';try{const {error}=await sb.auth.signInWithPassword({email:document.getElementById('loginEmail').value.trim(),password:document.getElementById('loginPassword').value});if(error)throw error;await authenticate()}catch(err){authMsg.textContent='تعذر الدخول: '+err.message}finally{b.disabled=false}});
 document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();codmUser=null;showGate('تم تسجيل الخروج.')};
