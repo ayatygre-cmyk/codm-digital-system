@@ -344,8 +344,9 @@ function resetAnnouncementEditor(clearStatus=true){
 function renderAnnouncements(){
  const host=document.getElementById('announcementList');
  if(!announcementRows.length){host.innerHTML='<p class="empty">لا توجد إعلانات منشورة بعد.</p>';return}
- const canEdit=!!(codmProfile&&['president','coach'].includes(codmProfile.role));
- host.innerHTML=announcementRows.map(a=>`<article class="card" style="margin:0;min-width:0"><h3>${esc(a.title)}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')} ${a.event_date?' • '+esc(new Date(a.event_date).toLocaleString('ar-DZ')):''} ${a.location?' • '+esc(a.location):''}</p>${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title)}" loading="lazy" style="width:100%;max-height:360px;object-fit:contain;border-radius:9px;background:#f3f4f6">`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}${canEdit?`<div class="no-print"><button class="btn tiny secondary" type="button" onclick="editAnnouncement('${esc(a.id)}')">تعديل الإعلان</button></div>`:''}</article>`).join('');
+ const canEdit=!!codmUser; // الواجهة الإدارية لا تُفتح إلا للرئيس أو المدرب بعد التحقق من الدور.
+ host.innerHTML=announcementRows.map(a=>`<article class="card" style="margin:0;min-width:0"><h3>${esc(a.title)}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')} ${a.event_date?' • '+esc(new Date(a.event_date).toLocaleString('ar-DZ')):''} ${a.location?' • '+esc(a.location):''}</p>${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title)}" loading="lazy" style="width:100%;max-height:360px;object-fit:contain;border-radius:9px;background:#f3f4f6">`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}${canEdit?`<div class="no-print" style="display:block;margin-top:10px"><button class="btn tiny secondary" type="button" data-edit-announcement="${esc(a.id)}" style="display:inline-block">تعديل الإعلان</button></div>`:''}</article>`).join('');
+ host.onclick=(event)=>{const button=event.target.closest('[data-edit-announcement]');if(button)window.editAnnouncement(button.dataset.editAnnouncement);};
 }
 async function loadAnnouncements(){
  const host=document.getElementById('announcementList');
@@ -354,7 +355,7 @@ async function loadAnnouncements(){
  announcementRows=data||[];renderAnnouncements();
 }
 window.editAnnouncement=function(id){
- if(!codmProfile||!['president','coach'].includes(codmProfile.role)){alert('تعديل الإعلانات متاح للرئيس والمدرب فقط.');return}
+ if(!codmUser){alert('يجب تسجيل الدخول بحساب الإدارة لتعديل الإعلان.');return}
  const a=announcementRows.find(item=>String(item.id)===String(id));if(!a)return alert('لم نعثر على الإعلان المطلوب. حدّث قائمة الإعلانات وحاول مجدداً.');
  editingAnnouncementId=a.id;
  announcementForm.elements.title.value=a.title||'';
