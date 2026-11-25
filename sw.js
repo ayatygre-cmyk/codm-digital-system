@@ -1,4 +1,4 @@
-const CACHE='codm-digital-v5';
+const CACHE='codm-digital-v6';
 const FILES=['./','./index.html','./manifest.json','./assets/codm-logo.jpg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('codm-digital-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
