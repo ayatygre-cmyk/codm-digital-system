@@ -23,11 +23,37 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 @media print{header,nav,.warning,.no-print{display:none!important}body{background:#fff}.panel{display:none!important}.panel.active{display:block!important}.card{box-shadow:none}}
 </style></head>
 <body>
-<header><div class="head"><div class="brand"><img src="assets/codm-logo.jpg" alt="شعار شباب أولمبيك ديدوش مراد"><div><div class="eyebrow">CODM • BOXING CLUB</div><h1>شباب أولمبيك ديدوش مراد للملاكمة</h1><p id="subtitle">CODM DIGITAL SYSTEM — نظام الإدارة والمتابعة الرياضية</p></div></div><div class="no-print"><button class="light" id="arBtn">العربية</button> <button class="light" id="frBtn">Français</button></div></div></header>
+<div id="authGate" style="position:fixed;inset:0;z-index:9999;background:#101319ee;display:flex;align-items:center;justify-content:center;padding:18px">
+ <div style="background:#fff;max-width:420px;width:100%;padding:24px;border-radius:16px;text-align:right;direction:rtl">
+  <div style="text-align:center"><img src="assets/codm-logo.jpg" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:3px solid #c8a45d"><h2 style="margin:12px 0">الدخول إلى نظام CODM</h2><p style="color:#667085;font-size:13px">حساب الرئيس أو المدرب</p></div>
+  <form id="loginForm"><label>البريد الإلكتروني</label><input id="loginEmail" type="email" autocomplete="username" required><label style="margin-top:12px">كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="btn" style="width:100%" type="submit">تسجيل الدخول</button></form>
+  <p id="authMessage" style="font-size:12px;color:#a4262c;line-height:1.7"></p>
+  <button id="forgotPassword" class="btn light" style="width:100%" type="button">نسيت كلمة المرور؟</button>
+  <button id="publicAccess" class="btn secondary" style="width:100%" type="button">الدخول كزائر / طلب الانضمام</button>
+ </div>
+</div>
+<section id="publicPortal" style="display:none;max-width:920px;margin:22px auto;padding:0 14px;direction:rtl">
+ <div class="card" style="text-align:center"><img src="assets/codm-logo.jpg" alt="شعار النادي" style="width:105px;height:105px;object-fit:cover;border-radius:50%;border:3px solid #c8a45d"><h2>شباب أولمبيك ديدوش مراد للملاكمة</h2><p>مرحباً بكم في الواجهة العامة للنادي. يمكنكم متابعة الإعلانات والأنشطة وإرسال طلب انضمام.</p></div>
+ <div class="card"><h2>إعلانات وأنشطة النادي</h2><div id="publicAnnouncements" class="grid"><p class="muted">جارٍ تحميل الإعلانات...</p></div></div>
+ <div class="card"><h2>طلب الانضمام إلى النادي</h2><p class="muted">أرسل بياناتك لإدارة النادي. الطلب لا ينشئ حساباً ولا يضيفك تلقائياً إلى قائمة الملاكمين؛ تتم مراجعته من الإدارة أولاً.</p>
+ <form id="membershipRequestForm"><div class="grid">
+ <div><label>الاسم واللقب *</label><input name="full_name" required maxlength="120"></div>
+ <div><label>تاريخ الميلاد *</label><input name="birth_date" type="date" required></div>
+ <div><label>الجنس</label><select name="gender"><option value="ذكر">ذكر</option><option value="أنثى">أنثى</option></select></div>
+ <div><label>الفئة</label><select name="category"><option>كتاكيت</option><option>أصاغر</option><option>أشبال</option><option>أواسط</option><option>آمال</option><option>أكابر</option></select></div>
+ <div><label>رقم هاتف الرياضي</label><input name="phone" maxlength="30" inputmode="tel"></div>
+ <div><label>اسم ولي الأمر (للقصر)</label><input name="guardian" maxlength="120"></div>
+ <div><label>هاتف ولي الأمر</label><input name="guardian_phone" maxlength="30" inputmode="tel"></div>
+ <div><label>ملاحظات</label><input name="notes" maxlength="500"></div>
+ </div><button class="btn" id="requestSubmit" type="submit">إرسال طلب الانضمام</button><p id="requestStatus" class="muted" role="status"></p></form></div>
+ <button class="btn light" id="backToLogin" type="button">العودة إلى تسجيل الدخول</button>
+</section>
+
+<header><div class="head"><div class="brand"><img src="assets/codm-logo.jpg" alt="شعار شباب أولمبيك ديدوش مراد"><div><div class="eyebrow">CODM • BOXING CLUB</div><h1>شباب أولمبيك ديدوش مراد للملاكمة</h1><p id="subtitle">CODM DIGITAL SYSTEM — نظام الإدارة والمتابعة الرياضية</p></div></div><div class="no-print"><button class="light" id="arBtn">العربية</button> <button class="light" id="frBtn">Français</button> <button class="light" id="logoutBtn" type="button">خروج</button></div></div></header>
 <main>
-<div class="warning" id="privacy">🔒 يعمل دون إنترنت. تُحفظ البيانات والصور على هذا الحاسوب داخل المتصفح. صدّري نسخة احتياطية بانتظام ولا تمسحي بيانات المتصفح.</div>
+<div class="warning" id="privacy">🔒 نظام متصل بقاعدة بيانات النادي. يلزم تسجيل الدخول، وتُحفظ بيانات النادي على Supabase وفق صلاحيات الحساب.</div>
 <nav class="no-print">
-<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
+<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="announcements">الإعلانات</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
 </nav>
 <section class="panel active" id="p-dashboard">
 <div class="card"><h2 data-ar="لوحة قيادة النادي" data-fr="Tableau de bord du club">لوحة قيادة النادي</h2><div class="stats">
@@ -87,8 +113,18 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <div><label data-ar="البطن (عدد)" data-fr="Abdominaux">البطن (عدد)</label><input name="sit" type="number"></div>
 <div><label data-ar="التقييم التقني /10" data-fr="Technique /10">التقييم التقني /10</label><input name="tech" type="number" min="0" max="10" step=".5"></div>
 <div><label data-ar="الوزن (كغ)" data-fr="Poids (kg)">الوزن (كغ)</label><input name="weight" type="number" step=".1"></div>
+<div><label>الطول (سم)</label><input name="height" type="number" step=".1"></div>
+<div><label>السرعة (اختبار 30م - ثانية)</label><input name="speed" type="number" step=".01"></div>
+<div><label>القوة (رمي الكرة الطبية - متر)</label><input name="strength" type="number" step=".1"></div>
+<div><label>التحمل (اختبار الجري - متر)</label><input name="endurance" type="number" step="1"></div>
+<div><label>المرونة (سم)</label><input name="flexibility" type="number" step=".1"></div>
+<div><label>دقة اللكمات (%)</label><input name="accuracy" type="number" min="0" max="100" step="1"></div>
+<div><label>قوة اللكمات (تقييم /10)</label><input name="power" type="number" min="0" max="10" step=".5"></div>
+<div><label>الدفاع والمراوغة (/10)</label><input name="defense" type="number" min="0" max="10" step=".5"></div>
+<div><label>حركة القدمين (/10)</label><input name="footwork" type="number" min="0" max="10" step=".5"></div>
 </div><label style="margin-top:10px" data-ar="ملاحظات المدرب وخطة العمل" data-fr="Notes de l’entraîneur et plan de travail">ملاحظات المدرب وخطة العمل</label><textarea name="notes"></textarea><button class="btn" type="submit">حفظ التقدم</button></form></div>
-<div class="card"><h2 data-ar="سجل التقدم والأهداف" data-fr="Historique de progression et objectifs">سجل التقدم والأهداف</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الملاكم</th><th>الهدف</th><th>الجري</th><th>الحبل</th><th>اللكمات</th><th>التقني</th><th>إجراء</th></tr></thead><tbody id="progRows"></tbody></table></div></div>
+<div class="card"><h2>الرسم البياني لتطور الملاكم</h2><div class="grid"><div><label>اختاري الملاكم</label><select id="chartAthlete"><option value="">اختاري ملاكماً</option></select></div><div><label>المؤشر المراد متابعته</label><select id="chartMetric"><option value="run">الجري 1000م (ثانية)</option><option value="rope">نط الحبل</option><option value="punch">عدد اللكمات</option><option value="tech">التقييم التقني</option><option value="weight">الوزن</option><option value="height">الطول</option><option value="speed">السرعة</option><option value="strength">القوة</option><option value="endurance">التحمل</option><option value="flexibility">المرونة</option><option value="accuracy">دقة اللكمات</option><option value="power">قوة اللكمات</option><option value="defense">الدفاع والمراوغة</option><option value="footwork">حركة القدمين</option></select></div></div><p class="muted" id="chartHint">اختاري الملاكم والمؤشر لعرض نتائج الاختبارات حسب التاريخ.</p><canvas id="progressChart" height="180" style="width:100%;max-height:360px"></canvas></div>
+<div class="card"><h2 data-ar="سجل التقدم والأهداف" data-fr="Historique de progression et objectifs">سجل التقدم والأهداف</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الملاكم</th><th>الهدف</th><th>الجري</th><th>الحبل</th><th>اللكمات</th><th>التقني</th><th>الطول</th><th>السرعة</th><th>القوة</th><th>التحمل</th><th>المرونة</th><th>دقة اللكمات</th><th>قوة اللكمات</th><th>الدفاع</th><th>القدمين</th><th>الملاحظات</th><th>إجراء</th></tr></thead><tbody id="progRows"></tbody></table></div></div>
 </section>
 
 <section class="panel" id="p-events">
@@ -118,6 +154,19 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 </div><label style="margin-top:10px">ملاحظات</label><input name="notes"><button class="btn" type="submit">حفظ سجل الحضور</button></form></div>
 <div class="card"><h2>سجل الحضور</h2><div class="grid"><div><label>تصفية حسب الملاكم</label><select id="attFilter"><option value="">كل الملاكمين</option></select></div><div><label>تصفية حسب التاريخ</label><input id="attDateFilter" type="month"></div></div>
 <div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الملاكم</th><th>الحصة</th><th>الحالة</th><th>ملاحظات</th><th>إجراء</th></tr></thead><tbody id="attRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-announcements">
+<div class="card"><h2>نشر إعلان جديد</h2>
+<form id="announcementForm"><div class="grid">
+<div><label>عنوان الإعلان *</label><input name="title" required maxlength="150" placeholder="مثلاً: برنامج تدريبات الملاكمة لفئة الإناث"></div>
+<div><label>نوع الإعلان *</label><select name="type" required><option value="برنامج تدريبي">برنامج تدريبي</option><option value="يوم نزال">يوم نزال</option><option value="موعد تدريب">موعد تدريب</option><option value="إعلان عام">إعلان عام</option></select></div>
+<div><label>التاريخ (اختياري)</label><input name="date" type="datetime-local"></div>
+<div><label>المكان (اختياري)</label><input name="location" placeholder="قاعة النادي"></div>
+<div style="grid-column:1/-1"><label>تفاصيل الإعلان</label><textarea name="details" placeholder="اكتبي تفاصيل الإعلان هنا"></textarea></div>
+<div style="grid-column:1/-1"><label>صورة الإعلان (اختياري)</label><input id="announcementImage" type="file" accept="image/png,image/jpeg,image/webp"><p class="muted">الصيغ المقبولة: JPG وPNG وWEBP، بحد أقصى 5 ميغابايت.</p><img id="announcementPreview" alt="معاينة الصورة" style="display:none;max-width:100%;max-height:260px;object-fit:contain;border-radius:10px;border:1px solid var(--line)"></div>
+</div><button class="btn" type="submit" id="announcementSubmit">نشر الإعلان</button><button class="btn light" type="reset" id="announcementReset">تفريغ الخانات</button><p id="announcementStatus" class="muted" role="status"></p></form></div>
+<div class="card"><h2>إعلانات النادي</h2><div id="announcementList" class="grid"><p class="muted">جارٍ تحميل الإعلانات...</p></div></div>
 </section>
 
 <section class="panel" id="p-rules">
@@ -153,6 +202,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <button class="btn light" onclick="window.print()">طباعة الصفحة الحالية</button></div>
 </section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const KEY='CODM_CLUB_MANAGER_V2';
 let db=JSON.parse(localStorage.getItem(KEY)||'{"athletes":[],"dues":[],"progress":[],"events":[],"attendance":[]}');
@@ -162,19 +212,33 @@ const today=()=>new Date().toISOString().slice(0,10), month=()=>today().slice(0,
 function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
 function nav(id){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='p-'+id))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>nav(b.dataset.p));
-function fillSelects(){let opts=db.athletes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');['dueAth','progAth','attAth'].forEach(id=>$('#'+id).innerHTML=opts||'<option value="">أضيفي ملاكماً أولاً</option>');$('#attFilter').innerHTML='<option value="">كل الملاكمين</option>'+opts;$('#eventAth').innerHTML='<option value="">كل النادي / غير محدد</option>'+opts}
+function fillSelects(){let chartOld=$('#chartAthlete')?.value||'',opts=db.athletes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');['dueAth','progAth','attAth'].forEach(id=>$('#'+id).innerHTML=opts||'<option value="">أضيفي ملاكماً أولاً</option>');$('#attFilter').innerHTML='<option value="">كل الملاكمين</option>'+opts;$('#chartAthlete').innerHTML='<option value="">اختاري ملاكماً</option>'+opts;$('#chartAthlete').value=chartOld;$('#eventAth').innerHTML='<option value="">كل النادي / غير محدد</option>'+opts}
+function renderProgressChart(){
+ const canvas=$('#progressChart');if(!canvas)return;const ctx=canvas.getContext('2d');const athlete=$('#chartAthlete').value,metric=$('#chartMetric').value;
+ const rows=(db.progress||[]).filter(p=>p.athlete===athlete&&p[metric]!==''&&p[metric]!==undefined&&p[metric]!==null&&Number.isFinite(Number(p[metric]))).sort((a,b)=>a.date.localeCompare(b.date));
+ const ratio=window.devicePixelRatio||1,w=Math.max(320,canvas.clientWidth||600),h=260;canvas.width=w*ratio;canvas.height=h*ratio;ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,w,h);
+ if(!athlete||!rows.length){$('#chartHint').textContent=!athlete?'اختاري الملاكم والمؤشر لعرض نتائج الاختبارات حسب التاريخ.':'لا توجد نتائج مسجلة لهذا المؤشر لدى هذا الملاكم بعد.';return}
+ $('#chartHint').textContent='عدد القياسات: '+rows.length+' — القيم معروضة كما سُجلت، دون احتساب نتيجة إجمالية.';
+ const vals=rows.map(x=>Number(x[metric])),min=Math.min(...vals),max=Math.max(...vals),pad=Math.max((max-min)*.18,1),lo=min-pad,hi=max+pad,L=48,R=16,T=18,B=42,pw=w-L-R,ph=h-T-B;
+ ctx.strokeStyle='#d7dce2';ctx.lineWidth=1;ctx.fillStyle='#586273';ctx.font='12px Tahoma';ctx.textAlign='right';
+ for(let i=0;i<5;i++){let y=T+ph*i/4;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();let v=hi-(hi-lo)*i/4;ctx.fillText(Number(v.toFixed(1)).toString(),L-8,y+4)}
+ const pts=rows.map((r,i)=>({x:rows.length===1?L+pw/2:L+pw*i/(rows.length-1),y:T+ph*(hi-Number(r[metric]))/(hi-lo),date:r.date,val:Number(r[metric])}));
+ ctx.strokeStyle='#d62828';ctx.lineWidth=3;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
+ pts.forEach(p=>{ctx.fillStyle='#d62828';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#343a40';ctx.textAlign='center';ctx.font='10px Tahoma';ctx.fillText(p.date.slice(5),p.x,h-17);ctx.fillText(String(p.val),p.x,p.y-10)});
+}
 function render(){
  fillSelects();$('#sAth').textContent=db.athletes.length;$('#sEvents').textContent=db.events.length;
  let cur=db.dues.filter(d=>d.month===month());$('#sPaid').textContent=cur.filter(d=>+d.paid>=+d.amount).length;$('#sUnpaid').textContent=cur.filter(d=>+d.paid<+d.amount).length;
  $('#attRows').innerHTML=db.attendance.filter(a=>(!$('#attFilter').value||a.athlete===$('#attFilter').value)&&(!$('#attDateFilter').value||a.date.startsWith($('#attDateFilter').value))).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(a=>`<tr><td>${esc(a.date)}</td><td>${esc(name(a.athlete))}</td><td>${esc(a.session||'—')}</td><td>${esc(a.status)}</td><td>${esc(a.notes||'—')}</td><td><button class="btn tiny danger" onclick="del('attendance','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد سجلات حضور بعد</td></tr>';
  $('#athRows').innerHTML=db.athletes.map(a=>`<tr><td>${a.photo?`<img src="${a.photo}" class="avatar">`:'—'}</td><td>${esc(a.name)}</td><td>${esc(a.category)}</td><td>${esc(a.weight||'—')}</td><td>${esc(a.status)}</td><td><button class="btn tiny light" onclick="editAth('${a.id}')">تعديل</button><button class="btn tiny secondary" onclick="printAth('${a.id}')">طباعة</button><button class="btn tiny danger" onclick="del('athletes','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد ملفات ملاكمين</td></tr>';
  $('#dueRows').innerHTML=db.dues.slice().sort((a,b)=>b.month.localeCompare(a.month)).map(d=>`<tr><td>${esc(name(d.athlete))}</td><td>${esc(d.month)}</td><td>${d.amount}</td><td>${d.paid}</td><td>${Math.max(0,+d.amount-+d.paid)}</td><td><span class="pill ${+d.paid<+d.amount?'no':''}">${+d.paid>=+d.amount?'مدفوع':'متبقي'}</span></td><td><button class="btn tiny danger" onclick="del('dues','${d.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا توجد مستحقات</td></tr>';
- $('#progRows').innerHTML=db.progress.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<tr><td>${esc(p.date)}</td><td>${esc(name(p.athlete))}</td><td>${esc(p.goal||'—')}</td><td>${esc(p.run||'—')}</td><td>${esc(p.rope||'—')}</td><td>${esc(p.punch||'—')}</td><td>${esc(p.tech||'—')}</td><td><button class="btn tiny danger" onclick="del('progress','${p.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">لا توجد تقييمات</td></tr>';
+ $('#progRows').innerHTML=db.progress.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<tr><td>${esc(p.date)}</td><td>${esc(name(p.athlete))}</td><td>${esc(p.goal||'—')}</td><td>${esc(p.run||'—')}</td><td>${esc(p.rope||'—')}</td><td>${esc(p.punch||'—')}</td><td>${esc(p.tech||'—')}</td><td>${esc(p.height||'—')}</td><td>${esc(p.speed||'—')}</td><td>${esc(p.strength||'—')}</td><td>${esc(p.endurance||'—')}</td><td>${esc(p.flexibility||'—')}</td><td>${esc(p.accuracy||'—')}</td><td>${esc(p.power||'—')}</td><td>${esc(p.defense||'—')}</td><td>${esc(p.footwork||'—')}</td><td>${esc(p.notes||'—')}</td><td><button class="btn tiny danger" onclick="del('progress','${p.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="18" class="empty">لا توجد تقييمات</td></tr>';
  $('#eventRows').innerHTML=db.events.slice().sort((a,b)=>(a.start||'').localeCompare(b.start||'')).map(e=>`<tr><td>${esc(e.type)}</td><td>${esc(e.name)}</td><td>${esc(e.place||'—')}</td><td>${esc(e.start||'—')} ${e.end?'→ '+esc(e.end):''}</td><td>${esc(name(e.athlete)||'كل النادي')}</td><td>${esc(e.result||'—')}</td><td>${esc(e.status)}</td><td><button class="btn tiny danger" onclick="del('events','${e.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">لا توجد بطولات مسجلة</td></tr>';
  $('#dueSummary').textContent=cur.length?`عدد سجلات هذا الشهر: ${cur.length} | المبالغ المتبقية: ${cur.reduce((s,d)=>s+Math.max(0,+d.amount-+d.paid),0)} دج`:'لا توجد بيانات لهذا الشهر';
  let upcoming=db.events.filter(e=>e.start>=today()&&e.status==='مخطط لها').sort((a,b)=>a.start.localeCompare(b.start));$('#eventSummary').innerHTML=upcoming.length?upcoming.map(e=>`<p>${esc(e.start)} — <b>${esc(e.name)}</b> (${esc(e.type)})</p>`).join(''):'لا توجد بطولات قادمة مسجلة';
+ renderProgressChart();
 }
-$('#attFilter').onchange=render;$('#attDateFilter').onchange=render;
+$('#attFilter').onchange=render;$('#attDateFilter').onchange=render;$('#chartAthlete').onchange=renderProgressChart;$('#chartMetric').onchange=renderProgressChart;
 $('#attendanceForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.attendance.push({id:String(Date.now()),athlete:f.get('athlete'),date:f.get('date'),status:f.get('status'),session:f.get('session'),notes:f.get('notes')});e.target.reset();$('#attendanceForm [name=date]').value=today();save();alert('تم حفظ الحضور')};
 $('#athForm').onsubmit=async e=>{e.preventDefault();let f=new FormData(e.target),id=f.get('id')||String(Date.now()),old=db.athletes.find(a=>a.id===id),photo=old?.photo||'';let file=$('#photo').files[0];if(file)photo=await resizePhoto(file);let a={id,name:f.get('name'),birth:f.get('birth'),gender:f.get('gender'),category:f.get('category'),weight:f.get('weight'),height:f.get('height'),stance:f.get('stance'),phone:f.get('phone'),guardian:f.get('guardian'),guardianPhone:f.get('guardianPhone'),joined:f.get('joined'),status:f.get('status'),notes:f.get('notes'),photo};let i=db.athletes.findIndex(x=>x.id===id);if(i>=0)db.athletes[i]=a;else db.athletes.push(a);e.target.reset();$('#photo').value='';save();alert('تم حفظ ملف الملاكم')};
 async function resizePhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),scale=Math.min(1,500/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};im.onerror=reject;im.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
@@ -193,4 +257,124 @@ let lang='ar';function setLang(l){if(lang===l)return;let pairs=l==='fr'?translat
 $('#arBtn').onclick=()=>setLang('ar');$('#frBtn').onclick=()=>setLang('fr');
 $('#dueForm [name=month]').value=month();$('#progForm [name=date]').value=today();$('#attendanceForm [name=date]').value=today();render();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+
+// === CODM Supabase connection layer ===
+const SUPABASE_URL='https://xmbpnjlpwpjwrjspnkro.supabase.co';
+const SUPABASE_KEY='sb_publishable_umoJ2Zu3z5Hg1xrlaGif3w_q3QVwgw0';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let codmUser=null, codmProfile=null, syncing=false;
+const gate=document.getElementById('authGate'), authMsg=document.getElementById('authMessage');
+function showGate(msg=''){gate.style.display='flex';authMsg.textContent=msg;document.querySelector('main').style.display='none';document.querySelector('header').style.display='none'}
+function showApp(){gate.style.display='none';document.querySelector('main').style.display='';document.querySelector('header').style.display=''}
+function uuid(){return crypto.randomUUID()}
+function normalizeLocalIds(){
+ const map=new Map();
+ for(const a of db.athletes||[]){if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(a.id)){const old=a.id;a.id=uuid();map.set(old,a.id)}}
+ for(const key of ['dues','progress','events','attendance']) for(const x of db[key]||[]){if(map.has(x.athlete))x.athlete=map.get(x.athlete);if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x.id))x.id=uuid()}
+}
+function parseEventDetails(s){try{const x=JSON.parse(s||'{}');return x&&typeof x==='object'?x:{notes:s||''}}catch{return {notes:s||''}}}
+async function loadRemote(){
+ const tables=['athletes','memberships','attendance','progress','events'];
+ const results=await Promise.all(tables.map(t=>sb.from(t).select('*')));
+ for(let i=0;i<tables.length;i++)if(results[i].error)throw new Error('تعذر قراءة جدول '+tables[i]+': '+results[i].error.message);
+ const [aa,mm,at,pp,ee]=results.map(x=>x.data||[]);
+ const remoteAth=aa.map(a=>({id:a.id,name:a.full_name,birth:a.birth_date||'',gender:a.gender||'ذكر',category:a.category||'',weight:a.weight??'',height:a.height??'',stance:a.stance||'',phone:a.phone||'',guardian:a.guardian||'',guardianPhone:a.guardian_phone||'',joined:a.registration_date||'',status:a.active===false?'متوقف':'نشط',notes:a.notes||'',photo:a.photo_url||''}));
+ const remoteDues=mm.map(m=>({id:m.id,athlete:m.athlete_id,month:String(m.payment_month||'').slice(0,7),amount:String(m.monthly_amount??0),paid:String(m.amount_paid??(m.paid?m.monthly_amount:0)),date:m.paid_at?String(m.paid_at).slice(0,10):'',method:m.payment_method||'نقداً',notes:m.notes||''}));
+ const remoteAtt=at.map(a=>({id:a.id,athlete:a.athlete_id,date:a.training_date,status:a.status,session:a.session||'',notes:a.notes||''}));
+ const groups=new Map();
+ for(const p of pp){const k=[p.athlete_id,p.progress_date,p.goal||'',p.notes||''].join('|');if(!groups.has(k))groups.set(k,{id:p.id,athlete:p.athlete_id,date:p.progress_date,goal:p.goal||'',notes:p.notes||''});const g=groups.get(k);if(p.metric&&p.value!==null){g[p.metric]=String(p.value);g._remoteIds=g._remoteIds||{};g._remoteIds[p.metric]=p.id}}
+ const remoteProg=[...groups.values()];
+ const remoteEvents=ee.map(e=>{const d=parseEventDetails(e.details);return {id:e.id,type:e.event_type||'نشاط',name:e.title,place:e.location||'',start:e.event_date||'',end:d.end||'',athlete:e.athlete_id||'',result:e.result||'',status:d.status||'مخطط لها',notes:d.notes||''}});
+ // Merge by UUID so locally saved entries are not discarded on first connection.
+ const merge=(local,remote)=>{const m=new Map(remote.map(x=>[x.id,x]));for(const x of local||[])m.set(x.id,x);return [...m.values()]};
+ db.athletes=merge(db.athletes,remoteAth);db.dues=merge(db.dues,remoteDues);db.attendance=merge(db.attendance,remoteAtt);db.progress=merge(db.progress,remoteProg);db.events=merge(db.events,remoteEvents);
+ normalizeLocalIds();localStorage.setItem(KEY,JSON.stringify(db));render();
+}
+async function syncAll(){
+ if(!codmUser||syncing)return;syncing=true;
+ try{
+  normalizeLocalIds();
+  const athletes=(db.athletes||[]).map(a=>({id:a.id,full_name:a.name,birth_date:a.birth||null,gender:a.gender||null,category:a.category||null,weight:a.weight===''?null:Number(a.weight),height:a.height===''?null:Number(a.height),stance:a.stance||null,phone:a.phone||null,guardian:a.guardian||null,guardian_phone:a.guardianPhone||null,notes:a.notes||null,photo_url:(a.photo||'').startsWith('http')?a.photo:null,registration_date:a.joined||null,active:a.status!=='متوقف'}));
+  if(athletes.length){const r=await sb.from('athletes').upsert(athletes,{onConflict:'id'});if(r.error)throw r.error}
+  const dues=(db.dues||[]).map(d=>({id:d.id,athlete_id:d.athlete,monthly_amount:Number(d.amount||0),payment_month:(d.month||new Date().toISOString().slice(0,7))+'-01',paid:Number(d.paid||0)>=Number(d.amount||0),amount_paid:Number(d.paid||0),paid_at:d.date||null,payment_method:d.method||null,notes:d.notes||null}));
+  if(dues.length){const r=await sb.from('memberships').upsert(dues,{onConflict:'id'});if(r.error)throw r.error}
+  const attendance=(db.attendance||[]).map(a=>({id:a.id,athlete_id:a.athlete,training_date:a.date,status:a.status,session:a.session||null,notes:a.notes||null,recorded_by:codmUser.id}));
+  if(attendance.length){const r=await sb.from('attendance').upsert(attendance,{onConflict:'id'});if(r.error)throw r.error}
+  const progress=[];for(const p of db.progress||[]){p._remoteIds=p._remoteIds||{};for(const [k,v,u] of [['run',p.run,'ثانية'],['rope',p.rope,'عدد/دقيقة'],['punch',p.punch,'عدد/30ث'],['push',p.push,'عدد'],['sit',p.sit,'عدد'],['tech',p.tech,'/10'],['weight',p.weight,'كغ'],['height',p.height,'سم'],['speed',p.speed,'ثانية'],['strength',p.strength,'متر'],['endurance',p.endurance,'متر'],['flexibility',p.flexibility,'سم'],['accuracy',p.accuracy,'%'],['power',p.power,'/10'],['defense',p.defense,'/10'],['footwork',p.footwork,'/10']])if(v!==''&&v!==undefined&&v!==null){p._remoteIds[k]=p._remoteIds[k]||uuid();progress.push({id:p._remoteIds[k],athlete_id:p.athlete,progress_date:p.date,metric:k,value:Number(v),unit:u,goal:p.goal||null,notes:p.notes||null,recorded_by:codmUser.id})}}
+  if(progress.length){const r=await sb.from('progress').upsert(progress,{onConflict:'id'});if(r.error)throw r.error}
+  const events=(db.events||[]).map(e=>({id:e.id,athlete_id:e.athlete||null,title:e.name,event_type:e.type,event_date:e.start||null,location:e.place||null,details:JSON.stringify({end:e.end||'',status:e.status||'',notes:e.notes||''}),result:e.result||null,created_by:codmUser.id}));
+  if(events.length){const r=await sb.from('events').upsert(events,{onConflict:'id'});if(r.error)throw r.error}
+  localStorage.setItem(KEY,JSON.stringify(db));
+ }catch(err){console.error('CODM sync:',err);alert('تم الحفظ محلياً، لكن تعذر مزامنة البيانات مع قاعدة النادي: '+(err.message||err))}finally{syncing=false}
+}
+// Override the local save hook: keep local backup and send supported records to Supabase.
+window.save=function(){localStorage.setItem(KEY,JSON.stringify(db));render();syncAll()};
+const originalDelete=window.del;window.del=async function(table,id){if(!confirm('هل تريدين حذف هذا السجل؟'))return;const oldItem=(db[table]||[]).find(x=>x.id===id);db[table]=db[table].filter(x=>x.id!==id);localStorage.setItem(KEY,JSON.stringify(db));render();if(!codmUser)return;try{if(table==='athletes'){const r=await sb.from('athletes').delete().eq('id',id);if(r.error)throw r.error}else{const remoteTable={dues:'memberships',attendance:'attendance',events:'events'}[table];if(remoteTable){const r=await sb.from(remoteTable).delete().eq('id',id);if(r.error)throw r.error}else if(table==='progress'&&oldItem?._remoteIds){for(const rid of Object.values(oldItem._remoteIds)){const r=await sb.from('progress').delete().eq('id',rid);if(r.error)throw r.error}}}}catch(err){alert('حُذف من هذه الشاشة، لكن تعذر حذفه من قاعدة البيانات: '+err.message)}};
+
+// === CODM announcements with Supabase Storage ===
+const ANNOUNCEMENT_BUCKET='codm-announcements';
+let announcementRows=[];
+function renderAnnouncements(){
+ const host=document.getElementById('announcementList');
+ if(!announcementRows.length){host.innerHTML='<p class="empty">لا توجد إعلانات منشورة بعد.</p>';return}
+ host.innerHTML=announcementRows.map(a=>`<article class="card" style="margin:0;min-width:0"><h3>${esc(a.title)}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')} ${a.event_date?' • '+esc(new Date(a.event_date).toLocaleString('ar-DZ')):''} ${a.location?' • '+esc(a.location):''}</p>${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title)}" loading="lazy" style="width:100%;max-height:360px;object-fit:contain;border-radius:9px;background:#f3f4f6">`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}</article>`).join('');
+}
+async function loadAnnouncements(){
+ const host=document.getElementById('announcementList');
+ const {data,error}=await sb.from('announcements').select('*').order('created_at',{ascending:false});
+ if(error){host.innerHTML='<p class="empty">تعذر تحميل الإعلانات: '+esc(error.message)+'</p>';return}
+ announcementRows=data||[];renderAnnouncements();
+}
+const announcementInput=document.getElementById('announcementImage');
+announcementInput.addEventListener('change',()=>{const f=announcementInput.files[0],preview=document.getElementById('announcementPreview');if(!f){preview.style.display='none';preview.removeAttribute('src');return}if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){alert('اختاري صورة JPG أو PNG أو WEBP لا يتجاوز حجمها 5 ميغابايت.');announcementInput.value='';preview.style.display='none';return}preview.src=URL.createObjectURL(f);preview.style.display='block'});
+document.getElementById('announcementForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!codmUser)return alert('يجب تسجيل الدخول أولاً.');
+ const form=e.currentTarget,fd=new FormData(form),btn=document.getElementById('announcementSubmit'),status=document.getElementById('announcementStatus');
+ const file=announcementInput.files[0];if(file&&(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024))return alert('الصورة غير مقبولة أو حجمها أكبر من 5 ميغابايت.');
+ btn.disabled=true;status.textContent='جارٍ نشر الإعلان...';let imageUrl=null,uploadedPath=null;
+ try{
+  if(file){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';uploadedPath=`${codmUser.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;const up=await sb.storage.from(ANNOUNCEMENT_BUCKET).upload(uploadedPath,file,{contentType:file.type,upsert:false});if(up.error)throw up.error;imageUrl=sb.storage.from(ANNOUNCEMENT_BUCKET).getPublicUrl(uploadedPath).data.publicUrl;}
+  const eventDate=fd.get('date');const payload={title:String(fd.get('title')).trim(),announcement_type:fd.get('type'),details:String(fd.get('details')||'').trim()||null,event_date:eventDate?new Date(eventDate).toISOString():null,location:String(fd.get('location')||'').trim()||null,created_by:codmUser.id,image_url:imageUrl};
+  const ins=await sb.from('announcements').insert(payload).select('*').single();if(ins.error)throw ins.error;
+  announcementRows.unshift(ins.data);renderAnnouncements();form.reset();document.getElementById('announcementPreview').style.display='none';status.textContent='تم نشر الإعلان بنجاح.';
+ }catch(err){if(uploadedPath){try{await sb.storage.from(ANNOUNCEMENT_BUCKET).remove([uploadedPath])}catch{}}status.textContent='تعذر نشر الإعلان: '+(err.message||err);alert(status.textContent)}finally{btn.disabled=false}
+});
+document.getElementById('announcementReset').addEventListener('click',()=>{document.getElementById('announcementPreview').style.display='none';document.getElementById('announcementStatus').textContent=''});
+
+// الواجهة العامة: تعرض الإعلانات فقط، ولا تكشف بيانات الرياضيين أو ملفاتهم.
+const publicPortal=document.getElementById('publicPortal');
+document.getElementById('publicAccess').addEventListener('click',async()=>{
+ document.getElementById('authGate').style.display='none';document.querySelector('header').style.display='none';document.querySelector('main').style.display='none';publicPortal.style.display='block';window.scrollTo(0,0);
+ const host=document.getElementById('publicAnnouncements');
+ try{const {data,error}=await sb.from('announcements').select('id,title,announcement_type,details,event_date,location,image_url,created_at').order('created_at',{ascending:false}).limit(20);if(error)throw error;
+ host.innerHTML=(data||[]).map(a=>`<article class="card"><h3>${esc(a.title||'إعلان')}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')}${a.event_date?' • '+esc(new Date(a.event_date).toLocaleDateString('ar-DZ')):''}${a.location?' • '+esc(a.location):''}</p>${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title||'صورة الإعلان')}" loading="lazy" style="width:100%;max-height:320px;object-fit:contain">`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}</article>`).join('')||'<p class="empty">لا توجد إعلانات منشورة حالياً.</p>';
+ }catch(err){host.innerHTML='<p class="muted">تعذر تحميل الإعلانات. يمكنكم المحاولة لاحقاً أو إرسال طلب الانضمام.</p>';console.warn('Public announcements:',err)}
+});
+document.getElementById('backToLogin').addEventListener('click',()=>{publicPortal.style.display='none';document.getElementById('authGate').style.display='flex';window.scrollTo(0,0)});
+document.getElementById('membershipRequestForm').addEventListener('submit',async e=>{
+ e.preventDefault();const form=e.currentTarget,btn=document.getElementById('requestSubmit'),status=document.getElementById('requestStatus'),fd=new FormData(form);
+ const payload={full_name:String(fd.get('full_name')||'').trim(),birth_date:String(fd.get('birth_date')||''),gender:String(fd.get('gender')||''),category:String(fd.get('category')||''),phone:String(fd.get('phone')||'').trim()||null,guardian:String(fd.get('guardian')||'').trim()||null,guardian_phone:String(fd.get('guardian_phone')||'').trim()||null,notes:String(fd.get('notes')||'').trim()||null};
+ if(!payload.full_name||!payload.birth_date){status.textContent='يرجى ملء الاسم وتاريخ الميلاد.';return}
+ btn.disabled=true;status.textContent='جارٍ إرسال الطلب...';
+ try{const {error}=await sb.from('membership_requests').insert(payload);if(error)throw error;form.reset();status.textContent='تم استلام طلبك. سيبقى قيد المراجعة إلى أن تتواصل معك إدارة النادي.'}
+ catch(err){status.textContent='لم يُرسل الطلب: '+err.message+' — يلزم تنفيذ ملف SQL المرفق أولاً.'}
+ finally{btn.disabled=false}
+});
+
+async function authenticate(){
+ const {data,error}=await sb.auth.getSession();if(error)throw error;
+ let session=data.session;
+ if(!session){showGate();return}
+ codmUser=session.user;
+ const {data:p,error:pe}=await sb.from('profiles').select('*').eq('user_id',codmUser.id).maybeSingle();
+ if(pe)throw pe;if(!p){await sb.auth.signOut();showGate('هذا الحساب غير مربوط بملف في جدول profiles. يجب أن يربطه مسؤول النادي أولاً.');return}
+ codmProfile=p;
+ if(!['president','coach'].includes(p.role)){await sb.auth.signOut();showGate('هذه الواجهة الإدارية مخصصة لحساب الرئيس والمدرب. يمكن للزوار استعمال الواجهة العامة.');return}
+ showApp();await loadRemote();await syncAll();await loadAnnouncements();
+}
+document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ تسجيل الدخول...';try{const {error}=await sb.auth.signInWithPassword({email:document.getElementById('loginEmail').value.trim(),password:document.getElementById('loginPassword').value});if(error)throw error;await authenticate()}catch(err){authMsg.textContent='تعذر الدخول: '+err.message}finally{b.disabled=false}});
+document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();codmUser=null;showGate('تم تسجيل الخروج.')};
+document.getElementById('forgotPassword').onclick=async()=>{const email=document.getElementById('loginEmail').value.trim();if(!email)return authMsg.textContent='اكتبي البريد الإلكتروني أولاً.';const {error}=await sb.auth.resetPasswordForEmail(email);authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
+showGate();authenticate().catch(err=>{console.error(err);showGate('تعذر الاتصال بـ Supabase: '+err.message)});
+
 </script></body></html>
