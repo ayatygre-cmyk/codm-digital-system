@@ -1,0 +1,16 @@
+{
+  "name": "CODM DIGITAL SYSTEM",
+  "short_name": "CODM",
+  "description": "نظام إدارة نادي شباب أولمبيك ديدوش مراد للملاكمة",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#101319",
+  "theme_color": "#101319",
+  "icons": [
+    {
+      "src": "assets/codm-logo.jpg",
+      "sizes": "720x720",
+      "type": "image/jpeg"
+    }
+  ]
+}

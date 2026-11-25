@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101319"><link rel="manifest" href="manifest.json"><link rel="icon" href="assets/codm-logo.jpg">
+<title>CODM DIGITAL SYSTEM | شباب أولمبيك ديدوش مراد</title>
+<style>
+:root{--navy:#101319;--red:#c62828;--gold:#c8a45d;--bg:#f3f4f6;--line:#e2e7ee;--muted:#667085;--green:#16804a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#17202d;font-family:Tahoma,Arial,sans-serif}
+header{background:linear-gradient(120deg,#090b0f,#262a31 65%,#7d1717);color:white;border-bottom:4px solid var(--gold);padding:20px max(16px,calc((100% - 1180px)/2))}
+.head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:15px}.brand img{width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid var(--gold);background:#fff;box-shadow:0 4px 18px #0007}.brand h1{letter-spacing:.2px}.eyebrow{color:#e8c981;font-size:11px;letter-spacing:2px;margin-bottom:5px}h1{font-size:23px;margin:0 0 6px}header p{margin:0;color:#d8e1ee;font-size:13px}
+main{max-width:1180px;margin:20px auto;padding:0 14px}.warning{background:#fff7e6;border:1px solid #f3d58b;padding:11px 13px;border-radius:10px;font-size:13px;margin-bottom:14px}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}button{cursor:pointer;border:0;border-radius:8px;padding:10px 13px;font:inherit;font-weight:bold;background:#e7ebf1;color:#24364e}nav button.active{background:var(--navy);color:white}
+.panel{display:none}.panel.active{display:block}.card{background:white;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #1428440a}
+h2{font-size:18px;margin:0 0 13px}h3{font-size:15px;margin:0 0 10px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:11px}
+label{display:block;font-size:12px;color:#475467;margin:0 0 5px}input,select,textarea{width:100%;padding:10px;border:1px solid #cbd3df;border-radius:8px;font:inherit;font-size:13px;background:#fff;color:#17202d}textarea{min-height:72px;resize:vertical}
+.btn{background:var(--red);color:white;margin-top:10px}.btn.secondary{background:var(--navy)}.btn.light{background:#e8edf4;color:#24364e}.btn.danger{background:#a4262c}.btn.tiny{padding:6px 8px;font-size:11px;margin:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.stat{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px;font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:25px;color:var(--navy);margin-top:5px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}td,th{text-align:right;padding:9px;border-bottom:1px solid var(--line)}th{background:#f7f9fc;color:#475467}
+.pill{display:inline-block;padding:4px 8px;border-radius:30px;background:#e9f7ef;color:#146c43;font-size:11px}.pill.no{background:#fff0ee;color:#a4262c}
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}.rule{border:1px solid var(--line);border-right:4px solid var(--red);border-radius:10px;padding:12px;background:#fff}.rule b{color:#9f2020;font-size:14px}.rule p{font-size:13px;line-height:1.7;margin:7px 0 0;color:#475467}
+.profile{display:flex;gap:14px;align-items:center;margin-bottom:12px}.avatar{width:76px;height:76px;border-radius:12px;object-fit:cover;background:#edf1f6;border:1px solid var(--line)}.muted{color:var(--muted);font-size:12px}.empty{text-align:center;padding:20px;color:var(--muted)}
+canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
+@media print{header,nav,.warning,.no-print{display:none!important}body{background:#fff}.panel{display:none!important}.panel.active{display:block!important}.card{box-shadow:none}}
+</style></head>
+<body>
+<header><div class="head"><div class="brand"><img src="assets/codm-logo.jpg" alt="شعار شباب أولمبيك ديدوش مراد"><div><div class="eyebrow">CODM • BOXING CLUB</div><h1>شباب أولمبيك ديدوش مراد للملاكمة</h1><p id="subtitle">CODM DIGITAL SYSTEM — نظام الإدارة والمتابعة الرياضية</p></div></div><div class="no-print"><button class="light" id="arBtn">العربية</button> <button class="light" id="frBtn">Français</button></div></div></header>
+<main>
+<div class="warning" id="privacy">🔒 يعمل دون إنترنت. تُحفظ البيانات والصور على هذا الحاسوب داخل المتصفح. صدّري نسخة احتياطية بانتظام ولا تمسحي بيانات المتصفح.</div>
+<nav class="no-print">
+<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
+</nav>
+<section class="panel active" id="p-dashboard">
+<div class="card"><h2 data-ar="لوحة قيادة النادي" data-fr="Tableau de bord du club">لوحة قيادة النادي</h2><div class="stats">
+<div class="stat"><span data-ar="إجمالي الملاكمين" data-fr="Total des boxeurs">إجمالي الملاكمين</span><strong id="sAth">0</strong></div>
+<div class="stat"><span data-ar="مستحقات هذا الشهر المدفوعة" data-fr="Cotisations payées ce mois">مستحقات هذا الشهر المدفوعة</span><strong id="sPaid">0</strong></div>
+<div class="stat"><span data-ar="مستحقات غير مدفوعة" data-fr="Cotisations impayées">مستحقات غير مدفوعة</span><strong id="sUnpaid">0</strong></div>
+<div class="stat"><span data-ar="البطولات المسجلة" data-fr="Compétitions enregistrées">البطولات المسجلة</span><strong id="sEvents">0</strong></div>
+</div></div>
+<div class="card"><h2 data-ar="آخر المستحقات" data-fr="Dernières cotisations">آخر المستحقات</h2><div id="dueSummary" class="muted">لا توجد بيانات بعد</div></div>
+<div class="card"><h2 data-ar="الاستحقاقات القادمة" data-fr="Prochaines compétitions">الاستحقاقات القادمة</h2><div id="eventSummary" class="muted">لا توجد بطولات مسجلة</div></div>
+</section>
+
+<section class="panel" id="p-athletes">
+<div class="card"><h2 data-ar="إضافة ملف ملاكم / تعديل البيانات" data-fr="Ajouter / modifier une fiche boxeur">إضافة ملف ملاكم / تعديل البيانات</h2>
+<form id="athForm"><input type="hidden" name="id"><div class="grid">
+<div><label data-ar="الاسم واللقب *" data-fr="Nom et prénom *">الاسم واللقب *</label><input name="name" required></div>
+<div><label data-ar="صورة الملاكم" data-fr="Photo du boxeur">صورة الملاكم</label><input type="file" id="photo" accept="image/*"></div>
+<div><label data-ar="تاريخ الميلاد" data-fr="Date de naissance">تاريخ الميلاد</label><input name="birth" type="date"></div>
+<div><label data-ar="الجنس" data-fr="Sexe">الجنس</label><select name="gender"><option value="ذكر">ذكر</option><option value="أنثى">أنثى</option></select></div>
+<div><label data-ar="الفئة الرياضية" data-fr="Catégorie sportive">الفئة الرياضية</label><select name="category"><option>كتاكيت</option><option>أصاغر</option><option>أشبال</option><option>أواسط</option><option>آمال</option><option>أكابر</option></select></div>
+<div><label data-ar="الوزن الحالي (كغ)" data-fr="Poids actuel (kg)">الوزن الحالي (كغ)</label><input name="weight" type="number" step=".1"></div>
+<div><label data-ar="الطول (سم)" data-fr="Taille (cm)">الطول (سم)</label><input name="height" type="number" step=".1"></div>
+<div><label data-ar="اليد المفضلة" data-fr="Garde">اليد المفضلة</label><select name="stance"><option>أيمن</option><option>أعسر</option></select></div>
+<div><label data-ar="رقم الهاتف" data-fr="Téléphone">رقم الهاتف</label><input name="phone"></div>
+<div><label data-ar="اسم ولي الأمر (للقصر)" data-fr="Nom du parent/tuteur (mineurs)">اسم ولي الأمر (للقصر)</label><input name="guardian"></div>
+<div><label data-ar="هاتف ولي الأمر" data-fr="Téléphone du parent/tuteur">هاتف ولي الأمر</label><input name="guardianPhone"></div>
+<div><label data-ar="تاريخ الانضمام" data-fr="Date d’adhésion">تاريخ الانضمام</label><input name="joined" type="date"></div>
+<div><label data-ar="الحالة" data-fr="Statut">الحالة</label><select name="status"><option value="نشط">نشط</option><option value="متوقف">متوقف</option><option value="مصاب">مصاب</option></select></div>
+<div><label data-ar="ملاحظات / معلومات إضافية" data-fr="Notes / informations complémentaires">ملاحظات / معلومات إضافية</label><input name="notes"></div>
+</div><button class="btn" type="submit" id="athSave">حفظ الملف</button><button class="btn light" type="button" id="athReset">تفريغ الخانات</button></form></div>
+<div class="card"><h2 data-ar="ملفات الملاكمين" data-fr="Fiches des boxeurs">ملفات الملاكمين</h2><div class="tablewrap"><table><thead><tr><th>الصورة</th><th>الاسم</th><th>الفئة</th><th>الوزن</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="athRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-dues">
+<div class="card"><h2 data-ar="تسجيل المستحقات الشهرية" data-fr="Enregistrer les cotisations mensuelles">تسجيل المستحقات الشهرية</h2>
+<form id="dueForm"><div class="grid">
+<div><label data-ar="الملاكم" data-fr="Boxeur">الملاكم</label><select name="athlete" id="dueAth" required></select></div>
+<div><label data-ar="الشهر" data-fr="Mois">الشهر</label><input type="month" name="month" required></div>
+<div><label data-ar="المبلغ المستحق (دج)" data-fr="Montant dû (DA)">المبلغ المستحق (دج)</label><input name="amount" type="number" min="0" required></div>
+<div><label data-ar="المبلغ المدفوع (دج)" data-fr="Montant payé (DA)">المبلغ المدفوع (دج)</label><input name="paid" type="number" min="0" value="0" required></div>
+<div><label data-ar="تاريخ الدفع" data-fr="Date de paiement">تاريخ الدفع</label><input name="date" type="date"></div>
+<div><label data-ar="طريقة الدفع" data-fr="Mode de paiement">طريقة الدفع</label><select name="method"><option>نقداً</option><option>تحويل</option><option>أخرى</option></select></div>
+</div><label style="margin-top:10px" data-ar="ملاحظات" data-fr="Notes">ملاحظات</label><input name="notes"><button class="btn" type="submit">حفظ المستحقات</button></form></div>
+<div class="card"><h2 data-ar="سجل المستحقات" data-fr="Historique des cotisations">سجل المستحقات</h2><div class="tablewrap"><table><thead><tr><th>الملاكم</th><th>الشهر</th><th>المستحق</th><th>المدفوع</th><th>الباقي</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="dueRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-progress">
+<div class="card"><h2 data-ar="تسجيل تقدم الملاكم والهدف" data-fr="Progression et objectifs du boxeur">تسجيل تقدم الملاكم والهدف</h2>
+<form id="progForm"><div class="grid">
+<div><label data-ar="الملاكم" data-fr="Boxeur">الملاكم</label><select name="athlete" id="progAth" required></select></div>
+<div><label data-ar="تاريخ التقييم" data-fr="Date d’évaluation">تاريخ التقييم</label><input name="date" type="date" required></div>
+<div><label data-ar="الهدف الرياضي" data-fr="Objectif sportif">الهدف الرياضي</label><input name="goal" placeholder="مثلاً تحسين التحمل أو الفوز ببطولة"></div>
+<div><label data-ar="الجري 1000م (ثانية)" data-fr="Course 1000 m (secondes)">الجري 1000م (ثانية)</label><input name="run" type="number"></div>
+<div><label data-ar="نط الحبل (عدد/دقيقة)" data-fr="Corde (répétitions/min)">نط الحبل (عدد/دقيقة)</label><input name="rope" type="number"></div>
+<div><label data-ar="اللكمات في 30 ثانية" data-fr="Coups en 30 secondes">اللكمات في 30 ثانية</label><input name="punch" type="number"></div>
+<div><label data-ar="الضغط (عدد)" data-fr="Pompes">الضغط (عدد)</label><input name="push" type="number"></div>
+<div><label data-ar="البطن (عدد)" data-fr="Abdominaux">البطن (عدد)</label><input name="sit" type="number"></div>
+<div><label data-ar="التقييم التقني /10" data-fr="Technique /10">التقييم التقني /10</label><input name="tech" type="number" min="0" max="10" step=".5"></div>
+<div><label data-ar="الوزن (كغ)" data-fr="Poids (kg)">الوزن (كغ)</label><input name="weight" type="number" step=".1"></div>
+</div><label style="margin-top:10px" data-ar="ملاحظات المدرب وخطة العمل" data-fr="Notes de l’entraîneur et plan de travail">ملاحظات المدرب وخطة العمل</label><textarea name="notes"></textarea><button class="btn" type="submit">حفظ التقدم</button></form></div>
+<div class="card"><h2 data-ar="سجل التقدم والأهداف" data-fr="Historique de progression et objectifs">سجل التقدم والأهداف</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الملاكم</th><th>الهدف</th><th>الجري</th><th>الحبل</th><th>اللكمات</th><th>التقني</th><th>إجراء</th></tr></thead><tbody id="progRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-events">
+<div class="card"><h2 data-ar="إضافة استحقاق أو بطولة رياضية" data-fr="Ajouter une compétition ou échéance sportive">إضافة استحقاق أو بطولة رياضية</h2>
+<form id="eventForm"><div class="grid">
+<div><label data-ar="نوع البطولة" data-fr="Type de compétition">نوع البطولة</label><select name="type" id="eventType"><option>بطولة ولائية</option><option>بطولة وطنية</option><option>كأس الجزائر</option><option>بطولة جهوية</option><option>دورة ودية</option><option value="custom">نوع آخر / إضافة نوع</option></select></div>
+<div id="customWrap" style="display:none"><label data-ar="اسم النوع الجديد" data-fr="Nom du nouveau type">اسم النوع الجديد</label><input name="customType"></div>
+<div><label data-ar="اسم البطولة" data-fr="Nom de la compétition">اسم البطولة</label><input name="name" required></div>
+<div><label data-ar="المكان" data-fr="Lieu">المكان</label><input name="place"></div>
+<div><label data-ar="تاريخ البداية" data-fr="Date de début">تاريخ البداية</label><input name="start" type="date"></div>
+<div><label data-ar="تاريخ النهاية" data-fr="Date de fin">تاريخ النهاية</label><input name="end" type="date"></div>
+<div><label data-ar="الملاكم المشارك (اختياري)" data-fr="Boxeur participant (facultatif)">الملاكم المشارك (اختياري)</label><select name="athlete" id="eventAth"><option value="">كل النادي / غير محدد</option></select></div>
+<div><label data-ar="النتيجة أو الميدالية" data-fr="Résultat ou médaille">النتيجة أو الميدالية</label><input name="result" placeholder="مشاركة، ذهبية، فضية، برونزية..."></div>
+<div><label data-ar="الحالة" data-fr="Statut">الحالة</label><select name="status"><option>مخطط لها</option><option>تمت</option><option>أُلغيت</option></select></div>
+</div><label style="margin-top:10px" data-ar="ملاحظات" data-fr="Notes">ملاحظات</label><textarea name="notes"></textarea><button class="btn" type="submit">حفظ البطولة</button></form></div>
+<div class="card"><h2 data-ar="رزنامة الاستحقاقات والنتائج" data-fr="Calendrier des compétitions et résultats">رزنامة الاستحقاقات والنتائج</h2><div class="tablewrap"><table><thead><tr><th>النوع</th><th>البطولة</th><th>المكان</th><th>التاريخ</th><th>الملاكم</th><th>النتيجة</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="eventRows"></tbody></table></div></div>
+</section>
+
+
+<section class="panel" id="p-attendance">
+<div class="card"><h2>تسجيل الحضور والغياب</h2>
+<form id="attendanceForm"><div class="grid">
+<div><label>الملاكم</label><select name="athlete" id="attAth" required></select></div>
+<div><label>تاريخ الحصة</label><input name="date" type="date" required></div>
+<div><label>الحالة</label><select name="status"><option>حاضر</option><option>غائب</option><option>متأخر</option><option>غياب مبرر</option></select></div>
+<div><label>الحصة / الفوج</label><input name="session" placeholder="مثلاً: فئة الأصاغر - 17:00"></div>
+</div><label style="margin-top:10px">ملاحظات</label><input name="notes"><button class="btn" type="submit">حفظ سجل الحضور</button></form></div>
+<div class="card"><h2>سجل الحضور</h2><div class="grid"><div><label>تصفية حسب الملاكم</label><select id="attFilter"><option value="">كل الملاكمين</option></select></div><div><label>تصفية حسب التاريخ</label><input id="attDateFilter" type="month"></div></div>
+<div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الملاكم</th><th>الحصة</th><th>الحالة</th><th>ملاحظات</th><th>إجراء</th></tr></thead><tbody id="attRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-rules">
+<div class="card">
+<div class="profile"><img src="assets/codm-logo.jpg" class="avatar" alt="شعار CODM"><div><h2>القانون الداخلي لنادي شباب أولمبيك ديدوش مراد للملاكمة</h2><p class="muted">الانضباط • الاحترام • العمل • التضحية • النجاح</p></div></div>
+<p>تُطبق هذه القواعد على جميع المنخرطين داخل القاعة وخارجها، مع مراعاة القوانين الرياضية والتنظيمية المعمول بها.</p>
+<div class="rules-grid">
+<div class="rule"><b>01 — احترام المدربين والطاقم</b><p>احترام المدربين والمسؤولين واجب على الجميع، والالتزام بتعليماتهم وأوامرهم داخل القاعة وخارجها.</p></div>
+<div class="rule"><b>02 — الالتزام بالبرنامج الرياضي</b><p>الالتزام بالبرنامج الرياضي المحدد من قبل المدرب وحضور جميع الحصص التدريبية المبرمجة بانتظام.</p></div>
+<div class="rule"><b>03 — إحضار اللوازم الرياضية</b><p>يجب على كل رياضي إحضار لوازمه الرياضية: البدلة الرياضية، قفاز رياضي، واقي الأسنان، قارورة ماء شخصية، كرة عند الحاجة.</p></div>
+<div class="rule"><b>04 — احترام مواقيت الحصة</b><p>يجب الحضور في الوقت المحدد. التأخر بـ15 دقيقة قد يؤدي إلى عدم السماح بالمشاركة في الحصة.</p></div>
+<div class="rule"><b>05 — المحافظة على نظافة القاعة</b><p>المحافظة على نظافة القاعة مسؤولية الجميع؛ يمنع رمي القمامة أو إتلاف أو إساءة استعمال معدات القاعة.</p></div>
+<div class="rule"><b>06 — الغياب المتكرر</b><p>الغياب المتكرر دون مبرر قد يؤدي إلى الاستبعاد من المشاركة في المنافسات الرسمية وعدم الاختيار ضمن القائمة.</p></div>
+<div class="rule"><b>07 — الغياب المبرر</b><p>في حالة المرض أو الإصابة أو وجود ظرف قاهر، يجب إبلاغ المدرب أو إدارة النادي في أقرب وقت ممكن.</p></div>
+<div class="rule"><b>08 — السلامة داخل القاعة</b><p>الالتزام بتعليمات المدرب واستعمال معدات الحماية. يمنع القيام بأي تمرين أو منازلة دون إذن المدرب.</p></div>
+<div class="rule"><b>09 — السلوك والانضباط</b><p>احترام الزملاء داخل القاعة ومنع الشجار والتنمر والألفاظ النابية أو أي تصرف غير رياضي.</p></div>
+<div class="rule"><b>10 — الهاتف والأجهزة الإلكترونية</b><p>يمنع استعمال الهاتف أثناء الحصة التدريبية إلا بإذن المدرب، ويوضع في الوضع الصامت.</p></div>
+<div class="rule"><b>11 — الممنوعات</b><p>يمنع التدخين أو تناول أو إدخال أي مواد ممنوعة أو أدوات خطرة أو غير مرتبطة بالتدريب.</p></div>
+<div class="rule"><b>12 — احترام المنافسات</b><p>تمثيل النادي بصورة مشرفة، واحترام الحكام والمنافسين والجمهور والالتزام بتعليمات المدرب أثناء المنافسات.</p></div>
+<div class="rule"><b>13 — العقوبات التأديبية</b><p>عند مخالفة القانون الداخلي، يمكن اتخاذ إجراءات تأديبية متدرجة: تنبيه شفهي، إنذار، حرمان من حصة أو نشاط أو منافسة، أو إحالة إلى إدارة النادي.</p></div>
+<div class="rule"><b>14 — المسؤولية والالتزام</b><p>تسجيل الرياضي في النادي موافقة منه، أو من ولي أمره بالنسبة للقصر، على احترام القانون الداخلي والالتزام بتعليمات المدربين.</p></div>
+<div class="rule"><b>15 — شروط المشاركة في المنافسات الرسمية</b><p>لا يعتمد الاختيار على المستوى الفني فقط، بل يؤخذ بعين الاعتبار: الحضور والمواظبة، الانضباط، الالتزام بالبرنامج، الجاهزية البدنية والفنية، السلوك الرياضي، واحترام قوانين النادي والاتحادية والبطولة.</p></div>
+</div>
+<div class="notice" style="margin-top:14px">الرياضة أخلاق وانضباط قبل أن تكون منافسة — الاحترام • الانضباط • العمل • التضحية • النجاح</div>
+<button class="btn" onclick="window.print()">طباعة القانون الداخلي</button>
+</div>
+</section>
+
+<section class="panel" id="p-backup">
+<div class="card"><h2 data-ar="النسخ الاحتياطي واستعادة البيانات" data-fr="Sauvegarde et restauration">النسخ الاحتياطي واستعادة البيانات</h2>
+<p class="muted" data-ar="تتضمن النسخة الاحتياطية ملفات الملاكمين وصورهم والمستحقات والتقدم والبطولات." data-fr="La sauvegarde inclut les fiches, photos, cotisations, progressions et compétitions.">تتضمن النسخة الاحتياطية ملفات الملاكمين وصورهم والمستحقات والتقدم والبطولات.</p>
+<button class="btn" id="export">تصدير نسخة احتياطية</button><div style="margin-top:16px"><label data-ar="اختيار ملف نسخة احتياطية" data-fr="Choisir un fichier de sauvegarde">اختيار ملف نسخة احتياطية</label><input type="file" id="importFile" accept=".json"><button class="btn secondary" id="import">استعادة النسخة</button></div>
+<button class="btn light" onclick="window.print()">طباعة الصفحة الحالية</button></div>
+</section>
+</main>
+<script>
+const KEY='CODM_CLUB_MANAGER_V2';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"athletes":[],"dues":[],"progress":[],"events":[],"attendance":[]}');
+if(!Array.isArray(db.attendance))db.attendance=[];
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10), month=()=>today().slice(0,7), name=id=>db.athletes.find(a=>a.id===id)?.name||'—';
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function nav(id){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='p-'+id))}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>nav(b.dataset.p));
+function fillSelects(){let opts=db.athletes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');['dueAth','progAth','attAth'].forEach(id=>$('#'+id).innerHTML=opts||'<option value="">أضيفي ملاكماً أولاً</option>');$('#attFilter').innerHTML='<option value="">كل الملاكمين</option>'+opts;$('#eventAth').innerHTML='<option value="">كل النادي / غير محدد</option>'+opts}
+function render(){
+ fillSelects();$('#sAth').textContent=db.athletes.length;$('#sEvents').textContent=db.events.length;
+ let cur=db.dues.filter(d=>d.month===month());$('#sPaid').textContent=cur.filter(d=>+d.paid>=+d.amount).length;$('#sUnpaid').textContent=cur.filter(d=>+d.paid<+d.amount).length;
+ $('#attRows').innerHTML=db.attendance.filter(a=>(!$('#attFilter').value||a.athlete===$('#attFilter').value)&&(!$('#attDateFilter').value||a.date.startsWith($('#attDateFilter').value))).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(a=>`<tr><td>${esc(a.date)}</td><td>${esc(name(a.athlete))}</td><td>${esc(a.session||'—')}</td><td>${esc(a.status)}</td><td>${esc(a.notes||'—')}</td><td><button class="btn tiny danger" onclick="del('attendance','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد سجلات حضور بعد</td></tr>';
+ $('#athRows').innerHTML=db.athletes.map(a=>`<tr><td>${a.photo?`<img src="${a.photo}" class="avatar">`:'—'}</td><td>${esc(a.name)}</td><td>${esc(a.category)}</td><td>${esc(a.weight||'—')}</td><td>${esc(a.status)}</td><td><button class="btn tiny light" onclick="editAth('${a.id}')">تعديل</button><button class="btn tiny secondary" onclick="printAth('${a.id}')">طباعة</button><button class="btn tiny danger" onclick="del('athletes','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد ملفات ملاكمين</td></tr>';
+ $('#dueRows').innerHTML=db.dues.slice().sort((a,b)=>b.month.localeCompare(a.month)).map(d=>`<tr><td>${esc(name(d.athlete))}</td><td>${esc(d.month)}</td><td>${d.amount}</td><td>${d.paid}</td><td>${Math.max(0,+d.amount-+d.paid)}</td><td><span class="pill ${+d.paid<+d.amount?'no':''}">${+d.paid>=+d.amount?'مدفوع':'متبقي'}</span></td><td><button class="btn tiny danger" onclick="del('dues','${d.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا توجد مستحقات</td></tr>';
+ $('#progRows').innerHTML=db.progress.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<tr><td>${esc(p.date)}</td><td>${esc(name(p.athlete))}</td><td>${esc(p.goal||'—')}</td><td>${esc(p.run||'—')}</td><td>${esc(p.rope||'—')}</td><td>${esc(p.punch||'—')}</td><td>${esc(p.tech||'—')}</td><td><button class="btn tiny danger" onclick="del('progress','${p.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">لا توجد تقييمات</td></tr>';
+ $('#eventRows').innerHTML=db.events.slice().sort((a,b)=>(a.start||'').localeCompare(b.start||'')).map(e=>`<tr><td>${esc(e.type)}</td><td>${esc(e.name)}</td><td>${esc(e.place||'—')}</td><td>${esc(e.start||'—')} ${e.end?'→ '+esc(e.end):''}</td><td>${esc(name(e.athlete)||'كل النادي')}</td><td>${esc(e.result||'—')}</td><td>${esc(e.status)}</td><td><button class="btn tiny danger" onclick="del('events','${e.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">لا توجد بطولات مسجلة</td></tr>';
+ $('#dueSummary').textContent=cur.length?`عدد سجلات هذا الشهر: ${cur.length} | المبالغ المتبقية: ${cur.reduce((s,d)=>s+Math.max(0,+d.amount-+d.paid),0)} دج`:'لا توجد بيانات لهذا الشهر';
+ let upcoming=db.events.filter(e=>e.start>=today()&&e.status==='مخطط لها').sort((a,b)=>a.start.localeCompare(b.start));$('#eventSummary').innerHTML=upcoming.length?upcoming.map(e=>`<p>${esc(e.start)} — <b>${esc(e.name)}</b> (${esc(e.type)})</p>`).join(''):'لا توجد بطولات قادمة مسجلة';
+}
+$('#attFilter').onchange=render;$('#attDateFilter').onchange=render;
+$('#attendanceForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.attendance.push({id:String(Date.now()),athlete:f.get('athlete'),date:f.get('date'),status:f.get('status'),session:f.get('session'),notes:f.get('notes')});e.target.reset();$('#attendanceForm [name=date]').value=today();save();alert('تم حفظ الحضور')};
+$('#athForm').onsubmit=async e=>{e.preventDefault();let f=new FormData(e.target),id=f.get('id')||String(Date.now()),old=db.athletes.find(a=>a.id===id),photo=old?.photo||'';let file=$('#photo').files[0];if(file)photo=await resizePhoto(file);let a={id,name:f.get('name'),birth:f.get('birth'),gender:f.get('gender'),category:f.get('category'),weight:f.get('weight'),height:f.get('height'),stance:f.get('stance'),phone:f.get('phone'),guardian:f.get('guardian'),guardianPhone:f.get('guardianPhone'),joined:f.get('joined'),status:f.get('status'),notes:f.get('notes'),photo};let i=db.athletes.findIndex(x=>x.id===id);if(i>=0)db.athletes[i]=a;else db.athletes.push(a);e.target.reset();$('#photo').value='';save();alert('تم حفظ ملف الملاكم')};
+async function resizePhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),scale=Math.min(1,500/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};im.onerror=reject;im.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+window.editAth=id=>{let a=db.athletes.find(x=>x.id===id),f=$('#athForm');Object.keys(a).forEach(k=>{if(f.elements[k]&&k!=='photo')f.elements[k].value=a[k]??''});nav('athletes');window.scrollTo(0,0)};
+window.del=(table,id)=>{if(confirm('هل تريدين حذف هذا السجل؟')){db[table]=db[table].filter(x=>x.id!==id);save()}};
+window.printAth=id=>{let a=db.athletes.find(x=>x.id===id),d=db.dues.filter(x=>x.athlete===id),p=db.progress.filter(x=>x.athlete===id),ev=db.events.filter(x=>x.athlete===id);let w=window.open('','_blank');w.document.write(`<html dir="rtl"><meta charset="utf-8"><body style="font-family:Tahoma;padding:25px"><h2>شباب أولمبيك ديدوش مراد للملاكمة CODM</h2>${a.photo?`<img src="${a.photo}" width="110">`:''}<h3>${esc(a.name)}</h3><p>الميلاد: ${esc(a.birth)} | الفئة: ${esc(a.category)} | الوزن: ${esc(a.weight)} كغ | الطول: ${esc(a.height)} سم</p><p>الهاتف: ${esc(a.phone)} | ولي الأمر: ${esc(a.guardian)} ${esc(a.guardianPhone)}</p><h3>المستحقات</h3>${d.map(x=>`<p>${esc(x.month)}: ${x.paid}/${x.amount} دج</p>`).join('')}<h3>التقدم والأهداف</h3>${p.map(x=>`<p>${esc(x.date)} — ${esc(x.goal)} | تقني: ${esc(x.tech)}</p>`).join('')}<h3>البطولات</h3>${ev.map(x=>`<p>${esc(x.type)}: ${esc(x.name)} — ${esc(x.result)}</p>`).join('')}<script>window.print()<\/script></body></html>`);w.document.close()};
+$('#athReset').onclick=()=>{$('#athForm').reset();$('#photo').value=''};
+$('#dueForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.dues.push({id:String(Date.now()),athlete:f.get('athlete'),month:f.get('month'),amount:f.get('amount'),paid:f.get('paid'),date:f.get('date'),method:f.get('method'),notes:f.get('notes')});e.target.reset();$('#dueForm [name=month]').value=month();save();alert('تم حفظ المستحقات')};
+$('#progForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),o={id:String(Date.now())};for(let [k,v] of f)o[k]=v;db.progress.push(o);e.target.reset();$('#progForm [name=date]').value=today();save();alert('تم حفظ التقدم')};
+$('#eventType').onchange=()=>$('#customWrap').style.display=$('#eventType').value==='custom'?'block':'none';
+$('#eventForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),type=f.get('type')==='custom'?f.get('customType'):f.get('type');if(!type)return alert('اكتبي نوع البطولة');db.events.push({id:String(Date.now()),type,name:f.get('name'),place:f.get('place'),start:f.get('start'),end:f.get('end'),athlete:f.get('athlete'),result:f.get('result'),status:f.get('status'),notes:f.get('notes')});e.target.reset();$('#customWrap').style.display='none';save();alert('تم حفظ البطولة')};
+$('#export').onclick=()=>{let blob=new Blob([JSON.stringify(db)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='CODM-club-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('#import').onclick=()=>{let file=$('#importFile').files[0];if(!file)return alert('اختاري ملف النسخة أولاً');let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d.athletes||!d.dues||!d.progress||!d.events)throw 0;if(confirm('سيتم استبدال البيانات الحالية. متابعة؟')){db=d;save();alert('تمت الاستعادة')}}catch(e){alert('ملف النسخة غير صالح')}};r.readAsText(file)};
+const translations=[['شباب أولمبيك ديدوش مراد للملاكمة','Jeunesse Olympique Didouche Mourad – Boxe'],['نظام إدارة النادي ومتابعة الملاكمين والاستحقاقات الرياضية','Gestion du club, suivi des boxeurs et échéances sportives'],['لوحة النادي','Tableau du club'],['ملفات الملاكمين','Dossiers des boxeurs'],['المستحقات الشهرية','Cotisations mensuelles'],['التقدم والأهداف','Progression et objectifs'],['البطولات والاستحقاقات','Compétitions et échéances'],['النسخ الاحتياطي','Sauvegarde'],['إضافة ملف ملاكم / تعديل البيانات','Ajouter / modifier un dossier'],['الاسم واللقب','Nom et prénom'],['صورة الملاكم','Photo du boxeur'],['تاريخ الميلاد','Date de naissance'],['الفئة الرياضية','Catégorie sportive'],['الوزن الحالي','Poids actuel'],['الطول','Taille'],['رقم الهاتف','Téléphone'],['اسم ولي الأمر (للقصر)','Parent/tuteur (mineurs)'],['تاريخ الانضمام','Date d’adhésion'],['ملاحظات / معلومات إضافية','Notes / informations complémentaires'],['حفظ الملف','Enregistrer le dossier'],['تسجيل المستحقات الشهرية','Enregistrer les cotisations'],['المبلغ المستحق (دج)','Montant dû (DA)'],['المبلغ المدفوع (دج)','Montant payé (DA)'],['تاريخ الدفع','Date de paiement'],['طريقة الدفع','Mode de paiement'],['نقداً','Espèces'],['تحويل','Virement'],['سجل المستحقات','Historique des cotisations'],['المستحقات','Dû'],['المدفوع','Payé'],['الباقي','Reste'],['تسجيل تقدم الملاكم والهدف','Enregistrer la progression et l’objectif'],['الهدف الرياضي','Objectif sportif'],['الجري 1000م','Course 1000 m'],['نط الحبل','Corde à sauter'],['اللكمات في 30 ثانية','Coups en 30 secondes'],['التقييم التقني','Évaluation technique'],['ملاحظات المدرب وخطة العمل','Notes de l’entraîneur et plan de travail'],['إضافة استحقاق أو بطولة رياضية','Ajouter une compétition'],['بطولة ولائية','Championnat de wilaya'],['بطولة وطنية','Championnat national'],['كأس الجزائر','Coupe d’Algérie'],['بطولة جهوية','Championnat régional'],['دورة ودية','Tournoi amical'],['نوع آخر / إضافة نوع','Autre type / ajouter'],['اسم النوع الجديد','Nom du nouveau type'],['اسم البطولة','Nom de la compétition'],['المكان','Lieu'],['تاريخ البداية','Date de début'],['تاريخ النهاية','Date de fin'],['الملاكم المشارك (اختياري)','Boxeur participant (facultatif)'],['النتيجة أو الميدالية','Résultat ou médaille'],['مخطط لها','Planifiée'],['تمت','Terminée'],['أُلغيت','Annulée'],['حفظ البطولة','Enregistrer la compétition'],['رزنامة الاستحقاقات والنتائج','Calendrier des compétitions et résultats'],['إجمالي الملاكمين','Total des boxeurs'],['البطولات المسجلة','Compétitions enregistrées'],['آخر المستحقات','Dernières cotisations'],['الاستحقاقات القادمة','Prochaines échéances'],['تصدير نسخة احتياطية','Exporter une sauvegarde'],['استعادة النسخة','Restaurer la sauvegarde']];
+let lang='ar';function setLang(l){if(lang===l)return;let pairs=l==='fr'?translations:translations.map(x=>[x[1],x[0]]);let walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode()){for(let [a,b] of pairs)n.nodeValue=n.nodeValue.split(a).join(b)}document.documentElement.lang=l;document.documentElement.dir=l==='fr'?'ltr':'rtl';lang=l;$('#arBtn').style.opacity=l==='ar'?1:.65;$('#frBtn').style.opacity=l==='fr'?1:.65;localStorage.setItem('CODMlang',l)}
+$('#arBtn').onclick=()=>setLang('ar');$('#frBtn').onclick=()=>setLang('fr');
+$('#dueForm [name=month]').value=month();$('#progForm [name=date]').value=today();$('#attendanceForm [name=date]').value=today();render();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+</script></body></html>
