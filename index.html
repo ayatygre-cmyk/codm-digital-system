@@ -350,9 +350,20 @@ function renderAnnouncements(){
 }
 async function loadAnnouncements(){
  const host=document.getElementById('announcementList');
- const {data,error}=await sb.from('announcements').select('*').order('created_at',{ascending:false});
- if(error){host.innerHTML='<p class="empty">تعذر تحميل الإعلانات: '+esc(error.message)+'</p>';return}
- announcementRows=data||[];renderAnnouncements();
+ host.innerHTML='<p class="muted">جارٍ تحميل الإعلانات...</p>';
+ let timeoutId;
+ try{
+  const request=sb.from('announcements').select('*').order('created_at',{ascending:false}).limit(100);
+  const timeout=new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('استغرق الاتصال أكثر من 15 ثانية. تحققي من الاتصال ثم أعيدي المحاولة.')),15000)});
+  const {data,error}=await Promise.race([request,timeout]);
+  if(error)throw error;
+  announcementRows=data||[];
+  renderAnnouncements();
+ }catch(err){
+  console.error('CODM announcements:',err);
+  host.innerHTML='<div class="empty"><p>تعذر تحميل الإعلانات: '+esc(err.message||err)+'</p><button class="btn tiny" type="button" id="retryAnnouncements">إعادة تحميل الإعلانات</button></div>';
+  document.getElementById('retryAnnouncements')?.addEventListener('click',loadAnnouncements);
+ }finally{if(timeoutId)clearTimeout(timeoutId)}
 }
 window.editAnnouncement=function(id){
  if(!codmUser){alert('يجب تسجيل الدخول بحساب الإدارة لتعديل الإعلان.');return}
@@ -470,7 +481,17 @@ async function authenticate(){
  if(pe)throw pe;if(!p){await sb.auth.signOut();showGate('هذا الحساب غير مربوط بملف في جدول profiles. يجب أن يربطه مسؤول النادي أولاً.');return}
  codmProfile=p;
  if(!['president','coach'].includes(p.role)){await sb.auth.signOut();showGate('هذه الواجهة الإدارية مخصصة لحساب الرئيس والمدرب. يمكن للزوار استعمال الواجهة العامة.');return}
- showApp();await loadRemote();await syncAll();await loadAnnouncements();await loadMembershipRequests();
+ showApp();
+ // تحميل الإعلانات فوراً حتى لا تنتظر انتهاء مزامنة الجداول الأخرى.
+ const announcementsTask=loadAnnouncements();
+ const requestsTask=loadMembershipRequests();
+ // تحميل ومزامنة بيانات النادي في الخلفية دون تعطيل عرض الإعلانات.
+ loadRemote().then(()=>syncAll()).catch(err=>{
+  console.error('CODM remote data loading:',err);
+  const status=document.getElementById('announcementStatus');
+  if(status)status.textContent='تم فتح الإدارة، لكن تعذرت مزامنة بعض بيانات النادي: '+(err.message||err);
+ });
+ await Promise.allSettled([announcementsTask,requestsTask]);
 }
 document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ تسجيل الدخول...';try{const {error}=await sb.auth.signInWithPassword({email:document.getElementById('loginEmail').value.trim(),password:document.getElementById('loginPassword').value});if(error)throw error;await authenticate()}catch(err){authMsg.textContent='تعذر الدخول: '+err.message}finally{b.disabled=false}});
 document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();codmUser=null;showGate('تم تسجيل الخروج.')};
