@@ -162,7 +162,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 </section>
 
 <section class="panel" id="p-announcements">
-<div class="card"><h2>نشر إعلان جديد</h2>
+<div class="card"><h2 id="announcementFormHeading">نشر إعلان جديد</h2>
 <form id="announcementForm"><div class="grid">
 <div><label>عنوان الإعلان *</label><input name="title" required maxlength="150" placeholder="مثلاً: برنامج تدريبات الملاكمة لفئة الإناث"></div>
 <div><label>نوع الإعلان *</label><select name="type" required>
@@ -175,7 +175,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <div><label>المكان (اختياري)</label><input name="location" placeholder="قاعة النادي"></div>
 <div style="grid-column:1/-1"><label>تفاصيل الإعلان</label><textarea name="details" placeholder="اكتبي تفاصيل الإعلان هنا"></textarea></div>
 <div style="grid-column:1/-1"><label>صورة الإعلان (اختياري)</label><input id="announcementImage" type="file" accept="image/png,image/jpeg,image/webp"><p class="muted">الصيغ المقبولة: JPG وPNG وWEBP، بحد أقصى 5 ميغابايت.</p><img id="announcementPreview" alt="معاينة الصورة" style="display:none;max-width:100%;max-height:260px;object-fit:contain;border-radius:10px;border:1px solid var(--line)"></div>
-</div><button class="btn" type="submit" id="announcementSubmit">نشر الإعلان</button><button class="btn light" type="reset" id="announcementReset">تفريغ الخانات</button><p id="announcementStatus" class="muted" role="status"></p></form></div>
+</div><button class="btn" type="submit" id="announcementSubmit">نشر الإعلان</button><button class="btn light" type="reset" id="announcementReset">تفريغ الخانات</button><button class="btn secondary" type="button" id="announcementCancelEdit" style="display:none">إلغاء التعديل</button><p id="announcementStatus" class="muted" role="status"></p></form></div>
 <div class="card"><h2>إعلانات النادي</h2><div id="announcementList" class="grid"><p class="muted">جارٍ تحميل الإعلانات...</p></div></div>
 </section>
 
@@ -324,10 +324,28 @@ const originalDelete=window.del;window.del=async function(table,id){if(!confirm(
 // === CODM announcements with Supabase Storage ===
 const ANNOUNCEMENT_BUCKET='codm-announcements';
 let announcementRows=[];
+let editingAnnouncementId=null;
+const announcementForm=document.getElementById('announcementForm');
+const announcementInput=document.getElementById('announcementImage');
+const announcementPreview=document.getElementById('announcementPreview');
+const announcementSubmit=document.getElementById('announcementSubmit');
+const announcementStatus=document.getElementById('announcementStatus');
+const announcementCancelEdit=document.getElementById('announcementCancelEdit');
+function resetAnnouncementEditor(clearStatus=true){
+ editingAnnouncementId=null;
+ announcementForm.reset();
+ announcementInput.value='';
+ announcementPreview.style.display='none';announcementPreview.removeAttribute('src');
+ document.getElementById('announcementFormHeading').textContent='نشر إعلان جديد';
+ announcementSubmit.textContent='نشر الإعلان';
+ announcementCancelEdit.style.display='none';
+ if(clearStatus)announcementStatus.textContent='';
+}
 function renderAnnouncements(){
  const host=document.getElementById('announcementList');
  if(!announcementRows.length){host.innerHTML='<p class="empty">لا توجد إعلانات منشورة بعد.</p>';return}
- host.innerHTML=announcementRows.map(a=>`<article class="card" style="margin:0;min-width:0"><h3>${esc(a.title)}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')} ${a.event_date?' • '+esc(new Date(a.event_date).toLocaleString('ar-DZ')):''} ${a.location?' • '+esc(a.location):''}</p>${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title)}" loading="lazy" style="width:100%;max-height:360px;object-fit:contain;border-radius:9px;background:#f3f4f6">`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}</article>`).join('');
+ const canEdit=!!(codmProfile&&['president','coach'].includes(codmProfile.role));
+ host.innerHTML=announcementRows.map(a=>`<article class="card" style="margin:0;min-width:0"><h3>${esc(a.title)}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')} ${a.event_date?' • '+esc(new Date(a.event_date).toLocaleString('ar-DZ')):''} ${a.location?' • '+esc(a.location):''}</p>${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title)}" loading="lazy" style="width:100%;max-height:360px;object-fit:contain;border-radius:9px;background:#f3f4f6">`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}${canEdit?`<div class="no-print"><button class="btn tiny secondary" type="button" onclick="editAnnouncement('${esc(a.id)}')">تعديل الإعلان</button></div>`:''}</article>`).join('');
 }
 async function loadAnnouncements(){
  const host=document.getElementById('announcementList');
@@ -335,22 +353,51 @@ async function loadAnnouncements(){
  if(error){host.innerHTML='<p class="empty">تعذر تحميل الإعلانات: '+esc(error.message)+'</p>';return}
  announcementRows=data||[];renderAnnouncements();
 }
-const announcementInput=document.getElementById('announcementImage');
-announcementInput.addEventListener('change',()=>{const f=announcementInput.files[0],preview=document.getElementById('announcementPreview');if(!f){preview.style.display='none';preview.removeAttribute('src');return}if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){alert('اختاري صورة JPG أو PNG أو WEBP لا يتجاوز حجمها 5 ميغابايت.');announcementInput.value='';preview.style.display='none';return}preview.src=URL.createObjectURL(f);preview.style.display='block'});
-document.getElementById('announcementForm').addEventListener('submit',async e=>{
- e.preventDefault();if(!codmUser)return alert('يجب تسجيل الدخول أولاً.');
- const form=e.currentTarget,fd=new FormData(form),btn=document.getElementById('announcementSubmit'),status=document.getElementById('announcementStatus');
- const file=announcementInput.files[0];if(file&&(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024))return alert('الصورة غير مقبولة أو حجمها أكبر من 5 ميغابايت.');
- btn.disabled=true;status.textContent='جارٍ نشر الإعلان...';let imageUrl=null,uploadedPath=null;
+window.editAnnouncement=function(id){
+ if(!codmProfile||!['president','coach'].includes(codmProfile.role)){alert('تعديل الإعلانات متاح للرئيس والمدرب فقط.');return}
+ const a=announcementRows.find(item=>String(item.id)===String(id));if(!a)return alert('لم نعثر على الإعلان المطلوب. حدّث قائمة الإعلانات وحاول مجدداً.');
+ editingAnnouncementId=a.id;
+ announcementForm.elements.title.value=a.title||'';
+ announcementForm.elements.type.value=a.announcement_type||'general';
+ announcementForm.elements.date.value=a.event_date?(()=>{const d=new Date(a.event_date);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)})():'';
+ announcementForm.elements.location.value=a.location||'';
+ announcementForm.elements.details.value=a.details||'';
+ announcementInput.value='';
+ if(a.image_url){announcementPreview.src=a.image_url;announcementPreview.style.display='block'}else{announcementPreview.removeAttribute('src');announcementPreview.style.display='none'}
+ document.getElementById('announcementFormHeading').textContent='تعديل الإعلان';
+ announcementSubmit.textContent='حفظ التعديلات';
+ announcementCancelEdit.style.display='inline-block';
+ announcementStatus.textContent='عدّل البيانات المطلوبة، ثم اضغط حفظ التعديلات.';
+ announcementForm.scrollIntoView({behavior:'smooth',block:'start'});
+};
+announcementInput.addEventListener('change',()=>{const f=announcementInput.files[0];if(!f){const old=announcementRows.find(a=>String(a.id)===String(editingAnnouncementId));if(old&&old.image_url){announcementPreview.src=old.image_url;announcementPreview.style.display='block'}else{announcementPreview.style.display='none';announcementPreview.removeAttribute('src')}return}if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){alert('اختاري صورة JPG أو PNG أو WEBP لا يتجاوز حجمها 5 ميغابايت.');announcementInput.value='';const old=announcementRows.find(a=>String(a.id)===String(editingAnnouncementId));if(old&&old.image_url){announcementPreview.src=old.image_url;announcementPreview.style.display='block'}else{announcementPreview.style.display='none'}return}announcementPreview.src=URL.createObjectURL(f);announcementPreview.style.display='block'});
+announcementForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(!codmUser||!codmProfile)return alert('يجب تسجيل الدخول أولاً.');
+ const fd=new FormData(announcementForm),file=announcementInput.files[0];
+ if(file&&(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024))return alert('الصورة غير مقبولة أو حجمها أكبر من 5 ميغابايت.');
+ const isEditing=!!editingAnnouncementId;
+ announcementSubmit.disabled=true;announcementStatus.textContent=isEditing?'جارٍ حفظ تعديلات الإعلان...':'جارٍ نشر الإعلان...';
+ let imageUrl=null,uploadedPath=null;
  try{
+  const oldRecord=isEditing?announcementRows.find(a=>String(a.id)===String(editingAnnouncementId)):null;
+  imageUrl=oldRecord?.image_url||null;
   if(file){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';uploadedPath=`${codmUser.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;const up=await sb.storage.from(ANNOUNCEMENT_BUCKET).upload(uploadedPath,file,{contentType:file.type,upsert:false});if(up.error)throw up.error;imageUrl=sb.storage.from(ANNOUNCEMENT_BUCKET).getPublicUrl(uploadedPath).data.publicUrl;}
-  const eventDate=fd.get('date');const payload={title:String(fd.get('title')).trim(),announcement_type:fd.get('type'),details:String(fd.get('details')||'').trim()||null,event_date:eventDate?new Date(eventDate).toISOString():null,location:String(fd.get('location')||'').trim()||null,created_by:codmProfile.id,image_url:imageUrl};
-  const ins=await sb.from('announcements').insert(payload).select('*').single();if(ins.error)throw ins.error;
-  announcementRows.unshift(ins.data);renderAnnouncements();form.reset();document.getElementById('announcementPreview').style.display='none';status.textContent='تم نشر الإعلان بنجاح.';
- }catch(err){if(uploadedPath){try{await sb.storage.from(ANNOUNCEMENT_BUCKET).remove([uploadedPath])}catch{}}status.textContent='تعذر نشر الإعلان: '+(err.message||err);alert(status.textContent)}finally{btn.disabled=false}
+  const eventDate=fd.get('date');
+  const payload={title:String(fd.get('title')).trim(),announcement_type:fd.get('type'),details:String(fd.get('details')||'').trim()||null,event_date:eventDate?new Date(eventDate).toISOString():null,location:String(fd.get('location')||'').trim()||null,image_url:imageUrl};
+  let saved;
+  if(isEditing){
+   const upd=await sb.from('announcements').update(payload).eq('id',editingAnnouncementId).select('*').single();if(upd.error)throw upd.error;saved=upd.data;
+   announcementRows=announcementRows.map(a=>String(a.id)===String(editingAnnouncementId)?saved:a);
+  }else{
+   payload.created_by=codmProfile.id;
+   const ins=await sb.from('announcements').insert(payload).select('*').single();if(ins.error)throw ins.error;saved=ins.data;
+   announcementRows.unshift(saved);
+  }
+  renderAnnouncements();resetAnnouncementEditor(false);announcementStatus.textContent=isEditing?'تم حفظ تعديلات الإعلان بنجاح.':'تم نشر الإعلان بنجاح.';
+ }catch(err){if(uploadedPath){try{await sb.storage.from(ANNOUNCEMENT_BUCKET).remove([uploadedPath])}catch{}}announcementStatus.textContent=(isEditing?'تعذر تعديل الإعلان: ':'تعذر نشر الإعلان: ')+(err.message||err);alert(announcementStatus.textContent)}finally{announcementSubmit.disabled=false}
 });
-document.getElementById('announcementReset').addEventListener('click',()=>{document.getElementById('announcementPreview').style.display='none';document.getElementById('announcementStatus').textContent=''});
-
+document.getElementById('announcementReset').addEventListener('click',()=>{resetAnnouncementEditor(true)});
+announcementCancelEdit.addEventListener('click',()=>{resetAnnouncementEditor(true)});
 // إدارة طلبات الانضمام: متاحة فقط لحسابات الرئيس والمدرب، وتخضع لسياسات RLS في Supabase.
 let membershipRequestRows=[];
 function renderMembershipRequests(){
