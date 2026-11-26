@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101319"><link rel="manifest" href="manifest.json"><link rel="icon" href="assets/codm-logo.jpg">
+<title>CODM DIGITAL SYSTEM | شباب أولمبيك ديدوش مراد</title>
+<style>
+:root{--navy:#101319;--red:#c62828;--gold:#c8a45d;--bg:#f3f4f6;--line:#e2e7ee;--muted:#667085;--green:#16804a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#17202d;font-family:Tahoma,Arial,sans-serif}
+header{background:linear-gradient(120deg,#090b0f,#262a31 65%,#7d1717);color:white;border-bottom:4px solid var(--gold);padding:20px max(16px,calc((100% - 1180px)/2))}
+.head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:15px}.brand img{width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid var(--gold);background:#fff;box-shadow:0 4px 18px #0007}.brand h1{letter-spacing:.2px}.eyebrow{color:#e8c981;font-size:11px;letter-spacing:2px;margin-bottom:5px}h1{font-size:23px;margin:0 0 6px}header p{margin:0;color:#d8e1ee;font-size:13px}
+main{max-width:1180px;margin:20px auto;padding:0 14px}.warning{background:#fff7e6;border:1px solid #f3d58b;padding:11px 13px;border-radius:10px;font-size:13px;margin-bottom:14px}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}button{cursor:pointer;border:0;border-radius:8px;padding:10px 13px;font:inherit;font-weight:bold;background:#e7ebf1;color:#24364e}nav button.active{background:var(--navy);color:white}
+.panel{display:none}.panel.active{display:block}.card{background:white;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #1428440a}
+h2{font-size:18px;margin:0 0 13px}h3{font-size:15px;margin:0 0 10px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:11px}
+label{display:block;font-size:12px;color:#475467;margin:0 0 5px}input,select,textarea{width:100%;padding:10px;border:1px solid #cbd3df;border-radius:8px;font:inherit;font-size:13px;background:#fff;color:#17202d}textarea{min-height:72px;resize:vertical}
+.btn{background:var(--red);color:white;margin-top:10px}.btn.secondary{background:var(--navy)}.btn.light{background:#e8edf4;color:#24364e}.btn.danger{background:#a4262c}.btn.tiny{padding:6px 8px;font-size:11px;margin:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.stat{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px;font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:25px;color:var(--navy);margin-top:5px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}td,th{text-align:right;padding:9px;border-bottom:1px solid var(--line)}th{background:#f7f9fc;color:#475467}
+.pill{display:inline-block;padding:4px 8px;border-radius:30px;background:#e9f7ef;color:#146c43;font-size:11px}.pill.no{background:#fff0ee;color:#a4262c}
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}.rule{border:1px solid var(--line);border-right:4px solid var(--red);border-radius:10px;padding:12px;background:#fff}.rule b{color:#9f2020;font-size:14px}.rule p{font-size:13px;line-height:1.7;margin:7px 0 0;color:#475467}
+.profile{display:flex;gap:14px;align-items:center;margin-bottom:12px}.avatar{width:76px;height:76px;border-radius:12px;object-fit:cover;background:#edf1f6;border:1px solid var(--line)}.muted{color:var(--muted);font-size:12px}.empty{text-align:center;padding:20px;color:var(--muted)}
+canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
+@media print{header,nav,.warning,.no-print{display:none!important}body{background:#fff}.panel{display:none!important}.panel.active{display:block!important}.card{box-shadow:none}}
+</style></head>
+<body>
+<div id="authGate" style="position:fixed;inset:0;z-index:9999;background:#101319ee;display:flex;align-items:center;justify-content:center;padding:18px">
+ <div style="background:#fff;max-width:420px;width:100%;padding:24px;border-radius:16px;text-align:right;direction:rtl">
+  <div style="text-align:center"><img src="assets/codm-logo.jpg" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:3px solid #c8a45d"><h2 style="margin:12px 0">الدخول إلى نظام CODM</h2><p style="color:#667085;font-size:13px">تسجيل الدخول للرئيس أو المدرب أو المتدرب</p><p style="color:#667085;font-size:11px">استخدمي البريد الإلكتروني وكلمة المرور الخاصة بحسابك. سيحدد النظام تلقائيًا واجهة الرئيس أو المدرب أو المتدرب حسب صلاحية الحساب.</p></div>
+  <form id="loginForm"><label>البريد الإلكتروني</label><input id="loginEmail" type="email" autocomplete="username" required><label style="margin-top:12px">كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="btn" style="width:100%" type="submit">تسجيل الدخول</button></form>
+  <p id="authMessage" style="font-size:12px;color:#a4262c;line-height:1.7"></p>
+  <button id="forgotPassword" class="btn light" style="width:100%" type="button">نسيت كلمة المرور؟</button>
+  <button id="publicAccess" class="btn secondary" style="width:100%" type="button">الدخول كزائر / طلب الانضمام</button>
+ </div>
+</div>
+<section id="publicPortal" style="display:none;max-width:920px;margin:22px auto;padding:0 14px;direction:rtl">
+ <div class="card" style="text-align:center"><img src="assets/codm-logo.jpg" alt="شعار النادي" style="width:105px;height:105px;object-fit:cover;border-radius:50%;border:3px solid #c8a45d"><h2>شباب أولمبيك ديدوش مراد للملاكمة</h2><p>مرحباً بكم في الواجهة العامة للنادي. يمكنكم متابعة الإعلانات والأنشطة وإرسال طلب انضمام.</p></div>
+ <div class="card"><h2>إعلانات وأنشطة النادي</h2><div id="publicAnnouncements" class="grid"><p class="muted">جارٍ تحميل الإعلانات...</p></div></div>
+ <div class="card"><h2>برنامج المنافسات وإنجازات النادي</h2><div id="publicCompetitions"><p class="muted">سيظهر برنامج المنافسات هنا.</p></div></div>
+ <div class="card"><h2>فيديوهات النادي</h2><div id="publicVideos" class="grid"><p class="muted">سيتم عرض فيديوهات النادي هنا.</p></div></div>
+ <div class="card"><h2>طلب الانضمام إلى النادي</h2><p class="muted">أرسل بياناتك لإدارة النادي. الطلب لا ينشئ حساباً ولا يضيفك تلقائياً إلى قائمة الملاكمين؛ تتم مراجعته من الإدارة أولاً.</p>
+ <form id="membershipRequestForm"><div class="grid">
+ <div><label>الاسم واللقب *</label><input name="full_name" required maxlength="120"></div>
+ <div><label>تاريخ الميلاد *</label><input name="birth_date" type="date" required></div>
+ <div><label>الجنس</label><select name="gender"><option value="ذكر">ذكر</option><option value="أنثى">أنثى</option></select></div>
+ <div><label>الفئة</label><select name="category"><option>كتاكيت</option><option>أصاغر</option><option>أشبال</option><option>أواسط</option><option>آمال</option><option>أكابر</option></select></div>
+ <div><label>رقم هاتف الرياضي</label><input name="phone" maxlength="30" inputmode="tel"></div>
+ <div><label>اسم ولي الأمر (للقصر)</label><input name="guardian" maxlength="120"></div>
+ <div><label>هاتف ولي الأمر</label><input name="guardian_phone" maxlength="30" inputmode="tel"></div>
+ <div><label>ملاحظات</label><input name="notes" maxlength="500"></div>
+ </div><button class="btn" id="requestSubmit" type="submit">إرسال طلب الانضمام</button><p id="requestStatus" class="muted" role="status"></p></form></div>
+ <div class="card"><h2>متابعة حالة طلب الانضمام</h2><p class="muted">أدخِل رمز المتابعة الذي ظهر لك بعد إرسال الطلب لمعرفة آخر حالة.</p><form id="requestTrackForm"><label for="requestTrackingCode">رمز المتابعة</label><input id="requestTrackingCode" name="tracking_code" maxlength="12" required autocomplete="off" placeholder="مثال: A7K9M2PQ"><button class="btn secondary" id="trackRequestButton" type="submit">تحقق من حالة الطلب</button><p id="requestTrackingResult" class="muted" role="status" aria-live="polite"></p></form></div>
+ <button class="btn light" id="backToLogin" type="button">العودة إلى تسجيل الدخول</button>
+</section>
+
+<section id="athletePortal" style="display:none;max-width:980px;margin:22px auto;padding:0 14px;direction:rtl">
+ <div class="card" style="background:linear-gradient(120deg,#101319,#7d1717);color:white;border-bottom:4px solid #c8a45d">
+  <div class="profile"><img src="assets/codm-logo.jpg" class="avatar" alt="شعار CODM"><div><div class="eyebrow">CODM • BOXING CLUB</div><h2 style="color:white;margin:0">مساحتي الرياضية</h2><p style="color:#e5e7eb;margin:5px 0 0">مرحبًا بك في حسابك الشخصي</p></div></div>
+  <button id="athleteLogoutBtn" class="btn light" type="button">تسجيل الخروج</button>
+ </div>
+ <div class="card"><h2>ملفي الرياضي</h2><div id="athletePortalProfile" class="grid"><p class="muted">جارٍ تحميل ملفك...</p></div></div>
+ <div class="card"><h2>الحضور والغياب</h2><div id="athletePortalAttendance"><p class="muted">جارٍ تحميل الحضور...</p></div></div>
+ <div class="card"><h2>تطوري وتقييماتي</h2><div id="athletePortalProgress"><p class="muted">جارٍ تحميل نتائجك...</p></div></div>
+ <div class="card"><h2>مشاركاتي وإنجازاتي</h2><div id="athletePortalCompetitions"><p class="muted">جارٍ تحميل المشاركات...</p></div></div>
+ <div class="card"><h2>تغيير كلمة المرور</h2><form id="athletePasswordForm"><label for="athleteNewPassword">كلمة المرور الجديدة (12 حرفًا على الأقل)</label><input id="athleteNewPassword" type="password" minlength="12" autocomplete="new-password" required><button class="btn" type="submit">حفظ كلمة المرور الجديدة</button><p id="athletePasswordStatus" class="muted" role="status"></p></form></div>
+ <p id="athletePortalStatus" class="muted" role="status"></p>
+</section>
+
+<section id="athletePreviewPortal" style="display:none;max-width:980px;margin:22px auto;padding:0 14px;direction:rtl">
+ <div class="warning"><strong>معاينة تجريبية فقط:</strong> المعلومات التالية أمثلة توضيحية وليست بيانات ملاكم حقيقي، ولا تُحفظ في قاعدة البيانات.</div>
+ <div class="card" style="background:linear-gradient(120deg,#101319,#7d1717);color:white;border-bottom:4px solid #c8a45d">
+  <div class="profile"><img src="assets/codm-logo.jpg" class="avatar" alt="شعار CODM"><div><div class="eyebrow">CODM • BOXING CLUB</div><h2 style="color:white;margin:0">مساحتي الرياضية</h2><p style="color:#e5e7eb;margin:5px 0 0">مرحبًا بك في حسابك الشخصي</p></div></div>
+  <span class="pill">حساب متدرب — معاينة</span>
+ </div>
+ <div class="card"><h2>ملفي الرياضي</h2><div class="grid">
+  <div class="stat">الاسم<strong style="font-size:16px">ملاكم تجريبي</strong></div>
+  <div class="stat">الفئة<strong style="font-size:16px">أواسط</strong></div>
+  <div class="stat">الوزن<strong style="font-size:16px">60 كغ</strong></div>
+  <div class="stat">الطول<strong style="font-size:16px">170 سم</strong></div>
+  <div class="stat">الوقفة<strong style="font-size:16px">أيمن</strong></div>
+  <div class="stat">الحالة<strong style="font-size:16px">نشط</strong></div>
+ </div></div>
+ <div class="card"><h2>الحضور والغياب</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الحالة</th><th>الحصة</th></tr></thead><tbody>
+  <tr><td>مثال: 2026-11-20</td><td>حاضر</td><td>تدريب مسائي</td></tr><tr><td>مثال: 2026-11-18</td><td>حاضر</td><td>تدريب مسائي</td></tr><tr><td>مثال: 2026-11-16</td><td>غائب</td><td>تدريب مسائي</td></tr>
+ </tbody></table></div></div>
+ <div class="card"><h2>تطوري وتقييماتي</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>المؤشر</th><th>النتيجة</th><th>ملاحظات المدرب</th></tr></thead><tbody>
+  <tr><td>مثال: 2026-11-20</td><td>الجري</td><td>8:30 دقيقة</td><td>تحسن تدريجي</td></tr><tr><td>مثال: 2026-11-18</td><td>نط الحبل</td><td>120</td><td>أداء جيد</td></tr><tr><td>مثال: 2026-11-16</td><td>التقنية</td><td>7/10</td><td>الاستمرار في التدريب</td></tr>
+ </tbody></table></div></div>
+ <div class="card"><h2>مشاركاتي وإنجازاتي</h2><p>ستظهر هنا المنافسات والنتائج والطاقم المشرف المرتبطة بالملاكم.</p><p class="muted">لا توجد بيانات حقيقية في وضع المعاينة.</p></div>
+ <div class="card"><h2>تغيير كلمة المرور</h2><label>كلمة المرور الجديدة</label><input type="password" disabled placeholder="تظهر للمتدرب بعد تسجيل الدخول الفعلي"><p class="muted">المتدرب الحقيقي يستطيع تغيير كلمة مروره من حسابه.</p></div>
+ <button class="btn light" id="closeAthletePreviewBtn" type="button">العودة إلى لوحة الإدارة</button>
+</section>
+
+<header><div class="head"><div class="brand"><img src="assets/codm-logo.jpg" alt="شعار شباب أولمبيك ديدوش مراد"><div><div class="eyebrow">CODM • BOXING CLUB</div><h1>شباب أولمبيك ديدوش مراد للملاكمة</h1><p id="subtitle">CODM DIGITAL SYSTEM — نظام الإدارة والمتابعة الرياضية</p></div></div><div class="no-print"><button class="light" id="arBtn">العربية</button> <button class="light" id="frBtn">Français</button> <button class="light" id="logoutBtn" type="button">خروج</button></div></div></header>
+<main>
+<div class="warning" id="privacy">🔒 نظام متصل بقاعدة بيانات النادي. يلزم تسجيل الدخول، وتُحفظ بيانات النادي على Supabase وفق صلاحيات الحساب.</div>
+<nav class="no-print">
+<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="membershipRequests">طلبات الانضمام <span id="requestCount" class="pill no" style="margin-right:3px">0</span></button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="clubCompetitions">برنامج المنافسات</button><button data-p="announcements">الإعلانات</button><button data-p="videos">فيديوهات النادي</button><button data-p="accounts">حسابات المتدربين</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
+</nav>
+<section class="panel active" id="p-dashboard">
+<div class="card"><h2 data-ar="لوحة قيادة النادي" data-fr="Tableau de bord du club">لوحة قيادة النادي</h2><div class="stats">
+<div class="stat"><span data-ar="إجمالي الملاكمين" data-fr="Total des boxeurs">إجمالي الملاكمين</span><strong id="sAth">0</strong></div>
+<div class="stat"><span data-ar="مستحقات هذا الشهر المدفوعة" data-fr="Cotisations payées ce mois">مستحقات هذا الشهر المدفوعة</span><strong id="sPaid">0</strong></div>
+<div class="stat"><span data-ar="مستحقات غير مدفوعة" data-fr="Cotisations impayées">مستحقات غير مدفوعة</span><strong id="sUnpaid">0</strong></div>
+<div class="stat"><span data-ar="البطولات المسجلة" data-fr="Compétitions enregistrées">البطولات المسجلة</span><strong id="sEvents">0</strong></div>
+</div></div>
+<div class="card"><h2 data-ar="آخر المستحقات" data-fr="Dernières cotisations">آخر المستحقات</h2><div id="dueSummary" class="muted">لا توجد بيانات بعد</div></div>
+<div class="card"><h2 data-ar="الاستحقاقات القادمة" data-fr="Prochaines compétitions">الاستحقاقات القادمة</h2><div id="eventSummary" class="muted">لا توجد بطولات مسجلة</div></div>
+</section>
+
+<section class="panel" id="p-membershipRequests">
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h2>طلبات الانضمام إلى النادي</h2><p class="muted">راجعي بيانات المترشحين ثم وافقي على الطلب أو ارفضيْه. الموافقة هنا لا تنشئ حساب دخول أو ملف ملاكم تلقائياً.</p></div><button class="btn light" id="refreshMembershipRequests" type="button">تحديث الطلبات</button></div><div id="membershipRequestList"><p class="empty">جارٍ تحميل الطلبات...</p></div></div>
+</section>
+
+<section class="panel" id="p-athletes">
+<div class="card"><h2 data-ar="إضافة ملف ملاكم / تعديل البيانات" data-fr="Ajouter / modifier une fiche boxeur">إضافة ملف ملاكم / تعديل البيانات</h2>
+<form id="athForm"><input type="hidden" name="id"><div class="grid">
+<div><label data-ar="الاسم واللقب *" data-fr="Nom et prénom *">الاسم واللقب *</label><input name="name" required></div>
+<div><label data-ar="صورة الملاكم" data-fr="Photo du boxeur">صورة الملاكم</label><input type="file" id="photo" accept="image/*"></div>
+<div><label data-ar="تاريخ الميلاد" data-fr="Date de naissance">تاريخ الميلاد</label><input name="birth" type="date"></div>
+<div><label data-ar="الجنس" data-fr="Sexe">الجنس</label><select name="gender"><option value="ذكر">ذكر</option><option value="أنثى">أنثى</option></select></div>
+<div><label data-ar="الفئة الرياضية" data-fr="Catégorie sportive">الفئة الرياضية</label><select name="category"><option>كتاكيت</option><option>أصاغر</option><option>أشبال</option><option>أواسط</option><option>آمال</option><option>أكابر</option></select></div>
+<div><label data-ar="الوزن الحالي (كغ)" data-fr="Poids actuel (kg)">الوزن الحالي (كغ)</label><input name="weight" type="number" step=".1"></div>
+<div><label data-ar="الطول (سم)" data-fr="Taille (cm)">الطول (سم)</label><input name="height" type="number" step=".1"></div>
+<div><label data-ar="اليد المفضلة" data-fr="Garde">اليد المفضلة</label><select name="stance"><option>أيمن</option><option>أعسر</option></select></div>
+<div><label data-ar="رقم الهاتف" data-fr="Téléphone">رقم الهاتف</label><input name="phone"></div>
+<div><label data-ar="اسم ولي الأمر (للقصر)" data-fr="Nom du parent/tuteur (mineurs)">اسم ولي الأمر (للقصر)</label><input name="guardian"></div>
+<div><label data-ar="هاتف ولي الأمر" data-fr="Téléphone du parent/tuteur">هاتف ولي الأمر</label><input name="guardianPhone"></div>
+<div><label data-ar="تاريخ الانضمام" data-fr="Date d’adhésion">تاريخ الانضمام</label><input name="joined" type="date"></div>
+<div><label data-ar="حالة الملاكم" data-fr="Statut">حالة الملاكم</label><select name="status"><option value="نشط">نشط</option><option value="متوقف عن التدريب">متوقف عن التدريب</option><option value="إيقاف تأديبي">إيقاف تأديبي</option><option value="مصاب">مصاب</option></select></div>
+<div><label>سبب التوقف أو الإيقاف (اختياري)</label><input name="status_reason" maxlength="500" placeholder="اكتبي السبب أو القرار"></div>
+<div><label>تاريخ بداية الحالة</label><input name="status_start_date" type="date"></div>
+<div><label>تاريخ نهاية الإيقاف (إن وجد)</label><input name="status_end_date" type="date"></div>
+<div><label data-ar="ملاحظات / معلومات إضافية" data-fr="Notes / informations complémentaires">ملاحظات / معلومات إضافية</label><input name="notes"></div>
+</div><button class="btn" type="submit" id="athSave">حفظ الملف</button><button class="btn light" type="button" id="athReset">تفريغ الخانات</button></form></div>
+<div class="card"><h2>ملخص حالات الملاكمين</h2><div class="stats"><div class="stat">النشطون<strong id="activeAthleteCount">0</strong></div><div class="stat">متوقفون عن التدريب<strong id="stoppedAthleteCount">0</strong></div><div class="stat">إيقاف تأديبي<strong id="suspendedAthleteCount">0</strong></div><div class="stat">مصابون<strong id="injuredAthleteCount">0</strong></div></div></div>
+<div class="card"><h2 data-ar="ملفات الملاكمين" data-fr="Fiches des boxeurs">ملفات الملاكمين</h2><div class="tablewrap"><table><thead><tr><th>الصورة</th><th>الاسم</th><th>الفئة</th><th>الوزن</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="athRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-accounts">
+ <div class="card">
+  <h2>إنشاء حساب متدرب</h2>
+  <p class="muted">اختاري ملاكمًا مسجلًا بلا حساب، ثم أدخلي بريده الإلكتروني وكلمة مرور مؤقتة. سيُربط الحساب بملفه الرياضي تلقائيًا.</p>
+  <form id="athleteAccountForm">
+   <div class="grid">
+    <div><label for="accountAthlete">الملاكم</label><select id="accountAthlete" required><option value="">جارٍ تحميل قائمة الملاكمين...</option></select></div>
+    <div><label for="accountEmail">البريد الإلكتروني للمتدرب</label><input id="accountEmail" type="email" autocomplete="off" required maxlength="254" placeholder="athlete@example.com"></div>
+    <div><label for="accountTempPassword">كلمة المرور الأولية</label><input id="accountTempPassword" type="password" minlength="12" autocomplete="new-password" required placeholder="12 حرفًا على الأقل"></div>
+   </div>
+   <p class="muted">استخدمي كلمة مرور مؤقتة قوية، وسلّميها للمتدرب أو ولي أمره بطريقة خاصة. يمكن للمتدرب تغييرها بعد الدخول.</p>
+   <button class="btn" id="createAthleteAccountBtn" type="submit">إنشاء حساب المتدرب</button>
+   <button class="btn light" id="refreshUnlinkedAthletes" type="button">تحديث قائمة الملاكمين</button>
+   <p id="athleteAccountStatus" class="muted" role="status" aria-live="polite"></p>
+   <button class="btn secondary" id="previewAthletePortalBtn" type="button">معاينة واجهة المتدرب (بيانات تجريبية)</button>
+  </form>
+ </div>
+ <div class="card">
+  <h2>معلومات مهمة</h2>
+  <p>إنشاء الحساب لا ينشئ ملف ملاكم جديدًا؛ بل يربط حساب الدخول بملف موجود مسبقًا. المتدرب يستطيع مشاهدة ملفه وحضوره وتطوره ومشاركاته فقط، ولا يستطيع تعديل سجلاته.</p>
+  <p class="muted">لا تنشئي حسابًا لطفل دون التأكد من موافقة ولي أمره وصحة البريد الإلكتروني. لا تستخدمي كلمة المرور الشخصية للرئيس أو المدرب.</p>
+ </div>
+</section>
+
+<section class="panel" id="p-dues">
+<div class="card"><h2 data-ar="تسجيل المستحقات الشهرية" data-fr="Enregistrer les cotisations mensuelles">تسجيل المستحقات الشهرية</h2>
+<form id="dueForm"><div class="grid">
+<div><label data-ar="الملاكم" data-fr="Boxeur">الملاكم</label><select name="athlete" id="dueAth" required></select></div>
+<div><label data-ar="الشهر" data-fr="Mois">الشهر</label><input type="month" name="month" required></div>
+<div><label data-ar="المبلغ المستحق (دج)" data-fr="Montant dû (DA)">المبلغ المستحق (دج)</label><input name="amount" type="number" min="0" required></div>
+<div><label data-ar="المبلغ المدفوع (دج)" data-fr="Montant payé (DA)">المبلغ المدفوع (دج)</label><input name="paid" type="number" min="0" value="0" required></div>
+<div><label data-ar="تاريخ الدفع" data-fr="Date de paiement">تاريخ الدفع</label><input name="date" type="date"></div>
+<div><label data-ar="طريقة الدفع" data-fr="Mode de paiement">طريقة الدفع</label><select name="method"><option>نقداً</option><option>تحويل</option><option>أخرى</option></select></div>
+</div><label style="margin-top:10px" data-ar="ملاحظات" data-fr="Notes">ملاحظات</label><input name="notes"><button class="btn" type="submit">حفظ المستحقات</button></form></div>
+<div class="card"><h2 data-ar="سجل المستحقات" data-fr="Historique des cotisations">سجل المستحقات</h2><div class="tablewrap"><table><thead><tr><th>الملاكم</th><th>الشهر</th><th>المستحق</th><th>المدفوع</th><th>الباقي</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="dueRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-progress">
+<div class="card"><h2 data-ar="تسجيل تقدم الملاكم والهدف" data-fr="Progression et objectifs du boxeur">تسجيل تقدم الملاكم والهدف</h2>
+<form id="progForm"><div class="grid">
+<div><label data-ar="الملاكم" data-fr="Boxeur">الملاكم</label><select name="athlete" id="progAth" required></select></div>
+<div><label data-ar="تاريخ التقييم" data-fr="Date d’évaluation">تاريخ التقييم</label><input name="date" type="date" required></div>
+<div><label data-ar="الهدف الرياضي" data-fr="Objectif sportif">الهدف الرياضي</label><input name="goal" placeholder="مثلاً تحسين التحمل أو الفوز ببطولة"></div>
+<div><label data-ar="الجري 1000م (ثانية)" data-fr="Course 1000 m (secondes)">الجري 1000م (ثانية)</label><input name="run" type="number"></div>
+<div><label data-ar="نط الحبل (عدد/دقيقة)" data-fr="Corde (répétitions/min)">نط الحبل (عدد/دقيقة)</label><input name="rope" type="number"></div>
+<div><label data-ar="اللكمات في 30 ثانية" data-fr="Coups en 30 secondes">اللكمات في 30 ثانية</label><input name="punch" type="number"></div>
+<div><label data-ar="الضغط (عدد)" data-fr="Pompes">الضغط (عدد)</label><input name="push" type="number"></div>
+<div><label data-ar="البطن (عدد)" data-fr="Abdominaux">البطن (عدد)</label><input name="sit" type="number"></div>
+<div><label data-ar="التقييم التقني /10" data-fr="Technique /10">التقييم التقني /10</label><input name="tech" type="number" min="0" max="10" step=".5"></div>
+<div><label data-ar="الوزن (كغ)" data-fr="Poids (kg)">الوزن (كغ)</label><input name="weight" type="number" step=".1"></div>
+<div><label>الطول (سم)</label><input name="height" type="number" step=".1"></div>
+<div><label>السرعة (اختبار 30م - ثانية)</label><input name="speed" type="number" step=".01"></div>
+<div><label>القوة (رمي الكرة الطبية - متر)</label><input name="strength" type="number" step=".1"></div>
+<div><label>التحمل (اختبار الجري - متر)</label><input name="endurance" type="number" step="1"></div>
+<div><label>المرونة (سم)</label><input name="flexibility" type="number" step=".1"></div>
+<div><label>دقة اللكمات (%)</label><input name="accuracy" type="number" min="0" max="100" step="1"></div>
+<div><label>قوة اللكمات (تقييم /10)</label><input name="power" type="number" min="0" max="10" step=".5"></div>
+<div><label>الدفاع والمراوغة (/10)</label><input name="defense" type="number" min="0" max="10" step=".5"></div>
+<div><label>حركة القدمين (/10)</label><input name="footwork" type="number" min="0" max="10" step=".5"></div>
+</div><label style="margin-top:10px" data-ar="ملاحظات المدرب وخطة العمل" data-fr="Notes de l’entraîneur et plan de travail">ملاحظات المدرب وخطة العمل</label><textarea name="notes"></textarea><button class="btn" type="submit">حفظ التقدم</button></form></div>
+<div class="card"><h2>الرسم البياني لتطور الملاكم</h2><div class="grid"><div><label>اختاري الملاكم</label><select id="chartAthlete"><option value="">اختاري ملاكماً</option></select></div><div><label>المؤشر المراد متابعته</label><select id="chartMetric"><option value="run">الجري 1000م (ثانية)</option><option value="rope">نط الحبل</option><option value="punch">عدد اللكمات</option><option value="tech">التقييم التقني</option><option value="weight">الوزن</option><option value="height">الطول</option><option value="speed">السرعة</option><option value="strength">القوة</option><option value="endurance">التحمل</option><option value="flexibility">المرونة</option><option value="accuracy">دقة اللكمات</option><option value="power">قوة اللكمات</option><option value="defense">الدفاع والمراوغة</option><option value="footwork">حركة القدمين</option></select></div></div><p class="muted" id="chartHint">اختاري الملاكم والمؤشر لعرض نتائج الاختبارات حسب التاريخ.</p><canvas id="progressChart" height="180" style="width:100%;max-height:360px"></canvas></div>
+<div class="card"><h2 data-ar="سجل التقدم والأهداف" data-fr="Historique de progression et objectifs">سجل التقدم والأهداف</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الملاكم</th><th>الهدف</th><th>الجري</th><th>الحبل</th><th>اللكمات</th><th>التقني</th><th>الطول</th><th>السرعة</th><th>القوة</th><th>التحمل</th><th>المرونة</th><th>دقة اللكمات</th><th>قوة اللكمات</th><th>الدفاع</th><th>القدمين</th><th>الملاحظات</th><th>إجراء</th></tr></thead><tbody id="progRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-events">
+<div class="card"><h2 data-ar="إضافة استحقاق أو بطولة رياضية" data-fr="Ajouter une compétition ou échéance sportive">إضافة استحقاق أو بطولة رياضية</h2>
+<form id="eventForm"><div class="grid">
+<div><label data-ar="نوع البطولة" data-fr="Type de compétition">نوع البطولة</label><select name="type" id="eventType"><option>بطولة ولائية</option><option>بطولة وطنية</option><option>كأس الجزائر</option><option>بطولة جهوية</option><option>دورة ودية</option><option value="custom">نوع آخر / إضافة نوع</option></select></div>
+<div id="customWrap" style="display:none"><label data-ar="اسم النوع الجديد" data-fr="Nom du nouveau type">اسم النوع الجديد</label><input name="customType"></div>
+<div><label data-ar="اسم البطولة" data-fr="Nom de la compétition">اسم البطولة</label><input name="name" required></div>
+<div><label data-ar="المكان" data-fr="Lieu">المكان</label><input name="place"></div>
+<div><label data-ar="تاريخ البداية" data-fr="Date de début">تاريخ البداية</label><input name="start" type="date"></div>
+<div><label data-ar="تاريخ النهاية" data-fr="Date de fin">تاريخ النهاية</label><input name="end" type="date"></div>
+<div><label data-ar="الملاكم المشارك (اختياري)" data-fr="Boxeur participant (facultatif)">الملاكم المشارك (اختياري)</label><select name="athlete" id="eventAth"><option value="">كل النادي / غير محدد</option></select></div>
+<div><label data-ar="النتيجة أو الميدالية" data-fr="Résultat ou médaille">النتيجة أو الميدالية</label><input name="result" placeholder="مشاركة، ذهبية، فضية، برونزية..."></div>
+<div><label data-ar="الحالة" data-fr="Statut">الحالة</label><select name="status"><option>مخطط لها</option><option>تمت</option><option>أُلغيت</option></select></div>
+</div><label style="margin-top:10px" data-ar="ملاحظات" data-fr="Notes">ملاحظات</label><textarea name="notes"></textarea><button class="btn" type="submit">حفظ البطولة</button></form></div>
+<div class="card"><h2 data-ar="رزنامة الاستحقاقات والنتائج" data-fr="Calendrier des compétitions et résultats">رزنامة الاستحقاقات والنتائج</h2><div class="tablewrap"><table><thead><tr><th>النوع</th><th>البطولة</th><th>المكان</th><th>التاريخ</th><th>الملاكم</th><th>النتيجة</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="eventRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-clubCompetitions">
+<div class="card"><h2 id="clubCompetitionHeading">إضافة منافسة / برنامج مشاركة</h2>
+<form id="clubCompetitionForm"><input type="hidden" name="id"><div class="grid">
+<div><label>اسم المنافسة *</label><input name="competition_name" required maxlength="180" placeholder="اسم البطولة أو الدورة"></div>
+<div><label>نوع المنافسة</label><input name="competition_type" maxlength="100" placeholder="بطولة ولائية، وطنية، دورة ودية..."></div>
+<div><label>تاريخ المنافسة *</label><input name="competition_date" type="date" required></div>
+<div><label>المكان</label><input name="location" maxlength="180" placeholder="المدينة أو القاعة"></div>
+<div style="grid-column:1/-1"><label>الملاكمون المعنيون بالمنافسة (يمكن اختيار أكثر من ملاكم)</label><select id="clubCompetitionAthletes" name="athlete_ids" multiple size="6" style="min-height:130px"></select><p class="muted">على الحاسوب استخدمي Ctrl لاختيار أكثر من اسم، وعلى الهاتف يمكن لمس الأسماء المطلوبة.</p></div>
+<div style="grid-column:1/-1"><label>الطاقم الشرف / الطاقم المشرف (كتابة يدوية)</label><textarea name="staff_names" maxlength="1500" placeholder="مثال: المدرب ...، المدربة ...، رئيس الوفد ..."></textarea></div>
+<div style="grid-column:1/-1"><label>الإنجاز المحقق / النتائج بعد المنافسة</label><textarea name="achievement" maxlength="2500" placeholder="يُملأ بعد المنافسة: بطل، نائب بطل، ذهبية، فضية، برونزية، مشاركة..."></textarea></div>
+<div style="grid-column:1/-1"><label>تفاصيل إضافية</label><textarea name="details" maxlength="2500"></textarea></div>
+<div><label>حالة المنافسة</label><select name="status"><option value="قادمة">قادمة</option><option value="جارية">جارية</option><option value="انتهت">انتهت</option><option value="ألغيت">ألغيت</option></select></div>
+<div><label><input type="checkbox" name="is_published" checked style="width:auto;margin-left:6px"> عرض هذه المنافسة للجمهور</label></div>
+</div><button class="btn" id="clubCompetitionSubmit" type="submit">حفظ المنافسة</button><button class="btn light" type="button" id="clubCompetitionCancel" style="display:none">إلغاء التعديل</button><p id="clubCompetitionStatus" class="muted" role="status"></p></form></div>
+<div class="card"><h2>برنامج المنافسات والمشاركات والإنجازات</h2><div id="clubCompetitionList"><p class="muted">جارٍ تحميل المنافسات...</p></div></div>
+</section>
+
+<section class="panel" id="p-attendance">
+<div class="card"><h2>تسجيل الحضور والغياب</h2>
+<form id="attendanceForm"><div class="grid">
+<div><label>الملاكم</label><select name="athlete" id="attAth" required></select></div>
+<div><label>تاريخ الحصة</label><input name="date" type="date" required></div>
+<div><label>الحالة</label><select name="status"><option>حاضر</option><option>غائب</option><option>متأخر</option><option>غياب مبرر</option></select></div>
+<div><label>الحصة / الفوج</label><input name="session" placeholder="مثلاً: فئة الأصاغر - 17:00"></div>
+</div><label style="margin-top:10px">ملاحظات</label><input name="notes"><button class="btn" type="submit">حفظ سجل الحضور</button></form></div>
+<div class="card"><h2>سجل الحضور</h2><div class="grid"><div><label>تصفية حسب الملاكم</label><select id="attFilter"><option value="">كل الملاكمين</option></select></div><div><label>تصفية حسب التاريخ</label><input id="attDateFilter" type="month"></div></div>
+<div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الملاكم</th><th>الحصة</th><th>الحالة</th><th>ملاحظات</th><th>إجراء</th></tr></thead><tbody id="attRows"></tbody></table></div></div>
+</section>
+
+<section class="panel" id="p-announcements">
+<div class="card"><h2 id="announcementFormHeading">نشر إعلان جديد</h2>
+<form id="announcementForm"><div class="grid">
+<div><label>عنوان الإعلان *</label><input name="title" required maxlength="150" placeholder="مثلاً: برنامج تدريبات الملاكمة لفئة الإناث"></div>
+<div><label>نوع الإعلان *</label><select name="type" required>
+<option value="training">برنامج تدريبي</option>
+<option value="bout">يوم نزال</option>
+<option value="event">موعد تدريب</option>
+<option value="general">إعلان عام</option>
+</select></div>
+<div><label>التاريخ (اختياري)</label><input name="date" type="datetime-local"></div>
+<div><label>المكان (اختياري)</label><input name="location" placeholder="قاعة النادي"></div>
+<div style="grid-column:1/-1"><label>تفاصيل الإعلان</label><textarea name="details" placeholder="اكتبي تفاصيل الإعلان هنا"></textarea></div>
+<div style="grid-column:1/-1"><label>صور الإعلان (اختياري)</label><input id="announcementImage" type="file" accept="image/png,image/jpeg,image/webp" multiple><p class="muted">يمكن اختيار حتى 10 صور. الصيغ المقبولة: JPG وPNG وWEBP، بحد أقصى 5 ميغابايت لكل صورة. عند تعديل الإعلان، تُضاف الصور الجديدة إلى الصور الحالية.</p><div id="announcementPreviewList" style="display:none;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:10px"></div></div>
+</div><button class="btn" type="submit" id="announcementSubmit">نشر الإعلان</button><button class="btn light" type="reset" id="announcementReset">تفريغ الخانات</button><button class="btn secondary" type="button" id="announcementCancelEdit" style="display:none">إلغاء التعديل</button><p id="announcementStatus" class="muted" role="status"></p></form></div>
+<div class="card"><h2>إعلانات النادي</h2><div id="announcementList" class="grid"><p class="muted">جارٍ تحميل الإعلانات...</p></div></div>
+</section>
+
+<section class="panel" id="p-videos">
+<div class="card"><h2 id="videoFormHeading">نشر فيديو جديد للجمهور</h2>
+<form id="videoForm"><input type="hidden" name="id"><div class="grid">
+<div><label>عنوان الفيديو *</label><input name="title" required maxlength="180" placeholder="مثلاً: تدريبات فئة الإناث"></div>
+<div><label>تصنيف الفيديو</label><select name="category"><option>التدريبات</option><option>المنافسات</option><option>التتويجات والإنجازات</option><option>الأنشطة والخرجات</option><option>أخرى</option></select></div>
+<div style="grid-column:1/-1"><label>وصف الفيديو</label><textarea name="description" maxlength="1200"></textarea></div>
+<div style="grid-column:1/-1"><label>ملف الفيديو (MP4 أو WEBM أو MOV) *</label><input id="videoFile" type="file" accept="video/mp4,video/webm,video/quicktime"><p class="muted">الحجم الأقصى 50 ميغابايت للفيديو الواحد. عند تعديل البيانات دون اختيار فيديو جديد، يبقى الفيديو الحالي.</p></div>
+<div><label><input type="checkbox" name="is_published" checked style="width:auto;margin-left:6px"> نشر الفيديو للجمهور</label></div>
+</div><button class="btn" id="videoSubmit" type="submit">نشر الفيديو</button><button class="btn light" type="button" id="videoCancelEdit" style="display:none">إلغاء التعديل</button><p id="videoStatus" class="muted" role="status"></p></form></div>
+<div class="card"><h2>فيديوهات النادي المنشورة</h2><div id="videoAdminList" class="grid"><p class="muted">جارٍ تحميل الفيديوهات...</p></div></div>
+</section>
+
+<section class="panel" id="p-rules">
+<div class="card">
+<div class="profile"><img src="assets/codm-logo.jpg" class="avatar" alt="شعار CODM"><div><h2>القانون الداخلي لنادي شباب أولمبيك ديدوش مراد للملاكمة</h2><p class="muted">الانضباط • الاحترام • العمل • التضحية • النجاح</p></div></div>
+<p>تُطبق هذه القواعد على جميع المنخرطين داخل القاعة وخارجها، مع مراعاة القوانين الرياضية والتنظيمية المعمول بها.</p>
+<div class="rules-grid">
+<div class="rule"><b>01 — احترام المدربين والطاقم</b><p>احترام المدربين والمسؤولين واجب على الجميع، والالتزام بتعليماتهم وأوامرهم داخل القاعة وخارجها.</p></div>
+<div class="rule"><b>02 — الالتزام بالبرنامج الرياضي</b><p>الالتزام بالبرنامج الرياضي المحدد من قبل المدرب وحضور جميع الحصص التدريبية المبرمجة بانتظام.</p></div>
+<div class="rule"><b>03 — إحضار اللوازم الرياضية</b><p>يجب على كل رياضي إحضار لوازمه الرياضية: البدلة الرياضية، قفاز رياضي، واقي الأسنان، قارورة ماء شخصية، كرة عند الحاجة.</p></div>
+<div class="rule"><b>04 — احترام مواقيت الحصة</b><p>يجب الحضور في الوقت المحدد. التأخر بـ15 دقيقة قد يؤدي إلى عدم السماح بالمشاركة في الحصة.</p></div>
+<div class="rule"><b>05 — المحافظة على نظافة القاعة</b><p>المحافظة على نظافة القاعة مسؤولية الجميع؛ يمنع رمي القمامة أو إتلاف أو إساءة استعمال معدات القاعة.</p></div>
+<div class="rule"><b>06 — الغياب المتكرر</b><p>الغياب المتكرر دون مبرر قد يؤدي إلى الاستبعاد من المشاركة في المنافسات الرسمية وعدم الاختيار ضمن القائمة.</p></div>
+<div class="rule"><b>07 — الغياب المبرر</b><p>في حالة المرض أو الإصابة أو وجود ظرف قاهر، يجب إبلاغ المدرب أو إدارة النادي في أقرب وقت ممكن.</p></div>
+<div class="rule"><b>08 — السلامة داخل القاعة</b><p>الالتزام بتعليمات المدرب واستعمال معدات الحماية. يمنع القيام بأي تمرين أو منازلة دون إذن المدرب.</p></div>
+<div class="rule"><b>09 — السلوك والانضباط</b><p>احترام الزملاء داخل القاعة ومنع الشجار والتنمر والألفاظ النابية أو أي تصرف غير رياضي.</p></div>
+<div class="rule"><b>10 — الهاتف والأجهزة الإلكترونية</b><p>يمنع استعمال الهاتف أثناء الحصة التدريبية إلا بإذن المدرب، ويوضع في الوضع الصامت.</p></div>
+<div class="rule"><b>11 — الممنوعات</b><p>يمنع التدخين أو تناول أو إدخال أي مواد ممنوعة أو أدوات خطرة أو غير مرتبطة بالتدريب.</p></div>
+<div class="rule"><b>12 — احترام المنافسات</b><p>تمثيل النادي بصورة مشرفة، واحترام الحكام والمنافسين والجمهور والالتزام بتعليمات المدرب أثناء المنافسات.</p></div>
+<div class="rule"><b>13 — العقوبات التأديبية</b><p>عند مخالفة القانون الداخلي، يمكن اتخاذ إجراءات تأديبية متدرجة: تنبيه شفهي، إنذار، حرمان من حصة أو نشاط أو منافسة، أو إحالة إلى إدارة النادي.</p></div>
+<div class="rule"><b>14 — المسؤولية والالتزام</b><p>تسجيل الرياضي في النادي موافقة منه، أو من ولي أمره بالنسبة للقصر، على احترام القانون الداخلي والالتزام بتعليمات المدربين.</p></div>
+<div class="rule"><b>15 — شروط المشاركة في المنافسات الرسمية</b><p>لا يعتمد الاختيار على المستوى الفني فقط، بل يؤخذ بعين الاعتبار: الحضور والمواظبة، الانضباط، الالتزام بالبرنامج، الجاهزية البدنية والفنية، السلوك الرياضي، واحترام قوانين النادي والاتحادية والبطولة.</p></div>
+</div>
+<div class="notice" style="margin-top:14px">الرياضة أخلاق وانضباط قبل أن تكون منافسة — الاحترام • الانضباط • العمل • التضحية • النجاح</div>
+<button class="btn" onclick="window.print()">طباعة القانون الداخلي</button>
+</div>
+</section>
+
+<section class="panel" id="p-backup">
+<div class="card"><h2 data-ar="النسخ الاحتياطي واستعادة البيانات" data-fr="Sauvegarde et restauration">النسخ الاحتياطي واستعادة البيانات</h2>
+<p class="muted" data-ar="تتضمن النسخة الاحتياطية ملفات الملاكمين وحالاتهم وصورهم والمستحقات والتقدم والبطولات المحلية. بيانات المنافسات الجديدة والفيديوهات تحفظ في Supabase." data-fr="La sauvegarde inclut les fiches, photos, cotisations, progressions et compétitions.">تتضمن النسخة الاحتياطية ملفات الملاكمين وحالاتهم وصورهم والمستحقات والتقدم والبطولات المحلية. بيانات المنافسات الجديدة والفيديوهات تحفظ في Supabase.</p>
+<button class="btn" id="export">تصدير نسخة احتياطية</button><div style="margin-top:16px"><label data-ar="اختيار ملف نسخة احتياطية" data-fr="Choisir un fichier de sauvegarde">اختيار ملف نسخة احتياطية</label><input type="file" id="importFile" accept=".json"><button class="btn secondary" id="import">استعادة النسخة</button></div>
+<button class="btn light" onclick="window.print()">طباعة الصفحة الحالية</button></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const KEY='CODM_CLUB_MANAGER_V2';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"athletes":[],"dues":[],"progress":[],"events":[],"attendance":[]}');
+if(!Array.isArray(db.attendance))db.attendance=[];
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10), month=()=>today().slice(0,7), name=id=>db.athletes.find(a=>a.id===id)?.name||'—';
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function nav(id){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='p-'+id))}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>nav(b.dataset.p));
+function fillSelects(){let chartOld=$('#chartAthlete')?.value||'',opts=db.athletes.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');['dueAth','progAth','attAth'].forEach(id=>$('#'+id).innerHTML=opts||'<option value="">أضيفي ملاكماً أولاً</option>');$('#attFilter').innerHTML='<option value="">كل الملاكمين</option>'+opts;$('#chartAthlete').innerHTML='<option value="">اختاري ملاكماً</option>'+opts;$('#chartAthlete').value=chartOld;$('#eventAth').innerHTML='<option value="">كل النادي / غير محدد</option>'+opts}
+function renderProgressChart(){
+ const canvas=$('#progressChart');if(!canvas)return;const ctx=canvas.getContext('2d');const athlete=$('#chartAthlete').value,metric=$('#chartMetric').value;
+ const rows=(db.progress||[]).filter(p=>p.athlete===athlete&&p[metric]!==''&&p[metric]!==undefined&&p[metric]!==null&&Number.isFinite(Number(p[metric]))).sort((a,b)=>a.date.localeCompare(b.date));
+ const ratio=window.devicePixelRatio||1,w=Math.max(320,canvas.clientWidth||600),h=260;canvas.width=w*ratio;canvas.height=h*ratio;ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,w,h);
+ if(!athlete||!rows.length){$('#chartHint').textContent=!athlete?'اختاري الملاكم والمؤشر لعرض نتائج الاختبارات حسب التاريخ.':'لا توجد نتائج مسجلة لهذا المؤشر لدى هذا الملاكم بعد.';return}
+ $('#chartHint').textContent='عدد القياسات: '+rows.length+' — القيم معروضة كما سُجلت، دون احتساب نتيجة إجمالية.';
+ const vals=rows.map(x=>Number(x[metric])),min=Math.min(...vals),max=Math.max(...vals),pad=Math.max((max-min)*.18,1),lo=min-pad,hi=max+pad,L=48,R=16,T=18,B=42,pw=w-L-R,ph=h-T-B;
+ ctx.strokeStyle='#d7dce2';ctx.lineWidth=1;ctx.fillStyle='#586273';ctx.font='12px Tahoma';ctx.textAlign='right';
+ for(let i=0;i<5;i++){let y=T+ph*i/4;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();let v=hi-(hi-lo)*i/4;ctx.fillText(Number(v.toFixed(1)).toString(),L-8,y+4)}
+ const pts=rows.map((r,i)=>({x:rows.length===1?L+pw/2:L+pw*i/(rows.length-1),y:T+ph*(hi-Number(r[metric]))/(hi-lo),date:r.date,val:Number(r[metric])}));
+ ctx.strokeStyle='#d62828';ctx.lineWidth=3;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
+ pts.forEach(p=>{ctx.fillStyle='#d62828';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#343a40';ctx.textAlign='center';ctx.font='10px Tahoma';ctx.fillText(p.date.slice(5),p.x,h-17);ctx.fillText(String(p.val),p.x,p.y-10)});
+}
+function render(){
+ fillSelects();$('#sAth').textContent=db.athletes.length;$('#sEvents').textContent=db.events.length;
+ let cur=db.dues.filter(d=>d.month===month());$('#sPaid').textContent=cur.filter(d=>+d.paid>=+d.amount).length;$('#sUnpaid').textContent=cur.filter(d=>+d.paid<+d.amount).length;
+ $('#attRows').innerHTML=db.attendance.filter(a=>(!$('#attFilter').value||a.athlete===$('#attFilter').value)&&(!$('#attDateFilter').value||a.date.startsWith($('#attDateFilter').value))).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(a=>`<tr><td>${esc(a.date)}</td><td>${esc(name(a.athlete))}</td><td>${esc(a.session||'—')}</td><td>${esc(a.status)}</td><td>${esc(a.notes||'—')}</td><td><button class="btn tiny danger" onclick="del('attendance','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد سجلات حضور بعد</td></tr>';
+ $('#activeAthleteCount').textContent=db.athletes.filter(a=>(a.status||'نشط')==='نشط').length;$('#stoppedAthleteCount').textContent=db.athletes.filter(a=>a.status==='متوقف عن التدريب').length;$('#suspendedAthleteCount').textContent=db.athletes.filter(a=>a.status==='إيقاف تأديبي').length;$('#injuredAthleteCount').textContent=db.athletes.filter(a=>a.status==='مصاب').length;
+ $('#athRows').innerHTML=db.athletes.map(a=>`<tr><td>${a.photo?`<img src="${a.photo}" class="avatar">`:'—'}</td><td>${esc(a.name)}</td><td>${esc(a.category)}</td><td>${esc(a.weight||'—')}</td><td>${esc(a.status)}</td><td><button class="btn tiny light" onclick="editAth('${a.id}')">تعديل</button><button class="btn tiny secondary" onclick="printAth('${a.id}')">طباعة</button><button class="btn tiny danger" onclick="del('athletes','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد ملفات ملاكمين</td></tr>';
+ $('#dueRows').innerHTML=db.dues.slice().sort((a,b)=>b.month.localeCompare(a.month)).map(d=>`<tr><td>${esc(name(d.athlete))}</td><td>${esc(d.month)}</td><td>${d.amount}</td><td>${d.paid}</td><td>${Math.max(0,+d.amount-+d.paid)}</td><td><span class="pill ${+d.paid<+d.amount?'no':''}">${+d.paid>=+d.amount?'مدفوع':'متبقي'}</span></td><td><button class="btn tiny danger" onclick="del('dues','${d.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا توجد مستحقات</td></tr>';
+ $('#progRows').innerHTML=db.progress.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<tr><td>${esc(p.date)}</td><td>${esc(name(p.athlete))}</td><td>${esc(p.goal||'—')}</td><td>${esc(p.run||'—')}</td><td>${esc(p.rope||'—')}</td><td>${esc(p.punch||'—')}</td><td>${esc(p.tech||'—')}</td><td>${esc(p.height||'—')}</td><td>${esc(p.speed||'—')}</td><td>${esc(p.strength||'—')}</td><td>${esc(p.endurance||'—')}</td><td>${esc(p.flexibility||'—')}</td><td>${esc(p.accuracy||'—')}</td><td>${esc(p.power||'—')}</td><td>${esc(p.defense||'—')}</td><td>${esc(p.footwork||'—')}</td><td>${esc(p.notes||'—')}</td><td><button class="btn tiny danger" onclick="del('progress','${p.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="18" class="empty">لا توجد تقييمات</td></tr>';
+ $('#eventRows').innerHTML=db.events.slice().sort((a,b)=>(a.start||'').localeCompare(b.start||'')).map(e=>`<tr><td>${esc(e.type)}</td><td>${esc(e.name)}</td><td>${esc(e.place||'—')}</td><td>${esc(e.start||'—')} ${e.end?'→ '+esc(e.end):''}</td><td>${esc(name(e.athlete)||'كل النادي')}</td><td>${esc(e.result||'—')}</td><td>${esc(e.status)}</td><td><button class="btn tiny danger" onclick="del('events','${e.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">لا توجد بطولات مسجلة</td></tr>';
+ $('#dueSummary').textContent=cur.length?`عدد سجلات هذا الشهر: ${cur.length} | المبالغ المتبقية: ${cur.reduce((s,d)=>s+Math.max(0,+d.amount-+d.paid),0)} دج`:'لا توجد بيانات لهذا الشهر';
+ let upcoming=db.events.filter(e=>e.start>=today()&&e.status==='مخطط لها').sort((a,b)=>a.start.localeCompare(b.start));$('#eventSummary').innerHTML=upcoming.length?upcoming.map(e=>`<p>${esc(e.start)} — <b>${esc(e.name)}</b> (${esc(e.type)})</p>`).join(''):'لا توجد بطولات قادمة مسجلة';
+ renderProgressChart();
+}
+$('#attFilter').onchange=render;$('#attDateFilter').onchange=render;$('#chartAthlete').onchange=renderProgressChart;$('#chartMetric').onchange=renderProgressChart;
+$('#attendanceForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.attendance.push({id:String(Date.now()),athlete:f.get('athlete'),date:f.get('date'),status:f.get('status'),session:f.get('session'),notes:f.get('notes')});e.target.reset();$('#attendanceForm [name=date]').value=today();save();alert('تم حفظ الحضور')};
+$('#athForm').onsubmit=async e=>{e.preventDefault();let f=new FormData(e.target),id=f.get('id')||uuid(),old=db.athletes.find(a=>a.id===id),photo=old?.photo||'';let file=$('#photo').files[0];if(file)photo=await resizePhoto(file);let a={id,name:f.get('name'),birth:f.get('birth'),gender:f.get('gender'),category:f.get('category'),weight:f.get('weight'),height:f.get('height'),stance:f.get('stance'),phone:f.get('phone'),guardian:f.get('guardian'),guardianPhone:f.get('guardianPhone'),joined:f.get('joined'),status:f.get('status'),status_reason:f.get('status_reason'),status_start_date:f.get('status_start_date'),status_end_date:f.get('status_end_date'),notes:f.get('notes'),photo};let i=db.athletes.findIndex(x=>x.id===id);if(i>=0)db.athletes[i]=a;else db.athletes.push(a);e.target.reset();$('#photo').value='';save();alert('تم حفظ ملف الملاكم وحالة نشاطه')};
+async function resizePhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),scale=Math.min(1,500/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};im.onerror=reject;im.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+window.editAth=id=>{let a=db.athletes.find(x=>x.id===id),f=$('#athForm');Object.keys(a).forEach(k=>{if(f.elements[k]&&k!=='photo')f.elements[k].value=a[k]??''});nav('athletes');window.scrollTo(0,0)};
+window.del=(table,id)=>{if(confirm('هل تريدين حذف هذا السجل؟')){db[table]=db[table].filter(x=>x.id!==id);save()}};
+window.printAth=id=>{let a=db.athletes.find(x=>x.id===id),d=db.dues.filter(x=>x.athlete===id),p=db.progress.filter(x=>x.athlete===id),ev=db.events.filter(x=>x.athlete===id);let w=window.open('','_blank');w.document.write(`<html dir="rtl"><meta charset="utf-8"><body style="font-family:Tahoma;padding:25px"><h2>شباب أولمبيك ديدوش مراد للملاكمة CODM</h2>${a.photo?`<img src="${a.photo}" width="110">`:''}<h3>${esc(a.name)}</h3><p>الميلاد: ${esc(a.birth)} | الفئة: ${esc(a.category)} | الوزن: ${esc(a.weight)} كغ | الطول: ${esc(a.height)} سم</p><p>الهاتف: ${esc(a.phone)} | ولي الأمر: ${esc(a.guardian)} ${esc(a.guardianPhone)}</p><h3>المستحقات</h3>${d.map(x=>`<p>${esc(x.month)}: ${x.paid}/${x.amount} دج</p>`).join('')}<h3>التقدم والأهداف</h3>${p.map(x=>`<p>${esc(x.date)} — ${esc(x.goal)} | تقني: ${esc(x.tech)}</p>`).join('')}<h3>البطولات</h3>${ev.map(x=>`<p>${esc(x.type)}: ${esc(x.name)} — ${esc(x.result)}</p>`).join('')}<script>window.print()<\/script></body></html>`);w.document.close()};
+$('#athReset').onclick=()=>{$('#athForm').reset();$('#photo').value=''};
+$('#dueForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.dues.push({id:String(Date.now()),athlete:f.get('athlete'),month:f.get('month'),amount:f.get('amount'),paid:f.get('paid'),date:f.get('date'),method:f.get('method'),notes:f.get('notes')});e.target.reset();$('#dueForm [name=month]').value=month();save();alert('تم حفظ المستحقات')};
+$('#progForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),o={id:String(Date.now())};for(let [k,v] of f)o[k]=v;db.progress.push(o);e.target.reset();$('#progForm [name=date]').value=today();save();alert('تم حفظ التقدم')};
+$('#eventType').onchange=()=>$('#customWrap').style.display=$('#eventType').value==='custom'?'block':'none';
+$('#eventForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),type=f.get('type')==='custom'?f.get('customType'):f.get('type');if(!type)return alert('اكتبي نوع البطولة');db.events.push({id:String(Date.now()),type,name:f.get('name'),place:f.get('place'),start:f.get('start'),end:f.get('end'),athlete:f.get('athlete'),result:f.get('result'),status:f.get('status'),notes:f.get('notes')});e.target.reset();$('#customWrap').style.display='none';save();alert('تم حفظ البطولة')};
+$('#export').onclick=()=>{let blob=new Blob([JSON.stringify(db)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='CODM-club-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('#import').onclick=()=>{let file=$('#importFile').files[0];if(!file)return alert('اختاري ملف النسخة أولاً');let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d.athletes||!d.dues||!d.progress||!d.events)throw 0;if(confirm('سيتم استبدال البيانات الحالية. متابعة؟')){db=d;save();alert('تمت الاستعادة')}}catch(e){alert('ملف النسخة غير صالح')}};r.readAsText(file)};
+const translations=[['شباب أولمبيك ديدوش مراد للملاكمة','Jeunesse Olympique Didouche Mourad – Boxe'],['نظام إدارة النادي ومتابعة الملاكمين والاستحقاقات الرياضية','Gestion du club, suivi des boxeurs et échéances sportives'],['لوحة النادي','Tableau du club'],['ملفات الملاكمين','Dossiers des boxeurs'],['المستحقات الشهرية','Cotisations mensuelles'],['التقدم والأهداف','Progression et objectifs'],['البطولات والاستحقاقات','Compétitions et échéances'],['النسخ الاحتياطي','Sauvegarde'],['إضافة ملف ملاكم / تعديل البيانات','Ajouter / modifier un dossier'],['الاسم واللقب','Nom et prénom'],['صورة الملاكم','Photo du boxeur'],['تاريخ الميلاد','Date de naissance'],['الفئة الرياضية','Catégorie sportive'],['الوزن الحالي','Poids actuel'],['الطول','Taille'],['رقم الهاتف','Téléphone'],['اسم ولي الأمر (للقصر)','Parent/tuteur (mineurs)'],['تاريخ الانضمام','Date d’adhésion'],['ملاحظات / معلومات إضافية','Notes / informations complémentaires'],['حفظ الملف','Enregistrer le dossier'],['تسجيل المستحقات الشهرية','Enregistrer les cotisations'],['المبلغ المستحق (دج)','Montant dû (DA)'],['المبلغ المدفوع (دج)','Montant payé (DA)'],['تاريخ الدفع','Date de paiement'],['طريقة الدفع','Mode de paiement'],['نقداً','Espèces'],['تحويل','Virement'],['سجل المستحقات','Historique des cotisations'],['المستحقات','Dû'],['المدفوع','Payé'],['الباقي','Reste'],['تسجيل تقدم الملاكم والهدف','Enregistrer la progression et l’objectif'],['الهدف الرياضي','Objectif sportif'],['الجري 1000م','Course 1000 m'],['نط الحبل','Corde à sauter'],['اللكمات في 30 ثانية','Coups en 30 secondes'],['التقييم التقني','Évaluation technique'],['ملاحظات المدرب وخطة العمل','Notes de l’entraîneur et plan de travail'],['إضافة استحقاق أو بطولة رياضية','Ajouter une compétition'],['بطولة ولائية','Championnat de wilaya'],['بطولة وطنية','Championnat national'],['كأس الجزائر','Coupe d’Algérie'],['بطولة جهوية','Championnat régional'],['دورة ودية','Tournoi amical'],['نوع آخر / إضافة نوع','Autre type / ajouter'],['اسم النوع الجديد','Nom du nouveau type'],['اسم البطولة','Nom de la compétition'],['المكان','Lieu'],['تاريخ البداية','Date de début'],['تاريخ النهاية','Date de fin'],['الملاكم المشارك (اختياري)','Boxeur participant (facultatif)'],['النتيجة أو الميدالية','Résultat ou médaille'],['مخطط لها','Planifiée'],['تمت','Terminée'],['أُلغيت','Annulée'],['حفظ البطولة','Enregistrer la compétition'],['رزنامة الاستحقاقات والنتائج','Calendrier des compétitions et résultats'],['إجمالي الملاكمين','Total des boxeurs'],['البطولات المسجلة','Compétitions enregistrées'],['آخر المستحقات','Dernières cotisations'],['الاستحقاقات القادمة','Prochaines échéances'],['تصدير نسخة احتياطية','Exporter une sauvegarde'],['استعادة النسخة','Restaurer la sauvegarde']];
+let lang='ar';function setLang(l){if(lang===l)return;let pairs=l==='fr'?translations:translations.map(x=>[x[1],x[0]]);let walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode()){for(let [a,b] of pairs)n.nodeValue=n.nodeValue.split(a).join(b)}document.documentElement.lang=l;document.documentElement.dir=l==='fr'?'ltr':'rtl';lang=l;$('#arBtn').style.opacity=l==='ar'?1:.65;$('#frBtn').style.opacity=l==='fr'?1:.65;localStorage.setItem('CODMlang',l)}
+$('#arBtn').onclick=()=>setLang('ar');$('#frBtn').onclick=()=>setLang('fr');
+$('#dueForm [name=month]').value=month();$('#progForm [name=date]').value=today();$('#attendanceForm [name=date]').value=today();render();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+
+// === CODM Supabase connection layer ===
+const SUPABASE_URL='https://xmbpnjlpwpjwrjspnkro.supabase.co';
+const SUPABASE_KEY='sb_publishable_umoJ2Zu3z5Hg1xrlaGif3w_q3QVwgw0';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let codmUser=null, codmProfile=null, syncing=false;
+const gate=document.getElementById('authGate'), authMsg=document.getElementById('authMessage');
+function showGate(msg=''){gate.style.display='flex';authMsg.textContent=msg;document.querySelector('main').style.display='none';document.querySelector('header').style.display='none';document.getElementById('athletePortal').style.display='none';document.getElementById('athletePreviewPortal').style.display='none'}
+function showApp(){gate.style.display='none';document.getElementById('athletePortal').style.display='none';document.querySelector('main').style.display='';document.querySelector('header').style.display=''}
+function uuid(){return crypto.randomUUID()}
+function normalizeLocalIds(){
+ const map=new Map();
+ for(const a of db.athletes||[]){if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(a.id)){const old=a.id;a.id=uuid();map.set(old,a.id)}}
+ for(const key of ['dues','progress','events','attendance']) for(const x of db[key]||[]){if(map.has(x.athlete))x.athlete=map.get(x.athlete);if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x.id))x.id=uuid()}
+}
+function parseEventDetails(s){try{const x=JSON.parse(s||'{}');return x&&typeof x==='object'?x:{notes:s||''}}catch{return {notes:s||''}}}
+async function loadRemote(){
+ const tables=['athletes','memberships','attendance','progress','events'];
+ const results=await Promise.all(tables.map(t=>sb.from(t).select('*')));
+ for(let i=0;i<tables.length;i++)if(results[i].error)throw new Error('تعذر قراءة جدول '+tables[i]+': '+results[i].error.message);
+ const [aa,mm,at,pp,ee]=results.map(x=>x.data||[]);
+ const remoteAth=aa.map(a=>({id:a.id,profile_id:a.profile_id||null,name:a.full_name,birth:a.birth_date||'',gender:a.gender||'ذكر',category:a.category||'',weight:a.weight??'',height:a.height??'',stance:a.stance||'',phone:a.phone||'',guardian:a.guardian||'',guardianPhone:a.guardian_phone||'',joined:a.registration_date||'',status:a.club_status||(a.active===false?'متوقف عن التدريب':'نشط'),status_reason:a.status_reason||'',status_start_date:a.status_start_date||'',status_end_date:a.status_end_date||'',notes:a.notes||'',photo:a.photo_url||''}));
+ const remoteDues=mm.map(m=>({id:m.id,athlete:m.athlete_id,month:String(m.payment_month||'').slice(0,7),amount:String(m.monthly_amount??0),paid:String(m.amount_paid??(m.paid?m.monthly_amount:0)),date:m.paid_at?String(m.paid_at).slice(0,10):'',method:m.payment_method||'نقداً',notes:m.notes||''}));
+ const remoteAtt=at.map(a=>({id:a.id,athlete:a.athlete_id,date:a.training_date,status:a.status,session:a.session||'',notes:a.notes||''}));
+ const groups=new Map();
+ for(const p of pp){const k=[p.athlete_id,p.progress_date,p.goal||'',p.notes||''].join('|');if(!groups.has(k))groups.set(k,{id:p.id,athlete:p.athlete_id,date:p.progress_date,goal:p.goal||'',notes:p.notes||''});const g=groups.get(k);if(p.metric&&p.value!==null){g[p.metric]=String(p.value);g._remoteIds=g._remoteIds||{};g._remoteIds[p.metric]=p.id}}
+ const remoteProg=[...groups.values()];
+ const remoteEvents=ee.map(e=>{const d=parseEventDetails(e.details);return {id:e.id,type:e.event_type||'نشاط',name:e.title,place:e.location||'',start:e.event_date||'',end:d.end||'',athlete:e.athlete_id||'',result:e.result||'',status:d.status||'مخطط لها',notes:d.notes||''}});
+ // Merge by UUID so locally saved entries are not discarded on first connection.
+ const merge=(local,remote)=>{const m=new Map(remote.map(x=>[x.id,x]));for(const x of local||[]){const remoteItem=m.get(x.id);const merged={...x};if(merged.profile_id===undefined&&remoteItem?.profile_id!==undefined)merged.profile_id=remoteItem.profile_id;m.set(x.id,merged)}return [...m.values()]};
+ db.athletes=merge(db.athletes,remoteAth);db.dues=merge(db.dues,remoteDues);db.attendance=merge(db.attendance,remoteAtt);db.progress=merge(db.progress,remoteProg);db.events=merge(db.events,remoteEvents);
+ normalizeLocalIds();localStorage.setItem(KEY,JSON.stringify(db));render();if(typeof fillClubCompetitionAthletes==='function')fillClubCompetitionAthletes();
+}
+async function syncAll(){
+ if(!codmUser||syncing)return false;syncing=true;
+ try{
+  normalizeLocalIds();
+  // Preserve profile links created for athlete login accounts before every staff sync.
+  const linksResult=await sb.from('athletes').select('id,profile_id');
+  if(linksResult.error)throw linksResult.error;
+  const profileLinks=new Map((linksResult.data||[]).map(row=>[row.id,row.profile_id]));
+  const athletes=(db.athletes||[]).map(a=>({id:a.id,profile_id:profileLinks.get(a.id)??a.profile_id??null,full_name:a.name,birth_date:a.birth||null,gender:a.gender||null,category:a.category||null,weight:a.weight===''?null:Number(a.weight),height:a.height===''?null:Number(a.height),stance:a.stance||null,phone:a.phone||null,guardian:a.guardian||null,guardian_phone:a.guardianPhone||null,notes:a.notes||null,photo_url:(a.photo||'').startsWith('http')?a.photo:null,registration_date:a.joined||null,active:(a.status||'نشط')==='نشط',club_status:a.status||'نشط',status_reason:a.status_reason||null,status_start_date:a.status_start_date||null,status_end_date:a.status_end_date||null}));
+  if(athletes.length){const r=await sb.from('athletes').upsert(athletes,{onConflict:'id'});if(r.error)throw r.error}
+  const dues=(db.dues||[]).map(d=>({id:d.id,athlete_id:d.athlete,monthly_amount:Number(d.amount||0),payment_month:(d.month||new Date().toISOString().slice(0,7))+'-01',paid:Number(d.paid||0)>=Number(d.amount||0),amount_paid:Number(d.paid||0),paid_at:d.date||null,payment_method:d.method||null,notes:d.notes||null}));
+  if(dues.length){const r=await sb.from('memberships').upsert(dues,{onConflict:'id'});if(r.error)throw r.error}
+  const attendance=(db.attendance||[]).map(a=>({id:a.id,athlete_id:a.athlete,training_date:a.date,status:a.status,session:a.session||null,notes:a.notes||null,recorded_by:codmUser.id}));
+  if(attendance.length){const r=await sb.from('attendance').upsert(attendance,{onConflict:'id'});if(r.error)throw r.error}
+  const progress=[];for(const p of db.progress||[]){p._remoteIds=p._remoteIds||{};for(const [k,v,u] of [['run',p.run,'ثانية'],['rope',p.rope,'عدد/دقيقة'],['punch',p.punch,'عدد/30ث'],['push',p.push,'عدد'],['sit',p.sit,'عدد'],['tech',p.tech,'/10'],['weight',p.weight,'كغ'],['height',p.height,'سم'],['speed',p.speed,'ثانية'],['strength',p.strength,'متر'],['endurance',p.endurance,'متر'],['flexibility',p.flexibility,'سم'],['accuracy',p.accuracy,'%'],['power',p.power,'/10'],['defense',p.defense,'/10'],['footwork',p.footwork,'/10']])if(v!==''&&v!==undefined&&v!==null){p._remoteIds[k]=p._remoteIds[k]||uuid();progress.push({id:p._remoteIds[k],athlete_id:p.athlete,progress_date:p.date,metric:k,value:Number(v),unit:u,goal:p.goal||null,notes:p.notes||null,recorded_by:codmUser.id})}}
+  if(progress.length){const r=await sb.from('progress').upsert(progress,{onConflict:'id'});if(r.error)throw r.error}
+  const events=(db.events||[]).map(e=>({id:e.id,athlete_id:e.athlete||null,title:e.name,event_type:e.type,event_date:e.start||null,location:e.place||null,details:JSON.stringify({end:e.end||'',status:e.status||'',notes:e.notes||''}),result:e.result||null,created_by:codmUser.id}));
+  if(events.length){const r=await sb.from('events').upsert(events,{onConflict:'id'});if(r.error)throw r.error}
+  localStorage.setItem(KEY,JSON.stringify(db));
+  return true;
+ }catch(err){console.error('CODM sync:',err);alert('تم الحفظ محلياً، لكن تعذر مزامنة البيانات مع قاعدة النادي: '+(err.message||err));return false}finally{syncing=false}
+}
+// Override the local save hook: keep local backup and send supported records to Supabase.
+window.save=function(){localStorage.setItem(KEY,JSON.stringify(db));render();syncAll()};
+const originalDelete=window.del;window.del=async function(table,id){if(!confirm('هل تريدين حذف هذا السجل؟'))return;const oldItem=(db[table]||[]).find(x=>x.id===id);db[table]=db[table].filter(x=>x.id!==id);localStorage.setItem(KEY,JSON.stringify(db));render();if(!codmUser)return;try{if(table==='athletes'){const r=await sb.from('athletes').delete().eq('id',id);if(r.error)throw r.error}else{const remoteTable={dues:'memberships',attendance:'attendance',events:'events'}[table];if(remoteTable){const r=await sb.from(remoteTable).delete().eq('id',id);if(r.error)throw r.error}else if(table==='progress'&&oldItem?._remoteIds){for(const rid of Object.values(oldItem._remoteIds)){const r=await sb.from('progress').delete().eq('id',rid);if(r.error)throw r.error}}}}catch(err){alert('حُذف من هذه الشاشة، لكن تعذر حذفه من قاعدة البيانات: '+err.message)}};
+
+// === CODM announcements with Supabase Storage ===
+const ANNOUNCEMENT_BUCKET='codm-announcements';
+let announcementRows=[];
+let editingAnnouncementId=null;
+const announcementForm=document.getElementById('announcementForm');
+const announcementInput=document.getElementById('announcementImage');
+const announcementPreviewList=document.getElementById('announcementPreviewList');
+const announcementSubmit=document.getElementById('announcementSubmit');
+const announcementStatus=document.getElementById('announcementStatus');
+const announcementCancelEdit=document.getElementById('announcementCancelEdit');
+function getAnnouncementImages(a){
+ const list=Array.isArray(a?.image_urls)?a.image_urls.filter(Boolean):[];
+ if(list.length)return list;
+ return a?.image_url?[a.image_url]:[];
+}
+function showAnnouncementPreviews(urls){
+ const list=(urls||[]).filter(Boolean);
+ announcementPreviewList.innerHTML=list.map((url,i)=>`<img src="${esc(url)}" alt="صورة الإعلان ${i+1}" loading="lazy" style="width:100%;height:130px;object-fit:contain;border-radius:9px;border:1px solid var(--line);background:#f3f4f6">`).join('');
+ announcementPreviewList.style.display=list.length?'grid':'none';
+}
+function resetAnnouncementEditor(clearStatus=true){
+ editingAnnouncementId=null;
+ announcementForm.reset();
+ announcementInput.value='';
+ showAnnouncementPreviews([]);
+ document.getElementById('announcementFormHeading').textContent='نشر إعلان جديد';
+ announcementSubmit.textContent='نشر الإعلان';
+ announcementCancelEdit.style.display='none';
+ if(clearStatus)announcementStatus.textContent='';
+}
+function renderAnnouncements(){
+ const host=document.getElementById('announcementList');
+ if(!announcementRows.length){host.innerHTML='<p class="empty">لا توجد إعلانات منشورة بعد.</p>';return}
+ const canEdit=!!codmUser; // الواجهة الإدارية لا تُفتح إلا للرئيس أو المدرب بعد التحقق من الدور.
+ host.innerHTML=announcementRows.map(a=>{const images=getAnnouncementImages(a);return `<article class="card" style="margin:0;min-width:0"><h3>${esc(a.title)}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')} ${a.event_date?' • '+esc(new Date(a.event_date).toLocaleString('ar-DZ')):''} ${a.location?' • '+esc(a.location):''}</p>${images.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:10px 0">${images.map((url,i)=>`<img src="${esc(url)}" alt="${esc(a.title)} - صورة ${i+1}" loading="lazy" style="width:100%;max-height:280px;object-fit:contain;border-radius:9px;background:#f3f4f6">`).join('')}</div>`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}${canEdit?`<div class="no-print" style="display:block;margin-top:10px"><button class="btn tiny secondary" type="button" data-edit-announcement="${esc(a.id)}" style="display:inline-block">تعديل الإعلان</button></div>`:''}</article>`}).join('');
+ host.onclick=(event)=>{const button=event.target.closest('[data-edit-announcement]');if(button)window.editAnnouncement(button.dataset.editAnnouncement);};
+}
+async function loadAnnouncements(){
+ const host=document.getElementById('announcementList');
+ host.innerHTML='<p class="muted">جارٍ تحميل الإعلانات...</p>';
+ let timeoutId;
+ try{
+  const request=sb.from('announcements').select('*').order('created_at',{ascending:false}).limit(100);
+  const timeout=new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('استغرق الاتصال أكثر من 15 ثانية. تحققي من الاتصال ثم أعيدي المحاولة.')),15000)});
+  const {data,error}=await Promise.race([request,timeout]);
+  if(error)throw error;
+  announcementRows=data||[];
+  renderAnnouncements();
+ }catch(err){
+  console.error('CODM announcements:',err);
+  host.innerHTML='<div class="empty"><p>تعذر تحميل الإعلانات: '+esc(err.message||err)+'</p><button class="btn tiny" type="button" id="retryAnnouncements">إعادة تحميل الإعلانات</button></div>';
+  document.getElementById('retryAnnouncements')?.addEventListener('click',loadAnnouncements);
+ }finally{if(timeoutId)clearTimeout(timeoutId)}
+}
+window.editAnnouncement=function(id){
+ if(!codmUser){alert('يجب تسجيل الدخول بحساب الإدارة لتعديل الإعلان.');return}
+ const a=announcementRows.find(item=>String(item.id)===String(id));if(!a)return alert('لم نعثر على الإعلان المطلوب. حدّث قائمة الإعلانات وحاول مجدداً.');
+ editingAnnouncementId=a.id;
+ announcementForm.elements.title.value=a.title||'';
+ announcementForm.elements.type.value=a.announcement_type||'general';
+ announcementForm.elements.date.value=a.event_date?(()=>{const d=new Date(a.event_date);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)})():'';
+ announcementForm.elements.location.value=a.location||'';
+ announcementForm.elements.details.value=a.details||'';
+ announcementInput.value='';
+ showAnnouncementPreviews(getAnnouncementImages(a));
+ document.getElementById('announcementFormHeading').textContent='تعديل الإعلان';
+ announcementSubmit.textContent='حفظ التعديلات';
+ announcementCancelEdit.style.display='inline-block';
+ announcementStatus.textContent='عدّل البيانات المطلوبة، ثم اضغط حفظ التعديلات.';
+ announcementForm.scrollIntoView({behavior:'smooth',block:'start'});
+};
+announcementInput.addEventListener('change',()=>{
+ const files=Array.from(announcementInput.files||[]);
+ const old=announcementRows.find(a=>String(a.id)===String(editingAnnouncementId));
+ if(!files.length){showAnnouncementPreviews(old?getAnnouncementImages(old):[]);return}
+ const existing=old?getAnnouncementImages(old):[];
+ if(existing.length+files.length>10){alert('يمكن أن يحتوي الإعلان على 10 صور كحد أقصى بالمجموع.');announcementInput.value='';showAnnouncementPreviews(existing);return}
+ const invalid=files.find(f=>!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024);
+ if(invalid){alert('تأكدي أن كل الصور بصيغة JPG أو PNG أو WEBP وألا يتجاوز حجم أي صورة 5 ميغابايت.');announcementInput.value='';showAnnouncementPreviews(existing);return}
+ showAnnouncementPreviews([...existing,...files.map(f=>URL.createObjectURL(f))]);
+});
+announcementForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(!codmUser||!codmProfile)return alert('يجب تسجيل الدخول أولاً.');
+ const fd=new FormData(announcementForm),files=Array.from(announcementInput.files||[]);
+ if(files.length>10)return alert('يمكن اختيار 10 صور كحد أقصى للإعلان الواحد.');
+ if(files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024))return alert('تأكدي أن كل الصور بصيغة JPG أو PNG أو WEBP وألا يتجاوز حجم أي صورة 5 ميغابايت.');
+ const isEditing=!!editingAnnouncementId;
+ announcementSubmit.disabled=true;announcementStatus.textContent=isEditing?'جارٍ حفظ تعديلات الإعلان...':'جارٍ نشر الإعلان...';
+ const uploadedPaths=[],uploadedUrls=[];
+ try{
+  const oldRecord=isEditing?announcementRows.find(a=>String(a.id)===String(editingAnnouncementId)):null;
+  const oldImages=oldRecord?getAnnouncementImages(oldRecord):[];
+  if(oldImages.length+files.length>10)throw new Error('لا يمكن أن يتجاوز مجموع صور الإعلان 10 صور.');
+  for(const file of files){
+   const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+   const uploadedPath=`${codmUser.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+   const up=await sb.storage.from(ANNOUNCEMENT_BUCKET).upload(uploadedPath,file,{contentType:file.type,upsert:false});
+   if(up.error)throw up.error;
+   uploadedPaths.push(uploadedPath);
+   uploadedUrls.push(sb.storage.from(ANNOUNCEMENT_BUCKET).getPublicUrl(uploadedPath).data.publicUrl);
+  }
+  const allImages=[...oldImages,...uploadedUrls];
+  const eventDate=fd.get('date');
+  const payload={title:String(fd.get('title')).trim(),announcement_type:fd.get('type'),details:String(fd.get('details')||'').trim()||null,event_date:eventDate?new Date(eventDate).toISOString():null,location:String(fd.get('location')||'').trim()||null,image_url:allImages[0]||null,image_urls:allImages};
+  let saved;
+  if(isEditing){
+   const upd=await sb.from('announcements').update(payload).eq('id',editingAnnouncementId).select('*').single();if(upd.error)throw upd.error;saved=upd.data;
+   announcementRows=announcementRows.map(a=>String(a.id)===String(editingAnnouncementId)?saved:a);
+  }else{
+   payload.created_by=codmProfile.id;
+   const ins=await sb.from('announcements').insert(payload).select('*').single();if(ins.error)throw ins.error;saved=ins.data;
+   announcementRows.unshift(saved);
+  }
+  renderAnnouncements();resetAnnouncementEditor(false);announcementStatus.textContent=isEditing?'تم حفظ تعديلات الإعلان بنجاح.':'تم نشر الإعلان بنجاح.';
+ }catch(err){if(uploadedPaths.length){try{await sb.storage.from(ANNOUNCEMENT_BUCKET).remove(uploadedPaths)}catch{}}announcementStatus.textContent=(isEditing?'تعذر تعديل الإعلان: ':'تعذر نشر الإعلان: ')+(err.message||err);alert(announcementStatus.textContent)}finally{announcementSubmit.disabled=false}
+});
+document.getElementById('announcementReset').addEventListener('click',()=>{resetAnnouncementEditor(true)});
+announcementCancelEdit.addEventListener('click',()=>{resetAnnouncementEditor(true)});
+// إدارة طلبات الانضمام: متاحة فقط لحسابات الرئيس والمدرب، وتخضع لسياسات RLS في Supabase.
+let membershipRequestRows=[];
+function renderMembershipRequests(){
+ const host=document.getElementById('membershipRequestList');
+ const pending=membershipRequestRows.filter(r=>(r.status||'pending')==='pending').length;
+ const count=document.getElementById('requestCount');if(count)count.textContent=String(pending);
+ if(!membershipRequestRows.length){host.innerHTML='<p class="empty">لا توجد طلبات انضمام حالياً.</p>';return}
+ host.innerHTML=membershipRequestRows.map(r=>{
+  const status=r.status||'pending';
+  const statusLabel=status==='approved'?'مقبول':status==='rejected'?'مرفوض':'قيد المراجعة';
+  const statusClass=status==='approved'?'':status==='rejected'?'no':'no';
+  const date=r.created_at?new Date(r.created_at).toLocaleString('ar-DZ'):'—';
+  return `<article class="card" style="margin:10px 0;border-right:4px solid ${status==='approved'?'#16804a':status==='rejected'?'#a4262c':'#c8a45d'}">
+   <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(r.full_name||'بدون اسم')}</h3><span class="pill ${statusClass}">${statusLabel}</span></div>
+   <div class="grid"><div><b>تاريخ الميلاد:</b> ${esc(r.birth_date||'—')}</div><div><b>الجنس:</b> ${esc(r.gender||'—')}</div><div><b>الفئة:</b> ${esc(r.category||'—')}</div><div><b>هاتف الرياضي:</b> ${esc(r.phone||'—')}</div><div><b>ولي الأمر:</b> ${esc(r.guardian||'—')}</div><div><b>هاتف ولي الأمر:</b> ${esc(r.guardian_phone||'—')}</div><div><b>تاريخ الإرسال:</b> ${esc(date)}</div></div>
+   ${r.notes?`<p><b>ملاحظات:</b> ${esc(r.notes)}</p>`:''}
+   ${status==='pending'?`<div><button class="btn tiny" type="button" onclick="reviewMembershipRequest('${r.id}','approved')">قبول الطلب</button><button class="btn tiny danger" type="button" onclick="reviewMembershipRequest('${r.id}','rejected')">رفض الطلب</button></div>`:status==='rejected'?`<div><button class="btn tiny danger" type="button" onclick="deleteRejectedMembershipRequest('${r.id}')">حذف الطلب المرفوض</button></div>`:''}
+  </article>`;
+ }).join('');
+}
+async function loadMembershipRequests(){
+ const host=document.getElementById('membershipRequestList');if(!codmUser||!host)return;
+ host.innerHTML='<p class="empty">جارٍ تحميل الطلبات...</p>';
+ try{const {data,error}=await sb.from('membership_requests').select('*').order('created_at',{ascending:false});if(error)throw error;membershipRequestRows=data||[];renderMembershipRequests();}
+ catch(err){host.innerHTML=`<p class="empty">تعذر تحميل الطلبات: ${esc(err.message)}. تأكدي من صلاحيات جدول membership_requests.</p>`;console.error('Membership requests:',err)}
+}
+window.reviewMembershipRequest=async function(id,status){
+ if(!codmUser||!['approved','rejected'].includes(status))return;
+ const label=status==='approved'?'قبول':'رفض';if(!confirm(`هل تريدين ${label} هذا الطلب؟`))return;
+ try{const {error}=await sb.from('membership_requests').update({status,reviewed_at:new Date().toISOString(),reviewed_by:codmUser.id}).eq('id',id);if(error)throw error;await loadMembershipRequests();alert(status==='approved'?'تمت الموافقة على الطلب. يجب إنشاء ملف الملاكم وحساب الدخول بشكل منفصل.':'تم رفض الطلب.');}
+ catch(err){alert('تعذر تحديث الطلب: '+err.message)}
+};
+
+document.getElementById('refreshMembershipRequests').addEventListener('click',loadMembershipRequests);
+window.deleteRejectedMembershipRequest=async function(id){
+ const row=membershipRequestRows.find(r=>String(r.id)===String(id));
+ if(!row||row.status!=='rejected')return alert('يمكن حذف الطلبات المرفوضة فقط.');
+ if(!confirm('هل تريدين حذف هذا الطلب المرفوض نهائياً؟ لا يمكن التراجع عن الحذف.'))return;
+ try{const {error}=await sb.from('membership_requests').delete().eq('id',id);if(error)throw error;membershipRequestRows=membershipRequestRows.filter(r=>String(r.id)!==String(id));renderMembershipRequests();alert('تم حذف الطلب المرفوض.');}
+ catch(err){alert('تعذر حذف الطلب: '+(err.message||err)+' — تحققي من صلاحية DELETE في إعداد SQL.');}
+};
+
+// === برنامج المنافسات والإنجازات: جدول مستقل حتى لا تتأثر سجلات البطولات القديمة ===
+let clubCompetitionRows=[];
+const clubCompetitionForm=document.getElementById('clubCompetitionForm');
+const clubCompetitionList=document.getElementById('clubCompetitionList');
+const clubCompetitionStatus=document.getElementById('clubCompetitionStatus');
+function fillClubCompetitionAthletes(selectedNames=[]){
+ const select=document.getElementById('clubCompetitionAthletes');
+ const chosen=new Set(selectedNames||[]);
+ select.innerHTML=(db.athletes||[]).map(a=>`<option value="${esc(a.id)}" ${chosen.has(a.name)?'selected':''}>${esc(a.name)} — ${esc(a.category||'')}</option>`).join('')||'<option disabled>لا توجد ملفات ملاكمين</option>';
+}
+function renderClubCompetitions(){
+ if(!clubCompetitionList)return;
+ if(!clubCompetitionRows.length){clubCompetitionList.innerHTML='<p class="empty">لا توجد منافسات مسجلة بعد.</p>';return;}
+ clubCompetitionList.innerHTML=clubCompetitionRows.map(c=>`<article class="card" style="margin:10px 0">
+  <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h3>${esc(c.competition_name)}</h3><span class="pill">${esc(c.status||'قادمة')}</span></div>
+  <p class="muted">${esc(c.competition_type||'منافسة')} • ${esc(c.competition_date||'—')} ${c.location?' • '+esc(c.location):''}</p>
+  <p><b>الملاكمون المعنيون:</b> ${esc((c.athlete_names||[]).join('، ')||'لم يحدد بعد')}</p>
+  ${c.staff_names?`<p><b>الطاقم المشرف:</b><br>${esc(c.staff_names).replace(/\n/g,'<br>')}</p>`:''}
+  ${c.achievement?`<p><b>الإنجاز المحقق:</b><br>${esc(c.achievement).replace(/\n/g,'<br>')}</p>`:''}
+  ${c.details?`<p>${esc(c.details).replace(/\n/g,'<br>')}</p>`:''}
+  <p class="muted">${c.is_published?'منشور للجمهور':'غير منشور للجمهور'}</p>
+  <button class="btn tiny secondary" type="button" data-edit-competition="${esc(c.id)}">تعديل</button>
+  <button class="btn tiny danger" type="button" data-delete-competition="${esc(c.id)}">حذف</button>
+ </article>`).join('');
+}
+async function loadClubCompetitions(){
+ if(!clubCompetitionList||!codmUser)return;
+ clubCompetitionList.innerHTML='<p class="muted">جارٍ تحميل المنافسات...</p>';
+ try{const {data,error}=await sb.from('club_competitions').select('*').order('competition_date',{ascending:true});if(error)throw error;clubCompetitionRows=data||[];renderClubCompetitions();}
+ catch(err){clubCompetitionList.innerHTML=`<p class="empty">تعذر تحميل المنافسات: ${esc(err.message)}. نفّذي ملف إعداد Supabase المرفق.</p>`;console.error('Club competitions:',err)}
+}
+function resetClubCompetitionForm(){clubCompetitionForm.reset();clubCompetitionForm.elements.id.value='';clubCompetitionForm.elements.is_published.checked=true;document.getElementById('clubCompetitionHeading').textContent='إضافة منافسة / برنامج مشاركة';document.getElementById('clubCompetitionSubmit').textContent='حفظ المنافسة';document.getElementById('clubCompetitionCancel').style.display='none';fillClubCompetitionAthletes();clubCompetitionStatus.textContent='';}
+clubCompetitionList.addEventListener('click',async e=>{
+ const edit=e.target.closest('[data-edit-competition]'),del=e.target.closest('[data-delete-competition]');
+ if(edit){const c=clubCompetitionRows.find(x=>String(x.id)===String(edit.dataset.editCompetition));if(!c)return;clubCompetitionForm.elements.id.value=c.id;clubCompetitionForm.elements.competition_name.value=c.competition_name||'';clubCompetitionForm.elements.competition_type.value=c.competition_type||'';clubCompetitionForm.elements.competition_date.value=c.competition_date||'';clubCompetitionForm.elements.location.value=c.location||'';clubCompetitionForm.elements.staff_names.value=c.staff_names||'';clubCompetitionForm.elements.achievement.value=c.achievement||'';clubCompetitionForm.elements.details.value=c.details||'';clubCompetitionForm.elements.status.value=c.status||'قادمة';clubCompetitionForm.elements.is_published.checked=!!c.is_published;fillClubCompetitionAthletes(c.athlete_names||[]);document.getElementById('clubCompetitionHeading').textContent='تعديل المنافسة';document.getElementById('clubCompetitionSubmit').textContent='حفظ التعديلات';document.getElementById('clubCompetitionCancel').style.display='inline-block';clubCompetitionForm.scrollIntoView({behavior:'smooth'});return;}
+ if(del){const id=del.dataset.deleteCompetition;if(!confirm('هل تريدين حذف هذه المنافسة؟'))return;try{const {error}=await sb.from('club_competitions').delete().eq('id',id);if(error)throw error;clubCompetitionRows=clubCompetitionRows.filter(x=>String(x.id)!==String(id));renderClubCompetitions();}catch(err){alert('تعذر حذف المنافسة: '+err.message)}}
+});
+document.getElementById('clubCompetitionCancel').addEventListener('click',resetClubCompetitionForm);
+clubCompetitionForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(!codmUser||!codmProfile)return alert('يجب تسجيل الدخول بحساب الإدارة.');
+ const f=new FormData(clubCompetitionForm),selectedIds=Array.from(document.getElementById('clubCompetitionAthletes').selectedOptions).map(o=>o.value),athleteNames=selectedIds.map(id=>db.athletes.find(a=>String(a.id)===String(id))?.name).filter(Boolean),id=f.get('id');
+ const payload={competition_name:String(f.get('competition_name')||'').trim(),competition_type:String(f.get('competition_type')||'').trim()||null,competition_date:f.get('competition_date'),location:String(f.get('location')||'').trim()||null,athlete_names:athleteNames,staff_names:String(f.get('staff_names')||'').trim()||null,achievement:String(f.get('achievement')||'').trim()||null,details:String(f.get('details')||'').trim()||null,status:f.get('status'),is_published:clubCompetitionForm.elements.is_published.checked,created_by:codmProfile.id};
+ if(!payload.competition_name||!payload.competition_date)return alert('يرجى إدخال اسم المنافسة وتاريخها.');
+ const button=document.getElementById('clubCompetitionSubmit');button.disabled=true;clubCompetitionStatus.textContent='جارٍ حفظ المنافسة...';
+ try{let result;if(id){result=await sb.from('club_competitions').update(payload).eq('id',id).select('*').single();}else{result=await sb.from('club_competitions').insert(payload).select('*').single();}if(result.error)throw result.error;
+  if(id)clubCompetitionRows=clubCompetitionRows.map(c=>String(c.id)===String(id)?result.data:c);else clubCompetitionRows.push(result.data);
+  clubCompetitionRows.sort((a,b)=>String(a.competition_date).localeCompare(String(b.competition_date)));renderClubCompetitions();resetClubCompetitionForm();clubCompetitionStatus.textContent='تم حفظ المنافسة بنجاح.';
+ }catch(err){clubCompetitionStatus.textContent='تعذر حفظ المنافسة: '+err.message;alert(clubCompetitionStatus.textContent)}finally{button.disabled=false}
+});
+
+// === فيديوهات النادي ===
+const VIDEO_BUCKET='codm-videos';let videoRows=[];let editingVideoId=null;
+const videoForm=document.getElementById('videoForm'),videoFile=document.getElementById('videoFile'),videoStatus=document.getElementById('videoStatus');
+function renderVideos(){
+ const host=document.getElementById('videoAdminList');if(!host)return;
+ if(!videoRows.length){host.innerHTML='<p class="empty">لا توجد فيديوهات منشورة بعد.</p>';return;}
+ host.innerHTML=videoRows.map(v=>`<article class="card" style="margin:0"><h3>${esc(v.title)}</h3><p class="muted">${esc(v.category||'أخرى')} • ${v.is_published?'منشور للجمهور':'مخفي عن الجمهور'}</p><video controls playsinline preload="metadata" style="width:100%;max-height:300px;background:#111;border-radius:9px" src="${esc(v.video_url)}"></video>${v.description?`<p>${esc(v.description)}</p>`:''}<button class="btn tiny secondary" type="button" data-edit-video="${esc(v.id)}">تعديل</button><button class="btn tiny danger" type="button" data-delete-video="${esc(v.id)}">حذف</button></article>`).join('');
+}
+async function loadVideos(){if(!codmUser)return;const host=document.getElementById('videoAdminList');host.innerHTML='<p class="muted">جارٍ تحميل الفيديوهات...</p>';try{const {data,error}=await sb.from('club_videos').select('*').order('created_at',{ascending:false});if(error)throw error;videoRows=data||[];renderVideos();}catch(err){host.innerHTML=`<p class="empty">تعذر تحميل الفيديوهات: ${esc(err.message)}. نفّذي ملف SQL المرفق.</p>`;}}
+function resetVideoForm(){videoForm.reset();videoForm.elements.id.value='';editingVideoId=null;videoFile.value='';videoFile.required=true;document.getElementById('videoFormHeading').textContent='نشر فيديو جديد للجمهور';document.getElementById('videoSubmit').textContent='نشر الفيديو';document.getElementById('videoCancelEdit').style.display='none';videoStatus.textContent='';}
+document.getElementById('videoAdminList').addEventListener('click',async e=>{
+ const edit=e.target.closest('[data-edit-video]'),del=e.target.closest('[data-delete-video]');
+ if(edit){const v=videoRows.find(x=>String(x.id)===String(edit.dataset.editVideo));if(!v)return;editingVideoId=v.id;videoForm.elements.id.value=v.id;videoForm.elements.title.value=v.title||'';videoForm.elements.category.value=v.category||'أخرى';videoForm.elements.description.value=v.description||'';videoForm.elements.is_published.checked=!!v.is_published;videoFile.required=false;document.getElementById('videoFormHeading').textContent='تعديل بيانات الفيديو';document.getElementById('videoSubmit').textContent='حفظ التعديلات';document.getElementById('videoCancelEdit').style.display='inline-block';videoForm.scrollIntoView({behavior:'smooth'});return;}
+ if(del){const v=videoRows.find(x=>String(x.id)===String(del.dataset.deleteVideo));if(!v||!confirm('هل تريدين حذف الفيديو نهائياً؟'))return;try{const {error}=await sb.from('club_videos').delete().eq('id',v.id);if(error)throw error;if(v.storage_path){const rm=await sb.storage.from(VIDEO_BUCKET).remove([v.storage_path]);if(rm.error)console.warn('Video storage cleanup:',rm.error.message);}videoRows=videoRows.filter(x=>String(x.id)!==String(v.id));renderVideos();}catch(err){alert('تعذر حذف الفيديو: '+err.message)}}
+});
+document.getElementById('videoCancelEdit').addEventListener('click',()=>{videoFile.required=true;resetVideoForm()});
+videoForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(!codmUser||!codmProfile)return alert('يجب تسجيل الدخول بحساب الإدارة.');
+ const f=new FormData(videoForm),id=f.get('id'),old=id?videoRows.find(v=>String(v.id)===String(id)):null,file=videoFile.files[0];
+ if(!old&&!file)return alert('اختاري ملف فيديو أولاً.');
+ if(file&&(!['video/mp4','video/webm','video/quicktime'].includes(file.type)||file.size>50*1024*1024))return alert('الصيغة غير مدعومة أو تجاوز الفيديو 50 ميغابايت. استخدمي MP4 أو WEBM أو MOV.');
+ const btn=document.getElementById('videoSubmit'),uploaded=[];btn.disabled=true;videoStatus.textContent='جارٍ رفع الفيديو وحفظ بياناته...';
+ try{
+  let videoUrl=old?.video_url||null,storagePath=old?.storage_path||null;
+  if(file){const ext=file.type==='video/webm'?'webm':file.type==='video/quicktime'?'mov':'mp4';const path=`${codmUser.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;const up=await sb.storage.from(VIDEO_BUCKET).upload(path,file,{contentType:file.type,upsert:false});if(up.error)throw up.error;uploaded.push(path);videoUrl=sb.storage.from(VIDEO_BUCKET).getPublicUrl(path).data.publicUrl;storagePath=path;}
+  const payload={title:String(f.get('title')||'').trim(),category:String(f.get('category')||'أخرى'),description:String(f.get('description')||'').trim()||null,video_url:videoUrl,storage_path:storagePath,is_published:videoForm.elements.is_published.checked,created_by:codmProfile.id};
+  let saved;if(id){const {data,error}=await sb.from('club_videos').update(payload).eq('id',id).select('*').single();if(error)throw error;saved=data;videoRows=videoRows.map(v=>String(v.id)===String(id)?saved:v);if(file&&old?.storage_path)await sb.storage.from(VIDEO_BUCKET).remove([old.storage_path]);}
+  else{const {data,error}=await sb.from('club_videos').insert(payload).select('*').single();if(error)throw error;saved=data;videoRows.unshift(saved);}
+  renderVideos();resetVideoForm();videoStatus.textContent='تم حفظ الفيديو بنجاح.';
+ }catch(err){if(uploaded.length)await sb.storage.from(VIDEO_BUCKET).remove(uploaded);videoStatus.textContent='تعذر حفظ الفيديو: '+err.message;alert(videoStatus.textContent)}finally{btn.disabled=false}
+});
+
+async function loadPublicCompetitions(){
+ const host=document.getElementById('publicCompetitions');if(!host)return;host.innerHTML='<p class="muted">جارٍ تحميل برنامج المنافسات...</p>';
+ try{const {data,error}=await sb.from('club_competitions').select('id,competition_name,competition_type,competition_date,location,athlete_names,staff_names,achievement,details,status').eq('is_published',true).order('competition_date',{ascending:true});if(error)throw error;
+  host.innerHTML=(data||[]).map(c=>`<article class="card"><h3>${esc(c.competition_name)}</h3><p class="muted">${esc(c.competition_type||'منافسة')} • ${esc(c.competition_date||'—')} ${c.location?' • '+esc(c.location):''} • ${esc(c.status||'قادمة')}</p><p><b>الملاكمون المعنيون:</b> ${esc((c.athlete_names||[]).join('، ')||'سيتم الإعلان عن القائمة لاحقاً')}</p>${c.staff_names?`<p><b>الطاقم المشرف:</b><br>${esc(c.staff_names).replace(/\n/g,'<br>')}</p>`:''}${c.achievement?`<p><b>الإنجاز المحقق:</b><br>${esc(c.achievement).replace(/\n/g,'<br>')}</p>`:''}${c.details?`<p>${esc(c.details).replace(/\n/g,'<br>')}</p>`:''}</article>`).join('')||'<p class="empty">لا توجد منافسات معلنة حالياً.</p>';
+ }catch(err){host.innerHTML=`<p class="muted">تعذر تحميل برنامج المنافسات: ${esc(err.message)}</p>`;}
+}
+async function loadPublicVideos(){
+ const host=document.getElementById('publicVideos');if(!host)return;host.innerHTML='<p class="muted">جارٍ تحميل فيديوهات النادي...</p>';
+ try{const {data,error}=await sb.from('club_videos').select('id,title,category,description,video_url,created_at').eq('is_published',true).order('created_at',{ascending:false});if(error)throw error;
+  host.innerHTML=(data||[]).map(v=>`<article class="card" style="margin:0"><h3>${esc(v.title)}</h3><p class="muted">${esc(v.category||'أخرى')}${v.created_at?' • '+esc(new Date(v.created_at).toLocaleDateString('ar-DZ')):''}</p><video controls playsinline preload="metadata" style="width:100%;max-height:360px;background:#111;border-radius:9px" src="${esc(v.video_url)}"></video>${v.description?`<p>${esc(v.description)}</p>`:''}</article>`).join('')||'<p class="empty">لا توجد فيديوهات منشورة حالياً.</p>';
+ }catch(err){host.innerHTML=`<p class="muted">تعذر تحميل الفيديوهات: ${esc(err.message)}</p>`;}
+}
+
+// الواجهة العامة: تعرض الإعلانات فقط، ولا تكشف بيانات الرياضيين أو ملفاتهم.
+const publicPortal=document.getElementById('publicPortal');
+document.getElementById('publicAccess').addEventListener('click',async()=>{
+ document.getElementById('authGate').style.display='none';document.querySelector('header').style.display='none';document.querySelector('main').style.display='none';publicPortal.style.display='block';window.scrollTo(0,0);
+ const host=document.getElementById('publicAnnouncements');
+ try{const {data,error}=await sb.from('announcements').select('id,title,announcement_type,details,event_date,location,image_url,image_urls,created_at').order('created_at',{ascending:false}).limit(20);if(error)throw error;
+ host.innerHTML=(data||[]).map(a=>{const imgs=Array.isArray(a.image_urls)&&a.image_urls.length?a.image_urls:(a.image_url?[a.image_url]:[]);return `<article class="card"><h3>${esc(a.title||'إعلان')}</h3><p class="muted">${esc(a.announcement_type||'إعلان عام')}${a.event_date?' • '+esc(new Date(a.event_date).toLocaleDateString('ar-DZ')):''}${a.location?' • '+esc(a.location):''}</p>${imgs.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px">${imgs.map((url,i)=>`<img src="${esc(url)}" alt="${esc(a.title||'صورة الإعلان')} ${i+1}" loading="lazy" style="width:100%;max-height:320px;object-fit:contain">`).join('')}</div>`:''}${a.details?`<p style="white-space:pre-wrap;line-height:1.8">${esc(a.details)}</p>`:''}</article>`}).join('')||'<p class="empty">لا توجد إعلانات منشورة حالياً.</p>';
+ }catch(err){host.innerHTML='<p class="muted">تعذر تحميل الإعلانات. يمكنكم المحاولة لاحقاً أو إرسال طلب الانضمام.</p>';console.warn('Public announcements:',err)}
+ await Promise.allSettled([loadPublicCompetitions(),loadPublicVideos()]);
+});
+document.getElementById('backToLogin').addEventListener('click',()=>{publicPortal.style.display='none';document.getElementById('authGate').style.display='flex';window.scrollTo(0,0)});
+document.getElementById('membershipRequestForm').addEventListener('submit',async e=>{
+ e.preventDefault();const form=e.currentTarget,btn=document.getElementById('requestSubmit'),status=document.getElementById('requestStatus'),fd=new FormData(form);
+ const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const randomBytes=new Uint8Array(10);crypto.getRandomValues(randomBytes);const trackingCode=Array.from(randomBytes,b=>alphabet[b%alphabet.length]).join('');
+ const payload={full_name:String(fd.get('full_name')||'').trim(),birth_date:String(fd.get('birth_date')||''),gender:String(fd.get('gender')||''),category:String(fd.get('category')||''),phone:String(fd.get('phone')||'').trim()||null,guardian:String(fd.get('guardian')||'').trim()||null,guardian_phone:String(fd.get('guardian_phone')||'').trim()||null,notes:String(fd.get('notes')||'').trim()||null,tracking_code:trackingCode};
+ if(!payload.full_name||!payload.birth_date){status.textContent='يرجى ملء الاسم وتاريخ الميلاد.';return}
+ btn.disabled=true;status.textContent='جارٍ إرسال الطلب...';
+ try{const {error}=await sb.from('membership_requests').insert(payload);if(error)throw error;form.reset();status.innerHTML='تم استلام طلبك بنجاح. احتفظ برمز المتابعة التالي واستخدمه لاحقاً لمعرفة القرار:<br><strong style="display:inline-block;direction:ltr;font-size:22px;letter-spacing:2px;padding:8px 12px;background:#f3f4f6;border-radius:8px;color:#17202d">'+trackingCode+'</strong><br>حالة الطلب الآن: قيد المراجعة. لا تفقد هذا الرمز.';document.getElementById('requestTrackingCode').value=trackingCode}
+ catch(err){status.textContent='لم يُرسل الطلب: '+err.message+' — إذا ظهر أن tracking_code غير موجود، نفّذي ملف SQL الخاص بمتابعة الطلبات.'}
+ finally{btn.disabled=false}
+});
+document.getElementById('requestTrackForm').addEventListener('submit',async e=>{
+ e.preventDefault();const code=document.getElementById('requestTrackingCode').value.trim().toUpperCase(),result=document.getElementById('requestTrackingResult'),button=document.getElementById('trackRequestButton');
+ if(!code){result.textContent='أدخِل رمز المتابعة أولاً.';return}button.disabled=true;result.textContent='جارٍ التحقق...';
+ try{const {data,error}=await sb.rpc('check_membership_request_status',{p_tracking_code:code});if(error)throw error;const labels={pending:'طلبك قيد المراجعة لدى إدارة النادي.',approved:'تم قبول طلبك! يرجى التواصل مع إدارة النادي لاستكمال التسجيل.',rejected:'نعتذر، تم رفض الطلب. يرجى التواصل مع إدارة النادي لمزيد من المعلومات.'};result.textContent=labels[data]||'لم نعثر على طلب بهذا الرمز. تأكد من الرمز وحاول مجدداً.';}
+ catch(err){result.textContent='تعذر التحقق حالياً: '+(err.message||err)+' — تأكدي من تنفيذ إعداد SQL الخاص بمتابعة الطلبات.'}
+ finally{button.disabled=false}
+});
+
+// معاينة واجهة المتدرب ببيانات وهمية فقط، للطاقم المصرّح له.
+document.getElementById('previewAthletePortalBtn').addEventListener('click',()=>{
+ if(!codmProfile || !['president','coach'].includes(codmProfile.role)) return;
+ document.getElementById('athletePreviewPortal').style.display='block';
+ document.getElementById('athletePortal').style.display='none';
+ publicPortal.style.display='none';
+ document.querySelector('header').style.display='none';
+ document.querySelector('main').style.display='none';
+ gate.style.display='none';
+ window.scrollTo(0,0);
+});
+document.getElementById('closeAthletePreviewBtn').addEventListener('click',()=>{
+ document.getElementById('athletePreviewPortal').style.display='none';
+ showApp();
+ window.scrollTo(0,0);
+});
+
+// === حسابات المتدربين: ينشئها الطاقم عبر Edge Function آمنة ===
+async function loadUnlinkedAthletes(){
+ const select=document.getElementById('accountAthlete');
+ const status=document.getElementById('athleteAccountStatus');
+ select.innerHTML='<option value="">جارٍ تحميل القائمة...</option>';
+ try{
+  const {data,error}=await sb.from('athletes').select('id,full_name,category,profile_id').is('profile_id',null).order('full_name',{ascending:true});
+  if(error)throw error;
+  select.innerHTML=(data||[]).map(a=>`<option value="${esc(a.id)}">${esc(a.full_name)} — ${esc(a.category||'دون فئة')}</option>`).join('')||'<option value="">كل الملاكمين لديهم حسابات أو لا توجد ملفات</option>';
+  if(status)status.textContent=(data||[]).length?`يوجد ${(data||[]).length} ملاكمًا بلا حساب.`:'لا توجد ملفات ملاكمين تحتاج إلى حساب.';
+ }catch(err){select.innerHTML='<option value="">تعذر تحميل القائمة</option>';if(status)status.textContent='تعذر تحميل الملاكمين: '+(err.message||err);}
+}
+document.querySelector('nav button[data-p="accounts"]').addEventListener('click',loadUnlinkedAthletes);
+document.getElementById('refreshUnlinkedAthletes').addEventListener('click',loadUnlinkedAthletes);
+document.getElementById('athleteAccountForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const athleteId=document.getElementById('accountAthlete').value;
+ const email=document.getElementById('accountEmail').value.trim().toLowerCase();
+ const password=document.getElementById('accountTempPassword').value;
+ const button=document.getElementById('createAthleteAccountBtn');
+ const status=document.getElementById('athleteAccountStatus');
+ if(!athleteId){status.textContent='اختاري ملاكمًا من القائمة أولًا.';return;}
+ if(password.length<12){status.textContent='كلمة المرور يجب أن تكون 12 حرفًا على الأقل.';return;}
+ button.disabled=true;status.textContent='جارٍ إنشاء الحساب وربطه بملف الملاكم...';
+ try{
+  const {data,error}=await sb.functions.invoke('create-athlete-account',{body:{athlete_id:athleteId,email,password}});
+  if(error)throw error;
+  status.textContent=`تم إنشاء الحساب وربطه بنجاح للمتدرب: ${data.athlete_name}. البريد: ${data.email}. سلّميه كلمة المرور المؤقتة بطريقة خاصة.`;
+  document.getElementById('accountEmail').value='';
+  document.getElementById('accountTempPassword').value='';
+  await loadUnlinkedAthletes();
+ }catch(err){
+  let message=err.message||String(err);
+  try{const body=await err.context?.json?.();if(body?.error)message=body.error;}catch{}
+  status.textContent='تعذر إنشاء الحساب: '+message;
+ }finally{button.disabled=false;}
+});
+
+// === واجهة المتدرب: قراءة ملفه فقط، وتخضع كل الاستعلامات لسياسات RLS ===
+async function showAthletePortal(profile){
+ const portal=document.getElementById('athletePortal');
+ gate.style.display='none';document.querySelector('header').style.display='none';document.querySelector('main').style.display='none';publicPortal.style.display='none';portal.style.display='block';
+ const status=document.getElementById('athletePortalStatus');
+ status.textContent='جارٍ تحميل بياناتك الشخصية...';
+ try{
+  const {data:athlete,error:aError}=await sb.from('athletes')
+   .select('id,full_name,birth_date,gender,category,weight,height,stance,club_status,status_reason,status_start_date,status_end_date,registration_date')
+   .eq('profile_id',profile.id).maybeSingle();
+  if(aError)throw aError;
+  if(!athlete)throw new Error('لم يتم ربط حسابك بملف ملاكم. تواصلي مع إدارة النادي.');
+  const [attRes,progRes,eventRes,compRes]=await Promise.all([
+   sb.from('attendance').select('training_date,status,session').eq('athlete_id',athlete.id).order('training_date',{ascending:false}).limit(40),
+   sb.from('progress').select('progress_date,metric,value,unit,goal,notes').eq('athlete_id',athlete.id).order('progress_date',{ascending:false}).limit(60),
+   sb.from('events').select('title,event_type,event_date,location,result,details').eq('athlete_id',athlete.id).order('event_date',{ascending:false}).limit(30),
+   sb.from('club_competitions').select('competition_name,competition_date,location,athlete_names,staff_names,achievement,status').eq('is_published',true).order('competition_date',{ascending:false}).limit(50)
+  ]);
+  for(const r of [attRes,progRes,eventRes,compRes])if(r.error)throw r.error;
+  document.getElementById('athletePortalProfile').innerHTML=[
+   ['الاسم',athlete.full_name],['الفئة',athlete.category],['تاريخ الميلاد',athlete.birth_date],['الجنس',athlete.gender],['الوزن',athlete.weight==null?'—':athlete.weight+' كغ'],['الطول',athlete.height==null?'—':athlete.height+' سم'],['الوقفة',athlete.stance],['الحالة',athlete.club_status],['تاريخ الانضمام',athlete.registration_date]
+  ].map(([k,v])=>`<div class="stat">${esc(k)}<strong style="font-size:16px">${esc(v||'—')}</strong></div>`).join('');
+  const attendance=attRes.data||[];
+  document.getElementById('athletePortalAttendance').innerHTML=attendance.length?`<div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الحالة</th><th>الحصة</th></tr></thead><tbody>${attendance.map(a=>`<tr><td>${esc(a.training_date)}</td><td>${esc(a.status)}</td><td>${esc(a.session||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">لا توجد سجلات حضور بعد.</p>';
+  const metricLabels={run:'الجري',rope:'نط الحبل',punch:'اللكمات',push:'الضغط',sit:'البطن',tech:'التقنية',weight:'الوزن',height:'الطول',speed:'السرعة',strength:'القوة',endurance:'التحمل',flexibility:'المرونة',accuracy:'الدقة',power:'القوة الانفجارية',defense:'الدفاع',footwork:'حركة القدمين'};
+  const progress=progRes.data||[];
+  document.getElementById('athletePortalProgress').innerHTML=progress.length?`<div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>المؤشر</th><th>النتيجة</th><th>ملاحظات المدرب</th></tr></thead><tbody>${progress.map(p=>`<tr><td>${esc(p.progress_date)}</td><td>${esc(metricLabels[p.metric]||p.metric)}</td><td>${esc(p.value)} ${esc(p.unit||'')}</td><td>${esc(p.notes||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">لم تُسجل تقييمات بعد.</p>';
+  const events=(eventRes.data||[]).map(ev=>`<article class="card"><h3>${esc(ev.title||'مشاركة')}</h3><p class="muted">${esc(ev.event_type||'منافسة')} • ${esc(ev.event_date||'—')} • ${esc(ev.location||'')}</p>${ev.result?`<p><b>النتيجة:</b> ${esc(ev.result)}</p>`:''}</article>`);
+  const competitions=(compRes.data||[]).filter(c=>Array.isArray(c.athlete_names)&&c.athlete_names.includes(athlete.full_name)).map(c=>`<article class="card"><h3>${esc(c.competition_name)}</h3><p class="muted">${esc(c.competition_date)} • ${esc(c.location||'')}</p>${c.staff_names?`<p><b>الطاقم المشرف:</b> ${esc(c.staff_names)}</p>`:''}${c.achievement?`<p><b>الإنجاز:</b> ${esc(c.achievement)}</p>`:''}<p class="muted">${esc(c.status||'')}</p></article>`);
+  document.getElementById('athletePortalCompetitions').innerHTML=[...events,...competitions].join('')||'<p class="empty">لا توجد مشاركات أو إنجازات مسجلة لك حاليًا.</p>';
+  status.textContent='تم تحميل بياناتك. هذه الصفحة للعرض فقط، ولا يمكنك تعديل سجلات النادي.';
+ }catch(err){status.textContent='تعذر تحميل ملفك: '+(err.message||err);}
+}
+document.getElementById('athleteLogoutBtn').addEventListener('click',async()=>{
+ const button=document.getElementById('athleteLogoutBtn');button.disabled=true;
+ try{const {error}=await sb.auth.signOut();if(error)throw error;codmUser=null;codmProfile=null;document.getElementById('athletePortal').style.display='none';document.getElementById('loginPassword').value='';showGate('تم تسجيل الخروج.');}
+ catch(err){document.getElementById('athletePortalStatus').textContent='تعذر تسجيل الخروج: '+(err.message||err);}
+ finally{button.disabled=false;}
+});
+document.getElementById('athletePasswordForm').addEventListener('submit',async e=>{
+ e.preventDefault();const password=document.getElementById('athleteNewPassword').value;const status=document.getElementById('athletePasswordStatus');
+ if(password.length<12){status.textContent='اختاري كلمة مرور من 12 حرفًا على الأقل.';return;}
+ const button=e.submitter;button.disabled=true;status.textContent='جارٍ تغيير كلمة المرور...';
+ try{const {error}=await sb.auth.updateUser({password});if(error)throw error;e.currentTarget.reset();status.textContent='تم تغيير كلمة المرور بنجاح.';}
+ catch(err){status.textContent='تعذر تغيير كلمة المرور: '+(err.message||err);}
+ finally{button.disabled=false;}
+});
+
+async function authenticate(){
+ const {data,error}=await sb.auth.getSession();if(error)throw error;
+ let session=data.session;
+ if(!session){showGate();return}
+ codmUser=session.user;
+ const {data:p,error:pe}=await sb.from('profiles').select('*').eq('user_id',codmUser.id).maybeSingle();
+ if(pe)throw pe;if(!p){await sb.auth.signOut();showGate('هذا الحساب غير مربوط بملف في جدول profiles. يجب أن يربطه مسؤول النادي أولاً.');return}
+ codmProfile=p;
+ if(p.role==='athlete'){await showAthletePortal(p);return;}
+ if(!['president','coach'].includes(p.role)){await sb.auth.signOut();showGate('هذا الحساب لا يملك صلاحية الدخول إلى لوحة الإدارة.');return}
+ showApp();
+ // تحميل الإعلانات فوراً حتى لا تنتظر انتهاء مزامنة الجداول الأخرى.
+ const announcementsTask=loadAnnouncements();
+ const requestsTask=loadMembershipRequests();
+ const competitionsTask=loadClubCompetitions();
+ const videosTask=loadVideos();
+ // تحميل ومزامنة بيانات النادي في الخلفية دون تعطيل عرض الإعلانات.
+ loadRemote().then(()=>syncAll()).catch(err=>{
+  console.error('CODM remote data loading:',err);
+  const status=document.getElementById('announcementStatus');
+  if(status)status.textContent='تم فتح الإدارة، لكن تعذرت مزامنة بعض بيانات النادي: '+(err.message||err);
+ });
+ await Promise.allSettled([announcementsTask,requestsTask,competitionsTask,videosTask]);
+}
+document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ تسجيل الدخول...';try{const {error}=await sb.auth.signInWithPassword({email:document.getElementById('loginEmail').value.trim(),password:document.getElementById('loginPassword').value});if(error)throw error;await authenticate()}catch(err){authMsg.textContent='تعذر الدخول: '+err.message}finally{b.disabled=false}});
+document.getElementById('logoutBtn').onclick=async()=>{
+ const button=document.getElementById('logoutBtn');
+ if(!codmUser)return;
+ if(!confirm('قبل تسجيل الخروج، سيُزامَن العمل مع قاعدة بيانات النادي. بعد نجاح المزامنة ستُمسح النسخة المحلية من هذا الجهاز لحماية بيانات الملاكمين. إذا لم يتوفر الاتصال أو فشلت المزامنة فلن يتم تسجيل الخروج ولن تُمسح البيانات المحلية. متابعة؟'))return;
+ button.disabled=true;
+ try{
+  const synced=await syncAll();
+  if(!synced){authMsg.textContent='لم يتم تسجيل الخروج: تعذرت مزامنة جميع البيانات. تحققي من الاتصال ثم حاولي مجدداً. بقيت النسخة المحلية محفوظة حتى لا نفقد أي عمل.';return;}
+  const {error}=await sb.auth.signOut();
+  if(error)throw error;
+  codmUser=null;codmProfile=null;
+  localStorage.removeItem(KEY);
+  db={athletes:[],dues:[],progress:[],events:[],attendance:[]};
+  document.getElementById('loginPassword').value='';
+  render();
+  showGate('تم تسجيل الخروج ومزامنة البيانات ومسح النسخة المحلية من هذا الجهاز.');
+ }catch(err){authMsg.textContent='تعذر تسجيل الخروج بأمان: '+(err.message||err)+' . لم تُمسح النسخة المحلية.'}
+ finally{button.disabled=false;}
+};
+document.getElementById('forgotPassword').onclick=async()=>{const email=document.getElementById('loginEmail').value.trim();if(!email)return authMsg.textContent='اكتبي البريد الإلكتروني أولاً.';const {error}=await sb.auth.resetPasswordForEmail(email);authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
+showGate();authenticate().catch(err=>{console.error(err);showGate('تعذر الاتصال بـ Supabase: '+err.message)});
+
+</script></body></html>
