@@ -1,5 +1,4 @@
-const CACHE = 'codm-digital-v8';
-
+const CACHE = 'codm-digital-v9';
 const BASE = new URL(self.registration.scope);
 
 const FILES = [
@@ -38,15 +37,15 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const request = event.request;
-  const url = new URL(request.url);
 
   if (request.method !== 'GET') return;
 
-  // عدم تخزين أي طلب خارجي، بما فيه Supabase
-  if (url.origin !== BASE.origin) return;
+  const url = new URL(request.url);
 
-  // تخزين الملفات الثابتة المحددة فقط
-  if (!STATIC_PATHS.has(url.pathname)) return;
+  if (
+    url.origin !== BASE.origin ||
+    !STATIC_PATHS.has(url.pathname)
+  ) return;
 
   event.respondWith(
     caches.open(CACHE).then(async cache => {
@@ -60,7 +59,7 @@ self.addEventListener('fetch', event => {
         }
 
         return response;
-      } catch (error) {
+      } catch {
         return cached || Response.error();
       }
     })
