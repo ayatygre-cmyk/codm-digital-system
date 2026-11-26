@@ -71,7 +71,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
  <div class="warning"><strong>معاينة تجريبية فقط:</strong> المعلومات التالية أمثلة توضيحية وليست بيانات ملاكم حقيقي، ولا تُحفظ في قاعدة البيانات.</div>
  <div class="card" style="background:linear-gradient(120deg,#101319,#7d1717);color:white;border-bottom:4px solid #c8a45d">
   <div class="profile"><img src="assets/codm-logo.jpg" class="avatar" alt="شعار CODM"><div><div class="eyebrow">CODM • BOXING CLUB</div><h2 style="color:white;margin:0">مساحتي الرياضية</h2><p style="color:#e5e7eb;margin:5px 0 0">مرحبًا بك في حسابك الشخصي</p></div></div>
-  <span class="pill">حساب متدرب — معاينة</span>
+  <span class="pill">حساب ملاكم — معاينة</span>
  </div>
  <div class="card"><h2>ملفي الرياضي</h2><div class="grid">
   <div class="stat">الاسم<strong style="font-size:16px">ملاكم تجريبي</strong></div>
@@ -88,7 +88,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
   <tr><td>مثال: 2026-11-20</td><td>الجري</td><td>8:30 دقيقة</td><td>تحسن تدريجي</td></tr><tr><td>مثال: 2026-11-18</td><td>نط الحبل</td><td>120</td><td>أداء جيد</td></tr><tr><td>مثال: 2026-11-16</td><td>التقنية</td><td>7/10</td><td>الاستمرار في التدريب</td></tr>
  </tbody></table></div></div>
  <div class="card"><h2>مشاركاتي وإنجازاتي</h2><p>ستظهر هنا المنافسات والنتائج والطاقم المشرف المرتبطة بالملاكم.</p><p class="muted">لا توجد بيانات حقيقية في وضع المعاينة.</p></div>
- <div class="card"><h2>تغيير كلمة المرور</h2><label>كلمة المرور الجديدة</label><input type="password" disabled placeholder="تظهر للمتدرب بعد تسجيل الدخول الفعلي"><p class="muted">المتدرب الحقيقي يستطيع تغيير كلمة مروره من حسابه.</p></div>
+ <div class="card"><h2>تغيير كلمة المرور</h2><label>كلمة المرور الجديدة</label><input type="password" disabled placeholder="تظهر للملاكم بعد تسجيل الدخول الفعلي"><p class="muted">يستطيع الملاكم تغيير كلمة مروره من حسابه.</p></div>
  <button class="btn light" id="closeAthletePreviewBtn" type="button">العودة إلى لوحة الإدارة</button>
 </section>
 
@@ -96,7 +96,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <main>
 <div class="warning" id="privacy">🔒 نظام متصل بقاعدة بيانات النادي. يلزم تسجيل الدخول، وتُحفظ بيانات النادي على Supabase وفق صلاحيات الحساب.</div>
 <nav class="no-print">
-<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="membershipRequests">طلبات الانضمام <span id="requestCount" class="pill no" style="margin-right:3px">0</span></button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="clubCompetitions">برنامج المنافسات</button><button data-p="announcements">الإعلانات</button><button data-p="videos">فيديوهات النادي</button><button data-p="accounts">حسابات المتدربين</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
+<button class="active" data-p="dashboard">لوحة القيادة</button><button data-p="membershipRequests">طلبات الانضمام <span id="requestCount" class="pill no" style="margin-right:3px">0</span></button><button data-p="athletes">الملاكمون</button><button data-p="dues">الاشتراكات</button><button data-p="attendance">الحضور</button><button data-p="progress">التطور والتقييم</button><button data-p="events">البطولات</button><button data-p="clubCompetitions">برنامج المنافسات</button><button data-p="announcements">الإعلانات</button><button data-p="videos">فيديوهات النادي</button><button data-p="accounts">حسابات الملاكمين</button><button data-p="rules">القانون الداخلي</button><button data-p="backup">النسخ الاحتياطي</button>
 </nav>
 <section class="panel active" id="p-dashboard">
 <div class="card"><h2 data-ar="لوحة قيادة النادي" data-fr="Tableau de bord du club">لوحة قيادة النادي</h2><div class="stats">
@@ -140,24 +140,24 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 
 <section class="panel" id="p-accounts">
  <div class="card">
-  <h2>إنشاء حساب متدرب</h2>
+  <h2>إنشاء حساب ملاكم</h2>
   <p class="muted">اختاري ملاكمًا مسجلًا بلا حساب، ثم أدخلي بريده الإلكتروني وكلمة مرور مؤقتة. سيُربط الحساب بملفه الرياضي تلقائيًا.</p>
   <form id="athleteAccountForm">
    <div class="grid">
     <div><label for="accountAthlete">الملاكم</label><select id="accountAthlete" required><option value="">جارٍ تحميل قائمة الملاكمين...</option></select></div>
-    <div><label for="accountEmail">البريد الإلكتروني للمتدرب</label><input id="accountEmail" type="email" autocomplete="off" required maxlength="254" placeholder="athlete@example.com"></div>
+    <div><label for="accountEmail">البريد الإلكتروني للملاكم</label><input id="accountEmail" type="email" autocomplete="off" required maxlength="254" placeholder="athlete@example.com"></div>
     <div><label for="accountTempPassword">كلمة المرور الأولية</label><input id="accountTempPassword" type="password" minlength="12" autocomplete="new-password" required placeholder="12 حرفًا على الأقل"></div>
    </div>
    <p class="muted">استخدمي كلمة مرور مؤقتة قوية، وسلّميها للمتدرب أو ولي أمره بطريقة خاصة. يمكن للمتدرب تغييرها بعد الدخول.</p>
-   <button class="btn" id="createAthleteAccountBtn" type="submit">إنشاء حساب المتدرب</button>
+   <button class="btn" id="createAthleteAccountBtn" type="submit">إنشاء حساب الملاكم</button>
    <button class="btn light" id="refreshUnlinkedAthletes" type="button">تحديث قائمة الملاكمين</button>
    <p id="athleteAccountStatus" class="muted" role="status" aria-live="polite"></p>
-   <button class="btn secondary" id="previewAthletePortalBtn" type="button">معاينة واجهة المتدرب (بيانات تجريبية)</button>
+   <button class="btn secondary" id="previewAthletePortalBtn" type="button">معاينة واجهة الملاكم (بيانات تجريبية)</button>
   </form>
  </div>
  <div class="card">
   <h2>معلومات مهمة</h2>
-  <p>إنشاء الحساب لا ينشئ ملف ملاكم جديدًا؛ بل يربط حساب الدخول بملف موجود مسبقًا. المتدرب يستطيع مشاهدة ملفه وحضوره وتطوره ومشاركاته فقط، ولا يستطيع تعديل سجلاته.</p>
+  <p>إنشاء الحساب لا ينشئ ملف ملاكم جديدًا؛ بل يربط حساب الدخول بملف موجود مسبقًا. الملاكم يستطيع مشاهدة ملفه وحضوره وتطوره ومشاركاته فقط، ولا يستطيع تعديل سجلاته.</p>
   <p class="muted">لا تنشئي حسابًا لطفل دون التأكد من موافقة ولي أمره وصحة البريد الإلكتروني. لا تستخدمي كلمة المرور الشخصية للرئيس أو المدرب.</p>
  </div>
 </section>
@@ -710,7 +710,7 @@ document.getElementById('requestTrackForm').addEventListener('submit',async e=>{
  finally{button.disabled=false}
 });
 
-// معاينة واجهة المتدرب ببيانات وهمية فقط، للطاقم المصرّح له.
+// معاينة واجهة الملاكم ببيانات وهمية فقط، للطاقم المصرّح له.
 document.getElementById('previewAthletePortalBtn').addEventListener('click',()=>{
  if(!codmProfile || !['president','coach'].includes(codmProfile.role)) return;
  document.getElementById('athletePreviewPortal').style.display='block';
@@ -727,7 +727,7 @@ document.getElementById('closeAthletePreviewBtn').addEventListener('click',()=>{
  window.scrollTo(0,0);
 });
 
-// === حسابات المتدربين: ينشئها الطاقم عبر Edge Function آمنة ===
+// === حسابات الملاكمين: ينشئها الطاقم عبر Edge Function آمنة ===
 async function loadUnlinkedAthletes(){
  const select=document.getElementById('accountAthlete');
  const status=document.getElementById('athleteAccountStatus');
@@ -754,7 +754,7 @@ document.getElementById('athleteAccountForm').addEventListener('submit',async e=
  try{
   const {data,error}=await sb.functions.invoke('create-athlete-account',{body:{athlete_id:athleteId,email,password}});
   if(error)throw error;
-  status.textContent=`تم إنشاء الحساب وربطه بنجاح للمتدرب: ${data.athlete_name}. البريد: ${data.email}. سلّميه كلمة المرور المؤقتة بطريقة خاصة.`;
+  status.textContent=`تم إنشاء الحساب وربطه بنجاح للملاكم: ${data.athlete_name}. البريد: ${data.email}. سلّميه كلمة المرور المؤقتة بطريقة خاصة.`;
   document.getElementById('accountEmail').value='';
   document.getElementById('accountTempPassword').value='';
   await loadUnlinkedAthletes();
@@ -765,7 +765,7 @@ document.getElementById('athleteAccountForm').addEventListener('submit',async e=
  }finally{button.disabled=false;}
 });
 
-// === واجهة المتدرب: قراءة ملفه فقط، وتخضع كل الاستعلامات لسياسات RLS ===
+// === واجهة الملاكم: قراءة ملفه فقط، وتخضع كل الاستعلامات لسياسات RLS ===
 async function showAthletePortal(profile){
  const portal=document.getElementById('athletePortal');
  gate.style.display='none';document.querySelector('header').style.display='none';document.querySelector('main').style.display='none';publicPortal.style.display='none';portal.style.display='block';
