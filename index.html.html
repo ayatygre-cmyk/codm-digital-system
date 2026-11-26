@@ -29,7 +29,9 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
   <form id="loginForm"><label>البريد الإلكتروني</label><input id="loginEmail" type="email" autocomplete="username" required><label style="margin-top:12px">كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="btn" style="width:100%" type="submit">تسجيل الدخول</button></form>
   <p id="authMessage" style="font-size:12px;color:#a4262c;line-height:1.7"></p>
   <button id="forgotPassword" class="btn light" style="width:100%" type="button">نسيت كلمة المرور؟</button>
-  <button id="publicAccess" class="btn secondary" style="width:100%" type="button">الدخول كزائر / طلب الانضمام</button>
+  <button id="publicAccess" class="btn secondary" style="width:100%" type="button">الدخول كزائر</button>
+  <button id="registrationAccess" class="btn" style="width:100%;background:#16804a" type="button">التسجيل / طلب الانضمام إلى النادي</button>
+  <p class="muted" style="text-align:center;line-height:1.7;margin:8px 0 0">ليس لديك حساب؟ أرسل طلب انضمام. بعد مراجعة الطلب والموافقة عليه، تنشئ الإدارة حساب الملاكم.</p>
  </div>
 </div>
 <section id="publicPortal" style="display:none;max-width:920px;margin:22px auto;padding:0 14px;direction:rtl">
@@ -37,7 +39,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
  <div class="card"><h2>إعلانات وأنشطة النادي</h2><div id="publicAnnouncements" class="grid"><p class="muted">جارٍ تحميل الإعلانات...</p></div></div>
  <div class="card"><h2>برنامج المنافسات وإنجازات النادي</h2><div id="publicCompetitions"><p class="muted">سيظهر برنامج المنافسات هنا.</p></div></div>
  <div class="card"><h2>فيديوهات النادي</h2><div id="publicVideos" class="grid"><p class="muted">سيتم عرض فيديوهات النادي هنا.</p></div></div>
- <div class="card"><h2>طلب الانضمام إلى النادي</h2><p class="muted">أرسل بياناتك لإدارة النادي. الطلب لا ينشئ حساباً ولا يضيفك تلقائياً إلى قائمة الملاكمين؛ تتم مراجعته من الإدارة أولاً.</p>
+ <div class="card"><h2>التسجيل وطلب الانضمام إلى النادي</h2><p class="muted">املأ الطلب ببيانات صحيحة. بعد مراجعة الإدارة والموافقة، تُنشئ الإدارة ملف الملاكم وحساب الدخول. إرسال الطلب وحده لا ينشئ حساب دخول تلقائيًا.</p>
  <form id="membershipRequestForm"><div class="grid">
  <div><label>الاسم واللقب *</label><input name="full_name" required maxlength="120"></div>
  <div><label>تاريخ الميلاد *</label><input name="birth_date" type="date" required></div>
@@ -688,6 +690,7 @@ document.getElementById('publicAccess').addEventListener('click',async()=>{
  }catch(err){host.innerHTML='<p class="muted">تعذر تحميل الإعلانات. يمكنكم المحاولة لاحقاً أو إرسال طلب الانضمام.</p>';console.warn('Public announcements:',err)}
  await Promise.allSettled([loadPublicCompetitions(),loadPublicVideos()]);
 });
+document.getElementById('registrationAccess').addEventListener('click',()=>document.getElementById('publicAccess').click());
 document.getElementById('backToLogin').addEventListener('click',()=>{publicPortal.style.display='none';document.getElementById('authGate').style.display='flex';window.scrollTo(0,0)});
 document.getElementById('membershipRequestForm').addEventListener('submit',async e=>{
  e.preventDefault();const form=e.currentTarget,btn=document.getElementById('requestSubmit'),status=document.getElementById('requestStatus'),fd=new FormData(form);
