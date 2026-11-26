@@ -49,6 +49,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
  <div><label>اسم ولي الأمر (للقصر)</label><input name="guardian" maxlength="120"></div>
  <div><label>هاتف ولي الأمر</label><input name="guardian_phone" maxlength="30" inputmode="tel"></div>
  <div><label>ملاحظات</label><input name="notes" maxlength="500"></div>
+ <div><label for="membershipPhoto">الصورة الشخصية (اختياري)</label><input id="membershipPhoto" name="photo" type="file" accept="image/jpeg,image/png,image/webp"><small class="muted">JPG أو PNG أو WEBP، بحد أقصى 5 ميغابايت. ستظهر الصورة للإدارة لمراجعة الطلب.</small><div id="membershipPhotoPreview" style="margin-top:8px"></div></div>
  </div><button class="btn" id="requestSubmit" type="submit">إرسال طلب الانضمام</button><p id="requestStatus" class="muted" role="status"></p></form></div>
  <div class="card"><h2>متابعة حالة طلب الانضمام</h2><p class="muted">أدخِل رمز المتابعة الذي ظهر لك بعد إرسال الطلب لمعرفة آخر حالة.</p><form id="requestTrackForm"><label for="requestTrackingCode">رمز المتابعة</label><input id="requestTrackingCode" name="tracking_code" maxlength="12" required autocomplete="off" placeholder="مثال: A7K9M2PQ"><button class="btn secondary" id="trackRequestButton" type="submit">تحقق من حالة الطلب</button><p id="requestTrackingResult" class="muted" role="status" aria-live="polite"></p></form></div>
  <button class="btn light" id="backToLogin" type="button">العودة إلى تسجيل الدخول</button>
@@ -135,7 +136,7 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <div><label data-ar="ملاحظات / معلومات إضافية" data-fr="Notes / informations complémentaires">ملاحظات / معلومات إضافية</label><input name="notes"></div>
 </div><button class="btn" type="submit" id="athSave">حفظ الملف</button><button class="btn light" type="button" id="athReset">تفريغ الخانات</button></form></div>
 <div class="card"><h2>ملخص حالات الملاكمين</h2><div class="stats"><div class="stat">النشطون<strong id="activeAthleteCount">0</strong></div><div class="stat">متوقفون عن التدريب<strong id="stoppedAthleteCount">0</strong></div><div class="stat">إيقاف تأديبي<strong id="suspendedAthleteCount">0</strong></div><div class="stat">مصابون<strong id="injuredAthleteCount">0</strong></div></div></div>
-<div class="card"><h2 data-ar="ملفات الملاكمين" data-fr="Fiches des boxeurs">ملفات الملاكمين</h2><div class="tablewrap"><table><thead><tr><th>الصورة</th><th>الاسم</th><th>الفئة</th><th>الوزن</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="athRows"></tbody></table></div></div>
+<div class="card"><h2 data-ar="ملفات الملاكمين" data-fr="Fiches des boxeurs">ملفات الملاكمين</h2><div class="tablewrap"><table><thead><tr><th>الصورة</th><th>رقم CODM</th><th>الاسم</th><th>الفئة</th><th>الوزن</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="athRows"></tbody></table></div></div>
 </section>
 
 <section class="panel" id="p-accounts">
@@ -153,6 +154,13 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
    <button class="btn light" id="refreshUnlinkedAthletes" type="button">تحديث قائمة الملاكمين</button>
    <p id="athleteAccountStatus" class="muted" role="status" aria-live="polite"></p>
    <button class="btn secondary" id="previewAthletePortalBtn" type="button">معاينة واجهة الملاكم (بيانات تجريبية)</button>
+  </form>
+ </div>
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2>الحسابات المرتبطة بملفات الملاكمين</h2><button class="btn light" id="refreshLinkedAthletes" type="button">تحديث الحسابات المرتبطة</button></div>
+  <div id="linkedAthletesStatus" class="muted" role="status">تظهر هنا الحسابات التي تم ربطها بملفاتها.</div>
+  <div class="tablewrap"><table><thead><tr><th>رقم CODM</th><th>اسم الملاكم</th><th>الفئة</th><th>اسم الحساب</th><th>نوع الحساب</th><th>حالة الربط</th></tr></thead><tbody id="linkedAthletesRows"><tr><td colspan="6" class="empty">اضغطي تحديث الحسابات المرتبطة.</td></tr></tbody></table></div>
+ </div>
   </form>
  </div>
  <div class="card">
@@ -339,7 +347,7 @@ function render(){
  let cur=db.dues.filter(d=>d.month===month());$('#sPaid').textContent=cur.filter(d=>+d.paid>=+d.amount).length;$('#sUnpaid').textContent=cur.filter(d=>+d.paid<+d.amount).length;
  $('#attRows').innerHTML=db.attendance.filter(a=>(!$('#attFilter').value||a.athlete===$('#attFilter').value)&&(!$('#attDateFilter').value||a.date.startsWith($('#attDateFilter').value))).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(a=>`<tr><td>${esc(a.date)}</td><td>${esc(name(a.athlete))}</td><td>${esc(a.session||'—')}</td><td>${esc(a.status)}</td><td>${esc(a.notes||'—')}</td><td><button class="btn tiny danger" onclick="del('attendance','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد سجلات حضور بعد</td></tr>';
  $('#activeAthleteCount').textContent=db.athletes.filter(a=>(a.status||'نشط')==='نشط').length;$('#stoppedAthleteCount').textContent=db.athletes.filter(a=>a.status==='متوقف عن التدريب').length;$('#suspendedAthleteCount').textContent=db.athletes.filter(a=>a.status==='إيقاف تأديبي').length;$('#injuredAthleteCount').textContent=db.athletes.filter(a=>a.status==='مصاب').length;
- $('#athRows').innerHTML=db.athletes.map(a=>`<tr><td>${a.photo?`<img src="${a.photo}" class="avatar">`:'—'}</td><td>${esc(a.name)}</td><td>${esc(a.category)}</td><td>${esc(a.weight||'—')}</td><td>${esc(a.status)}</td><td><button class="btn tiny light" onclick="editAth('${a.id}')">تعديل</button><button class="btn tiny secondary" onclick="printAth('${a.id}')">طباعة</button><button class="btn tiny danger" onclick="del('athletes','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">لا توجد ملفات ملاكمين</td></tr>';
+ $('#athRows').innerHTML=db.athletes.map(a=>`<tr><td>${a.photo?`<img src="${a.photo}" class="avatar">`:'—'}</td><td><b dir="ltr">${esc(a.athlete_code||'بانتظار المزامنة')}</b></td><td>${esc(a.name)}</td><td>${esc(a.category)}</td><td>${esc(a.weight||'—')}</td><td>${esc(a.status)}</td><td><button class="btn tiny light" onclick="editAth('${a.id}')">تعديل</button><button class="btn tiny secondary" onclick="printAth('${a.id}')">طباعة</button><button class="btn tiny danger" onclick="del('athletes','${a.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا توجد ملفات ملاكمين</td></tr>';
  $('#dueRows').innerHTML=db.dues.slice().sort((a,b)=>b.month.localeCompare(a.month)).map(d=>`<tr><td>${esc(name(d.athlete))}</td><td>${esc(d.month)}</td><td>${d.amount}</td><td>${d.paid}</td><td>${Math.max(0,+d.amount-+d.paid)}</td><td><span class="pill ${+d.paid<+d.amount?'no':''}">${+d.paid>=+d.amount?'مدفوع':'متبقي'}</span></td><td><button class="btn tiny danger" onclick="del('dues','${d.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">لا توجد مستحقات</td></tr>';
  $('#progRows').innerHTML=db.progress.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<tr><td>${esc(p.date)}</td><td>${esc(name(p.athlete))}</td><td>${esc(p.goal||'—')}</td><td>${esc(p.run||'—')}</td><td>${esc(p.rope||'—')}</td><td>${esc(p.punch||'—')}</td><td>${esc(p.tech||'—')}</td><td>${esc(p.height||'—')}</td><td>${esc(p.speed||'—')}</td><td>${esc(p.strength||'—')}</td><td>${esc(p.endurance||'—')}</td><td>${esc(p.flexibility||'—')}</td><td>${esc(p.accuracy||'—')}</td><td>${esc(p.power||'—')}</td><td>${esc(p.defense||'—')}</td><td>${esc(p.footwork||'—')}</td><td>${esc(p.notes||'—')}</td><td><button class="btn tiny danger" onclick="del('progress','${p.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="18" class="empty">لا توجد تقييمات</td></tr>';
  $('#eventRows').innerHTML=db.events.slice().sort((a,b)=>(a.start||'').localeCompare(b.start||'')).map(e=>`<tr><td>${esc(e.type)}</td><td>${esc(e.name)}</td><td>${esc(e.place||'—')}</td><td>${esc(e.start||'—')} ${e.end?'→ '+esc(e.end):''}</td><td>${esc(name(e.athlete)||'كل النادي')}</td><td>${esc(e.result||'—')}</td><td>${esc(e.status)}</td><td><button class="btn tiny danger" onclick="del('events','${e.id}')">حذف</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">لا توجد بطولات مسجلة</td></tr>';
@@ -353,7 +361,7 @@ $('#athForm').onsubmit=async e=>{e.preventDefault();let f=new FormData(e.target)
 async function resizePhoto(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),scale=Math.min(1,500/Math.max(im.width,im.height));c.width=im.width*scale;c.height=im.height*scale;c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};im.onerror=reject;im.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
 window.editAth=id=>{let a=db.athletes.find(x=>x.id===id),f=$('#athForm');Object.keys(a).forEach(k=>{if(f.elements[k]&&k!=='photo')f.elements[k].value=a[k]??''});nav('athletes');window.scrollTo(0,0)};
 window.del=(table,id)=>{if(confirm('هل تريدين حذف هذا السجل؟')){db[table]=db[table].filter(x=>x.id!==id);save()}};
-window.printAth=id=>{let a=db.athletes.find(x=>x.id===id),d=db.dues.filter(x=>x.athlete===id),p=db.progress.filter(x=>x.athlete===id),ev=db.events.filter(x=>x.athlete===id);let w=window.open('','_blank');w.document.write(`<html dir="rtl"><meta charset="utf-8"><body style="font-family:Tahoma;padding:25px"><h2>شباب أولمبيك ديدوش مراد للملاكمة CODM</h2>${a.photo?`<img src="${a.photo}" width="110">`:''}<h3>${esc(a.name)}</h3><p>الميلاد: ${esc(a.birth)} | الفئة: ${esc(a.category)} | الوزن: ${esc(a.weight)} كغ | الطول: ${esc(a.height)} سم</p><p>الهاتف: ${esc(a.phone)} | ولي الأمر: ${esc(a.guardian)} ${esc(a.guardianPhone)}</p><h3>المستحقات</h3>${d.map(x=>`<p>${esc(x.month)}: ${x.paid}/${x.amount} دج</p>`).join('')}<h3>التقدم والأهداف</h3>${p.map(x=>`<p>${esc(x.date)} — ${esc(x.goal)} | تقني: ${esc(x.tech)}</p>`).join('')}<h3>البطولات</h3>${ev.map(x=>`<p>${esc(x.type)}: ${esc(x.name)} — ${esc(x.result)}</p>`).join('')}<script>window.print()<\/script></body></html>`);w.document.close()};
+window.printAth=id=>{let a=db.athletes.find(x=>x.id===id),d=db.dues.filter(x=>x.athlete===id),p=db.progress.filter(x=>x.athlete===id),ev=db.events.filter(x=>x.athlete===id);let w=window.open('','_blank');w.document.write(`<html dir="rtl"><meta charset="utf-8"><body style="font-family:Tahoma;padding:25px"><h2>شباب أولمبيك ديدوش مراد للملاكمة CODM</h2>${a.photo?`<img src="${a.photo}" width="110">`:''}<h3>${esc(a.name)}</h3><p>رقم CODM: <b dir="ltr">${esc(a.athlete_code||'بانتظار المزامنة')}</b></p><p>الميلاد: ${esc(a.birth)} | الفئة: ${esc(a.category)} | الوزن: ${esc(a.weight)} كغ | الطول: ${esc(a.height)} سم</p><p>الهاتف: ${esc(a.phone)} | ولي الأمر: ${esc(a.guardian)} ${esc(a.guardianPhone)}</p><h3>المستحقات</h3>${d.map(x=>`<p>${esc(x.month)}: ${x.paid}/${x.amount} دج</p>`).join('')}<h3>التقدم والأهداف</h3>${p.map(x=>`<p>${esc(x.date)} — ${esc(x.goal)} | تقني: ${esc(x.tech)}</p>`).join('')}<h3>البطولات</h3>${ev.map(x=>`<p>${esc(x.type)}: ${esc(x.name)} — ${esc(x.result)}</p>`).join('')}<script>window.print()<\/script></body></html>`);w.document.close()};
 $('#athReset').onclick=()=>{$('#athForm').reset();$('#photo').value=''};
 $('#dueForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.dues.push({id:String(Date.now()),athlete:f.get('athlete'),month:f.get('month'),amount:f.get('amount'),paid:f.get('paid'),date:f.get('date'),method:f.get('method'),notes:f.get('notes')});e.target.reset();$('#dueForm [name=month]').value=month();save();alert('تم حفظ المستحقات')};
 $('#progForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),o={id:String(Date.now())};for(let [k,v] of f)o[k]=v;db.progress.push(o);e.target.reset();$('#progForm [name=date]').value=today();save();alert('تم حفظ التقدم')};
@@ -387,7 +395,7 @@ async function loadRemote(){
  const results=await Promise.all(tables.map(t=>sb.from(t).select('*')));
  for(let i=0;i<tables.length;i++)if(results[i].error)throw new Error('تعذر قراءة جدول '+tables[i]+': '+results[i].error.message);
  const [aa,mm,at,pp,ee]=results.map(x=>x.data||[]);
- const remoteAth=aa.map(a=>({id:a.id,profile_id:a.profile_id||null,name:a.full_name,birth:a.birth_date||'',gender:a.gender||'ذكر',category:a.category||'',weight:a.weight??'',height:a.height??'',stance:a.stance||'',phone:a.phone||'',guardian:a.guardian||'',guardianPhone:a.guardian_phone||'',joined:a.registration_date||'',status:a.club_status||(a.active===false?'متوقف عن التدريب':'نشط'),status_reason:a.status_reason||'',status_start_date:a.status_start_date||'',status_end_date:a.status_end_date||'',notes:a.notes||'',photo:a.photo_url||''}));
+ const remoteAth=aa.map(a=>({id:a.id,athlete_code:a.athlete_code||'',profile_id:a.profile_id||null,name:a.full_name,birth:a.birth_date||'',gender:a.gender||'ذكر',category:a.category||'',weight:a.weight??'',height:a.height??'',stance:a.stance||'',phone:a.phone||'',guardian:a.guardian||'',guardianPhone:a.guardian_phone||'',joined:a.registration_date||'',status:a.club_status||(a.active===false?'متوقف عن التدريب':'نشط'),status_reason:a.status_reason||'',status_start_date:a.status_start_date||'',status_end_date:a.status_end_date||'',notes:a.notes||'',photo:a.photo_url||''}));
  const remoteDues=mm.map(m=>({id:m.id,athlete:m.athlete_id,month:String(m.payment_month||'').slice(0,7),amount:String(m.monthly_amount??0),paid:String(m.amount_paid??(m.paid?m.monthly_amount:0)),date:m.paid_at?String(m.paid_at).slice(0,10):'',method:m.payment_method||'نقداً',notes:m.notes||''}));
  const remoteAtt=at.map(a=>({id:a.id,athlete:a.athlete_id,date:a.training_date,status:a.status,session:a.session||'',notes:a.notes||''}));
  const groups=new Map();
@@ -395,7 +403,7 @@ async function loadRemote(){
  const remoteProg=[...groups.values()];
  const remoteEvents=ee.map(e=>{const d=parseEventDetails(e.details);return {id:e.id,type:e.event_type||'نشاط',name:e.title,place:e.location||'',start:e.event_date||'',end:d.end||'',athlete:e.athlete_id||'',result:e.result||'',status:d.status||'مخطط لها',notes:d.notes||''}});
  // Merge by UUID so locally saved entries are not discarded on first connection.
- const merge=(local,remote)=>{const m=new Map(remote.map(x=>[x.id,x]));for(const x of local||[]){const remoteItem=m.get(x.id);const merged={...x};if(merged.profile_id===undefined&&remoteItem?.profile_id!==undefined)merged.profile_id=remoteItem.profile_id;m.set(x.id,merged)}return [...m.values()]};
+ const merge=(local,remote)=>{const m=new Map(remote.map(x=>[x.id,x]));for(const x of local||[]){const remoteItem=m.get(x.id);const merged={...x};if(merged.profile_id===undefined&&remoteItem?.profile_id!==undefined)merged.profile_id=remoteItem.profile_id;if(!merged.athlete_code&&remoteItem?.athlete_code)merged.athlete_code=remoteItem.athlete_code;m.set(x.id,merged)}return [...m.values()]};
  db.athletes=merge(db.athletes,remoteAth);db.dues=merge(db.dues,remoteDues);db.attendance=merge(db.attendance,remoteAtt);db.progress=merge(db.progress,remoteProg);db.events=merge(db.events,remoteEvents);
  normalizeLocalIds();localStorage.setItem(KEY,JSON.stringify(db));render();if(typeof fillClubCompetitionAthletes==='function')fillClubCompetitionAthletes();
 }
@@ -408,7 +416,7 @@ async function syncAll(){
   if(linksResult.error)throw linksResult.error;
   const profileLinks=new Map((linksResult.data||[]).map(row=>[row.id,row.profile_id]));
   const athletes=(db.athletes||[]).map(a=>({id:a.id,profile_id:profileLinks.get(a.id)??a.profile_id??null,full_name:a.name,birth_date:a.birth||null,gender:a.gender||null,category:a.category||null,weight:a.weight===''?null:Number(a.weight),height:a.height===''?null:Number(a.height),stance:a.stance||null,phone:a.phone||null,guardian:a.guardian||null,guardian_phone:a.guardianPhone||null,notes:a.notes||null,photo_url:(a.photo||'').startsWith('http')?a.photo:null,registration_date:a.joined||null,active:(a.status||'نشط')==='نشط',club_status:a.status||'نشط',status_reason:a.status_reason||null,status_start_date:a.status_start_date||null,status_end_date:a.status_end_date||null}));
-  if(athletes.length){const r=await sb.from('athletes').upsert(athletes,{onConflict:'id'});if(r.error)throw r.error}
+  if(athletes.length){const r=await sb.from('athletes').upsert(athletes,{onConflict:'id'});if(r.error)throw r.error;const codes=await sb.from('athletes').select('id,athlete_code');if(codes.error)throw codes.error;const codeMap=new Map((codes.data||[]).map(x=>[x.id,x.athlete_code]));for(const a of db.athletes||[])if(codeMap.has(a.id))a.athlete_code=codeMap.get(a.id);localStorage.setItem(KEY,JSON.stringify(db));render()}
   const dues=(db.dues||[]).map(d=>({id:d.id,athlete_id:d.athlete,monthly_amount:Number(d.amount||0),payment_month:(d.month||new Date().toISOString().slice(0,7))+'-01',paid:Number(d.paid||0)>=Number(d.amount||0),amount_paid:Number(d.paid||0),paid_at:d.date||null,payment_method:d.method||null,notes:d.notes||null}));
   if(dues.length){const r=await sb.from('memberships').upsert(dues,{onConflict:'id'});if(r.error)throw r.error}
   const attendance=(db.attendance||[]).map(a=>({id:a.id,athlete_id:a.athlete,training_date:a.date,status:a.status,session:a.session||null,notes:a.notes||null,recorded_by:codmUser.id}));
@@ -557,6 +565,7 @@ function renderMembershipRequests(){
   const date=r.created_at?new Date(r.created_at).toLocaleString('ar-DZ'):'—';
   return `<article class="card" style="margin:10px 0;border-right:4px solid ${status==='approved'?'#16804a':status==='rejected'?'#a4262c':'#c8a45d'}">
    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(r.full_name||'بدون اسم')}</h3><span class="pill ${statusClass}">${statusLabel}</span></div>
+   ${r.photo_url?`<div style="margin:10px 0"><b>الصورة الشخصية المرفقة:</b><br><a href="${esc(r.photo_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_url)}" alt="الصورة الشخصية لـ ${esc(r.full_name||'المترشح')}" loading="lazy" style="width:120px;height:120px;object-fit:cover;border-radius:50%;border:2px solid var(--line);margin-top:6px"></a></div>`:'<p class="muted">لم تُرفق صورة شخصية.</p>'}
    <div class="grid"><div><b>تاريخ الميلاد:</b> ${esc(r.birth_date||'—')}</div><div><b>الجنس:</b> ${esc(r.gender||'—')}</div><div><b>الفئة:</b> ${esc(r.category||'—')}</div><div><b>هاتف الرياضي:</b> ${esc(r.phone||'—')}</div><div><b>ولي الأمر:</b> ${esc(r.guardian||'—')}</div><div><b>هاتف ولي الأمر:</b> ${esc(r.guardian_phone||'—')}</div><div><b>تاريخ الإرسال:</b> ${esc(date)}</div></div>
    ${r.notes?`<p><b>ملاحظات:</b> ${esc(r.notes)}</p>`:''}
    ${status==='pending'?`<div><button class="btn tiny" type="button" onclick="reviewMembershipRequest('${r.id}','approved')">قبول الطلب</button><button class="btn tiny danger" type="button" onclick="reviewMembershipRequest('${r.id}','rejected')">رفض الطلب</button></div>`:status==='rejected'?`<div><button class="btn tiny danger" type="button" onclick="deleteRejectedMembershipRequest('${r.id}')">حذف الطلب المرفوض</button></div>`:''}
@@ -692,15 +701,58 @@ document.getElementById('publicAccess').addEventListener('click',async()=>{
 });
 document.getElementById('registrationAccess').addEventListener('click',()=>document.getElementById('publicAccess').click());
 document.getElementById('backToLogin').addEventListener('click',()=>{publicPortal.style.display='none';document.getElementById('authGate').style.display='flex';window.scrollTo(0,0)});
+// صورة طلب الانضمام: تُضغط في المتصفح ثم تُرفع إلى مساحة تخزين مخصصة.
+const MEMBERSHIP_PHOTO_BUCKET='codm-membership-photos';
+const membershipPhotoInput=document.getElementById('membershipPhoto');
+const membershipPhotoPreview=document.getElementById('membershipPhotoPreview');
+let membershipPhotoPreviewUrl='';
+membershipPhotoInput.addEventListener('change',()=>{
+ if(membershipPhotoPreviewUrl){URL.revokeObjectURL(membershipPhotoPreviewUrl);membershipPhotoPreviewUrl='';}
+ const file=membershipPhotoInput.files?.[0];
+ if(!file){membershipPhotoPreview.innerHTML='';return;}
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024){
+  alert('اختَر صورة JPG أو PNG أو WEBP لا يتجاوز حجمها 5 ميغابايت.');
+  membershipPhotoInput.value='';membershipPhotoPreview.innerHTML='';return;
+ }
+ membershipPhotoPreviewUrl=URL.createObjectURL(file);
+ membershipPhotoPreview.innerHTML=`<img src="${membershipPhotoPreviewUrl}" alt="معاينة الصورة الشخصية" style="width:112px;height:112px;object-fit:cover;border-radius:50%;border:2px solid var(--line)">`;
+});
+async function compressMembershipPhoto(file){
+ const bitmap=await createImageBitmap(file);
+ const scale=Math.min(1,700/Math.max(bitmap.width,bitmap.height));
+ const canvas=document.createElement('canvas');
+ canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+ canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+ canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+ bitmap.close?.();
+ return await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('تعذر تجهيز الصورة.')),'image/jpeg',0.82));
+}
 document.getElementById('membershipRequestForm').addEventListener('submit',async e=>{
  e.preventDefault();const form=e.currentTarget,btn=document.getElementById('requestSubmit'),status=document.getElementById('requestStatus'),fd=new FormData(form);
+ const photoFile=membershipPhotoInput.files?.[0]||null;
  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const randomBytes=new Uint8Array(10);crypto.getRandomValues(randomBytes);const trackingCode=Array.from(randomBytes,b=>alphabet[b%alphabet.length]).join('');
  const payload={full_name:String(fd.get('full_name')||'').trim(),birth_date:String(fd.get('birth_date')||''),gender:String(fd.get('gender')||''),category:String(fd.get('category')||''),phone:String(fd.get('phone')||'').trim()||null,guardian:String(fd.get('guardian')||'').trim()||null,guardian_phone:String(fd.get('guardian_phone')||'').trim()||null,notes:String(fd.get('notes')||'').trim()||null,tracking_code:trackingCode};
  if(!payload.full_name||!payload.birth_date){status.textContent='يرجى ملء الاسم وتاريخ الميلاد.';return}
+ if(photoFile&&(!['image/jpeg','image/png','image/webp'].includes(photoFile.type)||photoFile.size>5*1024*1024)){status.textContent='الصورة يجب أن تكون JPG أو PNG أو WEBP وألا تتجاوز 5 ميغابايت.';return}
  btn.disabled=true;status.textContent='جارٍ إرسال الطلب...';
- try{const {error}=await sb.from('membership_requests').insert(payload);if(error)throw error;form.reset();status.innerHTML='تم استلام طلبك بنجاح. احتفظ برمز المتابعة التالي واستخدمه لاحقاً لمعرفة القرار:<br><strong style="display:inline-block;direction:ltr;font-size:22px;letter-spacing:2px;padding:8px 12px;background:#f3f4f6;border-radius:8px;color:#17202d">'+trackingCode+'</strong><br>حالة الطلب الآن: قيد المراجعة. لا تفقد هذا الرمز.';document.getElementById('requestTrackingCode').value=trackingCode}
- catch(err){status.textContent='لم يُرسل الطلب: '+err.message+' — إذا ظهر أن tracking_code غير موجود، نفّذي ملف SQL الخاص بمتابعة الطلبات.'}
- finally{btn.disabled=false}
+ let uploadedPhotoPath=null;
+ try{
+  if(photoFile){
+   const compressed=await compressMembershipPhoto(photoFile);
+   uploadedPhotoPath=`requests/${crypto.randomUUID()}.jpg`;
+   const {error:uploadError}=await sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).upload(uploadedPhotoPath,compressed,{contentType:'image/jpeg',upsert:false});
+   if(uploadError)throw uploadError;
+   payload.photo_url=sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).getPublicUrl(uploadedPhotoPath).data.publicUrl;
+  }
+  const {error}=await sb.from('membership_requests').insert(payload);if(error)throw error;
+  form.reset();membershipPhotoPreview.innerHTML='';
+  if(membershipPhotoPreviewUrl){URL.revokeObjectURL(membershipPhotoPreviewUrl);membershipPhotoPreviewUrl='';}
+  status.innerHTML='تم استلام طلبك بنجاح. احتفظ برمز المتابعة التالي واستخدمه لاحقاً لمعرفة القرار:<br><strong style="display:inline-block;direction:ltr;font-size:22px;letter-spacing:2px;padding:8px 12px;background:#f3f4f6;border-radius:8px;color:#17202d">'+trackingCode+'</strong><br>حالة الطلب الآن: قيد المراجعة. لا تفقد هذا الرمز.';
+  document.getElementById('requestTrackingCode').value=trackingCode;
+ }catch(err){
+  if(uploadedPhotoPath){try{await sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).remove([uploadedPhotoPath])}catch(cleanupError){console.warn('Photo cleanup failed:',cleanupError)}}
+  status.textContent='لم يُرسل الطلب: '+(err.message||err)+' — تحققي من تنفيذ إعداد SQL الخاص بصورة طلب الانضمام.';
+ }finally{btn.disabled=false}
 });
 document.getElementById('requestTrackForm').addEventListener('submit',async e=>{
  e.preventDefault();const code=document.getElementById('requestTrackingCode').value.trim().toUpperCase(),result=document.getElementById('requestTrackingResult'),button=document.getElementById('trackRequestButton');
@@ -733,14 +785,30 @@ async function loadUnlinkedAthletes(){
  const status=document.getElementById('athleteAccountStatus');
  select.innerHTML='<option value="">جارٍ تحميل القائمة...</option>';
  try{
-  const {data,error}=await sb.from('athletes').select('id,full_name,category,profile_id').is('profile_id',null).order('full_name',{ascending:true});
+  const {data,error}=await sb.from('athletes').select('id,full_name,category,athlete_code,profile_id').is('profile_id',null).order('full_name',{ascending:true});
   if(error)throw error;
   select.innerHTML=(data||[]).map(a=>`<option value="${esc(a.id)}">${esc(a.full_name)} — ${esc(a.category||'دون فئة')}</option>`).join('')||'<option value="">كل الملاكمين لديهم حسابات أو لا توجد ملفات</option>';
   if(status)status.textContent=(data||[]).length?`يوجد ${(data||[]).length} ملاكمًا بلا حساب.`:'لا توجد ملفات ملاكمين تحتاج إلى حساب.';
  }catch(err){select.innerHTML='<option value="">تعذر تحميل القائمة</option>';if(status)status.textContent='تعذر تحميل الملاكمين: '+(err.message||err);}
 }
-document.querySelector('nav button[data-p="accounts"]').addEventListener('click',loadUnlinkedAthletes);
+document.querySelector('nav button[data-p="accounts"]').addEventListener('click',()=>{loadUnlinkedAthletes();loadLinkedAthletes()});
 document.getElementById('refreshUnlinkedAthletes').addEventListener('click',loadUnlinkedAthletes);
+async function loadLinkedAthletes(){
+ const rows=document.getElementById('linkedAthletesRows'),status=document.getElementById('linkedAthletesStatus');
+ rows.innerHTML='<tr><td colspan="6" class="empty">جارٍ تحميل الحسابات...</td></tr>';
+ try{
+  const {data:athletes,error}=await sb.from('athletes').select('id,athlete_code,full_name,category,profile_id').not('profile_id','is',null).order('athlete_code',{ascending:true});
+  if(error)throw error;
+  const ids=(athletes||[]).map(a=>a.profile_id).filter(Boolean);
+  let profiles=[];
+  if(ids.length){const pr=await sb.from('profiles').select('id,full_name,username,role').in('id',ids);if(pr.error)throw pr.error;profiles=pr.data||[]}
+  const byId=new Map(profiles.map(p=>[p.id,p]));
+  rows.innerHTML=(athletes||[]).map(a=>{const p=byId.get(a.profile_id)||{};return `<tr><td dir="ltr"><b>${esc(a.athlete_code||'—')}</b></td><td>${esc(a.full_name)}</td><td>${esc(a.category||'—')}</td><td>${esc(p.full_name||p.username||'حساب مرتبط')}</td><td>${esc(p.role||'athlete')}</td><td>مرتبط</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">لا توجد حسابات مرتبطة حتى الآن.</td></tr>';
+  status.textContent=`عدد الحسابات المرتبطة: ${(athletes||[]).length}. لا يتم عرض كلمات المرور أو بيانات الدخول الحساسة.`;
+ }catch(err){rows.innerHTML='<tr><td colspan="6" class="empty">تعذر تحميل الحسابات المرتبطة.</td></tr>';status.textContent='خطأ: '+(err.message||err)}
+}
+document.getElementById('refreshLinkedAthletes').addEventListener('click',loadLinkedAthletes);
+
 document.getElementById('athleteAccountForm').addEventListener('submit',async e=>{
  e.preventDefault();
  const athleteId=document.getElementById('accountAthlete').value;
@@ -758,6 +826,7 @@ document.getElementById('athleteAccountForm').addEventListener('submit',async e=
   document.getElementById('accountEmail').value='';
   document.getElementById('accountTempPassword').value='';
   await loadUnlinkedAthletes();
+  await loadLinkedAthletes();
  }catch(err){
   let message=err.message||String(err);
   try{const body=await err.context?.json?.();if(body?.error)message=body.error;}catch{}
@@ -773,7 +842,7 @@ async function showAthletePortal(profile){
  status.textContent='جارٍ تحميل بياناتك الشخصية...';
  try{
   const {data:athlete,error:aError}=await sb.from('athletes')
-   .select('id,full_name,birth_date,gender,category,weight,height,stance,club_status,status_reason,status_start_date,status_end_date,registration_date')
+   .select('id,athlete_code,full_name,birth_date,gender,category,weight,height,stance,club_status,status_reason,status_start_date,status_end_date,registration_date')
    .eq('profile_id',profile.id).maybeSingle();
   if(aError)throw aError;
   if(!athlete)throw new Error('لم يتم ربط حسابك بملف ملاكم. تواصلي مع إدارة النادي.');
@@ -785,7 +854,7 @@ async function showAthletePortal(profile){
   ]);
   for(const r of [attRes,progRes,eventRes,compRes])if(r.error)throw r.error;
   document.getElementById('athletePortalProfile').innerHTML=[
-   ['الاسم',athlete.full_name],['الفئة',athlete.category],['تاريخ الميلاد',athlete.birth_date],['الجنس',athlete.gender],['الوزن',athlete.weight==null?'—':athlete.weight+' كغ'],['الطول',athlete.height==null?'—':athlete.height+' سم'],['الوقفة',athlete.stance],['الحالة',athlete.club_status],['تاريخ الانضمام',athlete.registration_date]
+   ['رقم CODM',athlete.athlete_code],['الاسم',athlete.full_name],['الفئة',athlete.category],['تاريخ الميلاد',athlete.birth_date],['الجنس',athlete.gender],['الوزن',athlete.weight==null?'—':athlete.weight+' كغ'],['الطول',athlete.height==null?'—':athlete.height+' سم'],['الوقفة',athlete.stance],['الحالة',athlete.club_status],['تاريخ الانضمام',athlete.registration_date]
   ].map(([k,v])=>`<div class="stat">${esc(k)}<strong style="font-size:16px">${esc(v||'—')}</strong></div>`).join('');
   const attendance=attRes.data||[];
   document.getElementById('athletePortalAttendance').innerHTML=attendance.length?`<div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الحالة</th><th>الحصة</th></tr></thead><tbody>${attendance.map(a=>`<tr><td>${esc(a.training_date)}</td><td>${esc(a.status)}</td><td>${esc(a.session||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">لا توجد سجلات حضور بعد.</p>';
