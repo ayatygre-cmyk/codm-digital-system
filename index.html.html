@@ -25,8 +25,8 @@ canvas{width:100%;height:230px;border:1px solid var(--line);border-radius:9px}
 <body>
 <div id="authGate" style="position:fixed;inset:0;z-index:9999;background:#101319ee;display:flex;align-items:center;justify-content:center;padding:18px">
  <div style="background:#fff;max-width:420px;width:100%;padding:24px;border-radius:16px;text-align:right;direction:rtl">
-  <div style="text-align:center"><img src="assets/codm-logo.jpg" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:3px solid #c8a45d"><h2 style="margin:12px 0">الدخول إلى نظام CODM</h2><p style="color:#667085;font-size:13px">تسجيل الدخول للرئيس أو المدرب أو الملاكم</p><p style="color:#667085;font-size:11px">استخدمي البريد الإلكتروني وكلمة المرور الخاصة بحسابك. سيحدد النظام تلقائيًا واجهة الرئيس أو المدرب أو الملاكم حسب صلاحية الحساب.</p></div>
-  <form id="loginForm"><label>البريد الإلكتروني</label><input id="loginEmail" type="email" autocomplete="username" required><label style="margin-top:12px">كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="btn" style="width:100%" type="submit">تسجيل الدخول</button></form>
+  <div style="text-align:center"><img src="assets/codm-logo.jpg" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:3px solid #c8a45d"><h2 style="margin:12px 0">الدخول إلى نظام CODM</h2></div>
+  <form id="loginForm"><label for="loginIdentifier">البريد الإلكتروني أو رقم CODM</label><input id="loginIdentifier" type="text" autocomplete="username" required placeholder="البريد الإلكتروني أو رقم الملاكم"><label style="margin-top:12px" for="loginPassword">كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="btn" style="width:100%" type="submit">تسجيل الدخول</button></form>
   <p id="authMessage" style="font-size:12px;color:#a4262c;line-height:1.7"></p>
   <button id="forgotPassword" class="btn light" style="width:100%" type="button">نسيت كلمة المرور؟</button>
   <button id="publicAccess" class="btn secondary" style="width:100%" type="button">الدخول كزائر</button>
@@ -906,7 +906,22 @@ async function authenticate(){
  });
  await Promise.allSettled([announcementsTask,requestsTask,competitionsTask,videosTask]);
 }
-document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ تسجيل الدخول...';try{const {error}=await sb.auth.signInWithPassword({email:document.getElementById('loginEmail').value.trim(),password:document.getElementById('loginPassword').value});if(error)throw error;await authenticate()}catch(err){authMsg.textContent='تعذر الدخول: '+err.message}finally{b.disabled=false}});
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ تسجيل الدخول...';
+ const identifier=document.getElementById('loginIdentifier').value.trim();
+ const password=document.getElementById('loginPassword').value;
+ try{
+  if(identifier.includes('@')){
+   const {error}=await sb.auth.signInWithPassword({email:identifier.toLowerCase(),password});if(error)throw error;
+  }else{
+   const {data,error}=await sb.functions.invoke('athlete-login-by-code',{body:{athlete_code:identifier,password}});
+   if(error)throw error;
+   if(!data?.session?.access_token||!data?.session?.refresh_token)throw new Error(data?.error||'تعذر التحقق من رقم CODM وكلمة المرور.');
+   const {error:setError}=await sb.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});if(setError)throw setError;
+  }
+  await authenticate();
+ }catch(err){authMsg.textContent='تعذر الدخول: '+(err.message||'تحققي من بيانات الدخول.')}finally{b.disabled=false}
+});
 document.getElementById('logoutBtn').onclick=async()=>{
  const button=document.getElementById('logoutBtn');
  if(!codmUser)return;
@@ -926,7 +941,7 @@ document.getElementById('logoutBtn').onclick=async()=>{
  }catch(err){authMsg.textContent='تعذر تسجيل الخروج بأمان: '+(err.message||err)+' . لم تُمسح النسخة المحلية.'}
  finally{button.disabled=false;}
 };
-document.getElementById('forgotPassword').onclick=async()=>{const email=document.getElementById('loginEmail').value.trim();if(!email)return authMsg.textContent='اكتبي البريد الإلكتروني أولاً.';const {error}=await sb.auth.resetPasswordForEmail(email);authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
+document.getElementById('forgotPassword').onclick=async()=>{const identifier=document.getElementById('loginIdentifier').value.trim();if(!identifier.includes('@'))return authMsg.textContent='لاستعادة كلمة المرور، أدخلي البريد الإلكتروني المسجل في الحساب.';const {error}=await sb.auth.resetPasswordForEmail(identifier.toLowerCase());authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
 showGate();authenticate().catch(err=>{console.error(err);showGate('تعذر الاتصال بـ Supabase: '+err.message)});
 
 </script></body></html>
