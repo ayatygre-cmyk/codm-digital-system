@@ -65,7 +65,7 @@ self.addEventListener('fetch', event => {
           const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
           const updatedHtml = html.includes('staff-dashboard.js')
             ? html
-            : html.replace(/<\\/body\\s*>/i, scriptTag + '</body>');
+            : html.replace('</body>', scriptTag + '</body>');
           const headers = new Headers(response.headers);
           headers.delete('content-length');
           headers.delete('content-encoding');
