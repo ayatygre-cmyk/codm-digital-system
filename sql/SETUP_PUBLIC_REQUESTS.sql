@@ -28,7 +28,8 @@ create table if not exists public.membership_requests (
 -- حقول نموذج الانضمام: رمز المتابعة ومسار الصورة (بدون رابط عام).
 alter table public.membership_requests
   add column if not exists tracking_code text,
-  add column if not exists photo_url text;
+  add column if not exists photo_url text,
+  add column if not exists email text;
 
 create unique index if not exists membership_requests_tracking_code_unique
   on public.membership_requests (tracking_code)
