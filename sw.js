@@ -1,6 +1,6 @@
-const CACHE = 'codm-digital-v14';
+const CACHE = 'codm-digital-v15';
 const BASE = new URL(self.registration.scope);
-const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=14', BASE).href;
+const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=15', BASE).href;
 
 const MAIN_PATHS = new Set([
   new URL('./', BASE).pathname,
@@ -58,12 +58,16 @@ self.addEventListener('fetch', event => {
   const isMainPage = MAIN_PATHS.has(url.pathname);
 
   if (!isMainPage) {
+    const cacheKey = url.pathname.endsWith('/staff-dashboard.js')
+      ? request
+      : new Request(url.origin + url.pathname, { method: 'GET' });
     const cachePromise = caches.open(CACHE);
-    const cachedPromise = cachePromise.then(cache => cache.match(request));
+    const cachedPromise = cachePromise.then(cache => cache.match(cacheKey));
     const refreshPromise = cachePromise.then(cache =>
       fetch(request).then(response => {
         if (response.ok && response.type === 'basic') {
-          return cache.put(request, response.clone()).then(() => response);
+          // Store HTML under its clean path, never under a URL that may contain auth tokens.
+          return cache.put(cacheKey, response.clone()).then(() => response);
         }
         return response;
       })
