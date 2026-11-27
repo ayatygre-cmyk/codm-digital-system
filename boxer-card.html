@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://xmbpnjlpwpjwrjspnkro.supabase.co" crossorigin>
 <meta name="theme-color" content="#101319">
 <title>البطاقة التقنية للملاكم | CODM</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -34,7 +36,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;
 <section class="panel" id="pickerPanel"><label for="athleteSelect">اختيار الملاكم</label><select id="athleteSelect"><option value="">جارٍ تحميل قائمة الملاكمين...</option></select><p class="sub" style="color:#687080;margin-bottom:0">هذه البطاقة مخصصة للرئيس والمدربين للاطلاع فقط، دون تعديل أو تنزيل.</p></section>
 <div id="status" class="status">جارٍ التحقق من جلسة الدخول...</div>
 <section id="cardContent" class="hidden">
-<div class="card"><div class="profile"><img id="photo" class="avatar hidden" alt="صورة الملاكم"><div><h2 id="athleteName" style="margin-bottom:7px"></h2><div id="athleteMeta" class="sub" style="color:#687080"></div></div></div></div>
+<div class="card"><div class="profile"><img id="photo" class="avatar hidden" alt="صورة الملاكم" loading="lazy" decoding="async"><div><h2 id="athleteName" style="margin-bottom:7px"></h2><div id="athleteMeta" class="sub" style="color:#687080"></div></div></div></div>
 <div class="card"><h2>المعلومات الشخصية والرياضية</h2><div class="grid" id="personalGrid"></div></div>
 <div class="card"><h2>سجل التقييمات والاختبارات</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>المؤشر</th><th>النتيجة</th><th>الوحدة</th><th>ملاحظات المدرب</th></tr></thead><tbody id="progressRows"></tbody></table></div><div id="noProgress" class="status hidden">لا توجد تقييمات مسجلة لهذا الملاكم حتى الآن.</div></div>
 <div class="actions no-print"><a class="link light" href="./index.html">العودة إلى النظام</a></div>
