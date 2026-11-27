@@ -54,7 +54,6 @@ self.addEventListener('fetch', event => {
     const cached = isMainPage ? null : await cache.match(request);
 
     try {
-      // The main document must not be served from an older browser HTTP cache.
       const networkRequest = isMainPage
         ? new Request(request, { cache: 'no-store' })
         : request;
@@ -66,9 +65,9 @@ self.addEventListener('fetch', event => {
         const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
         let updatedHtml = html;
 
-        if (!/staff-dashboard\\.js(?:\\?|["'])/i.test(updatedHtml)) {
-          if (/<\\/body\\s*>/i.test(updatedHtml)) {
-            updatedHtml = updatedHtml.replace(/<\\/body\\s*>/i, scriptTag + '</body>');
+        if (!/staff-dashboard\.js(?:\?|["'])/i.test(updatedHtml)) {
+          if (/<\/body\s*>/i.test(updatedHtml)) {
+            updatedHtml = updatedHtml.replace(/<\/body\s*>/i, scriptTag + '</body>');
           } else {
             updatedHtml += scriptTag;
           }
