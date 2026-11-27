@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101319">
+<title>البطاقة التقنية للملاكم | CODM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#101319;--red:#a90e19;--gold:#c8a45d;--bg:#f3f4f6;--line:#e3e6eb;--muted:#687080}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#20242c;font-family:Tahoma,Arial,sans-serif}
+header{background:linear-gradient(120deg,#101319,#68121a);color:#fff;border-bottom:4px solid var(--gold);padding:22px 16px}
+.wrap{max-width:1050px;margin:auto;padding:18px}.brand{display:flex;align-items:center;gap:14px}.mark{width:66px;height:66px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-weight:bold;background:#fff;color:var(--red)}
+h1{font-size:clamp(20px,4vw,28px);margin:0 0 6px}.sub{color:#e8d9ba;font-size:13px}
+.panel,.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px;margin:14px 0;box-shadow:0 4px 14px #10182809}
+label{font-size:13px;font-weight:bold;display:block;margin-bottom:7px}select{width:100%;max-width:520px;padding:12px;border:1px solid #cfd4dc;border-radius:9px;font:inherit;background:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px}
+.item{background:#f8f9fb;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:68px}
+.item span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.item strong{font-size:15px;overflow-wrap:anywhere}
+h2{font-size:18px;margin:0 0 14px;color:#7d1720}.profile{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.avatar{width:94px;height:94px;border-radius:15px;object-fit:cover;background:#eee;border:2px solid var(--gold)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}button,.link{border:0;border-radius:9px;padding:11px 15px;font:inherit;font-weight:bold;text-decoration:none;cursor:pointer}.primary{background:var(--red);color:white}.light{background:#e9edf2;color:#20242c}
+.note{background:#fff8e8;border:1px solid #ead6a7;border-radius:10px;padding:12px;color:#65522c;font-size:13px;line-height:1.7}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;padding:10px;border-bottom:1px solid var(--line)}th{background:#f7f8fa}
+.tablewrap{overflow:auto}.status{padding:12px;border-radius:9px;background:#f6f7f9;color:var(--muted);line-height:1.7}
+.hidden{display:none!important}
+@media(max-width:560px){.wrap{padding:12px}.panel,.card{padding:13px}th,td{padding:8px;font-size:12px}}
+@media print{header,.no-print,#pickerPanel{display:none!important}body{background:#fff}.wrap{max-width:none;padding:0}.panel,.card{box-shadow:none;break-inside:avoid}.hidden{display:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap brand"><div class="mark">CODM</div><div><h1>البطاقة التقنية للملاكم</h1><div class="sub">جمعية شباب أولمبيك ديدوش مراد للملاكمة</div></div></div></header>
+<main class="wrap">
+<section class="panel" id="pickerPanel"><label for="athleteSelect">اختيار الملاكم</label><select id="athleteSelect"><option value="">جارٍ تحميل قائمة الملاكمين...</option></select><p class="sub" style="color:#687080;margin-bottom:0">هذه البطاقة مخصصة للاطلاع فقط، ولا تتضمن تنزيل أو تعديل بيانات الملاكم.</p></section>
+<div id="status" class="status">جارٍ التحقق من جلسة الدخول...</div>
+<section id="cardContent" class="hidden">
+<div class="card"><div class="profile"><img id="photo" class="avatar hidden" alt="صورة الملاكم"><div><h2 id="athleteName" style="margin-bottom:7px"></h2><div id="athleteMeta" class="sub" style="color:#687080"></div></div></div></div>
+<div class="card"><h2>المعلومات الشخصية والرياضية</h2><div class="grid" id="personalGrid"></div></div>
+<div class="card"><h2>سجل التقييمات والاختبارات</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>المؤشر</th><th>النتيجة</th><th>الوحدة</th><th>ملاحظات المدرب</th></tr></thead><tbody id="progressRows"></tbody></table></div><div id="noProgress" class="status hidden">لا توجد تقييمات مسجلة لهذا الملاكم حتى الآن.</div></div>
+<div class="actions no-print"><button class="primary" id="printBtn" type="button">طباعة البطاقة</button><a class="link light" href="./index.html">العودة إلى النظام</a></div>
+<div class="note">ملاحظة: المعلومات المعروضة مأخوذة من سجلات النادي. البطاقة للعرض فقط، ولا تسمح بتعديل البيانات أو تحميلها كملف.</div>
+</section>
+</main>
+<script>
+const SUPABASE_URL='https://xmbpnjlpwpjwrjspnkro.supabase.co';
+const SUPABASE_KEY='sb_publishable_umoJ2Zu3z5Hg1xrlaGif3w_q3QVwgw0';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fields=[['birth_date','تاريخ الميلاد'],['gender','الجنس'],['category','الفئة الرياضية'],['weight','الوزن الحالي','كغ'],['height','الطول','سم'],['stance','اليد المفضلة'],['phone','رقم الهاتف'],['guardian','ولي الأمر'],['guardian_phone','هاتف ولي الأمر'],['registration_date','تاريخ الانضمام'],['active','الحالة']];
+let athletes=[];
+function value(a,k){if(k==='active')return a.active===false?'متوقف':'نشط';return a[k]??''}
+function renderCard(id){
+ const a=athletes.find(x=>x.id===id);if(!a){$('cardContent').classList.add('hidden');return}
+ $('cardContent').classList.remove('hidden');$('athleteName').textContent=a.full_name||'ملاكم';
+ $('athleteMeta').textContent=[a.category,a.stance].filter(Boolean).join(' · ');
+ if(a.photo_url){$('photo').src=a.photo_url;$('photo').classList.remove('hidden')}else{$('photo').removeAttribute('src');$('photo').classList.add('hidden')}
+ $('personalGrid').innerHTML=fields.map(([k,label,unit])=>{let v=value(a,k);if(v===''||v===null)return '';if(k==='birth_date'||k==='registration_date')v=String(v).slice(0,10);return '<div class="item"><span>'+esc(label)+'</span><strong>'+esc(v)+(unit?' '+unit:'')+'</strong></div>'}).join('');
+ loadProgress(id);
+}
+async function loadProgress(id){
+ $('progressRows').innerHTML='<tr><td colspan="5">جارٍ تحميل التقييمات...</td></tr>';$('noProgress').classList.add('hidden');
+ const {data,error}=await sb.from('progress').select('progress_date,metric,value,unit,notes,goal').eq('athlete_id',id).order('progress_date',{ascending:false});
+ if(error){$('progressRows').innerHTML='<tr><td colspan="5">تعذر تحميل التقييمات: '+esc(error.message)+'</td></tr>';return}
+ $('progressRows').innerHTML=(data||[]).map(p=>'<tr><td>'+esc(p.progress_date||'')+'</td><td>'+esc(p.metric||'')+'</td><td>'+esc(p.value??'')+'</td><td>'+esc(p.unit||'')+'</td><td>'+esc([p.goal,p.notes].filter(Boolean).join(' — '))+'</td></tr>').join('');
+ $('noProgress').classList.toggle('hidden',!!(data&&data.length));
+}
+async function init(){
+ const {data:{session},error}=await sb.auth.getSession();
+ if(error||!session){$('status').textContent='يجب تسجيل الدخول أولاً من صفحة النظام الرئيسية، ثم فتح البطاقة من نفس المتصفح.';return}
+ const {data:profile,error:pErr}=await sb.from('profiles').select('role').eq('user_id',session.user.id).maybeSingle();
+ if(pErr||!profile||!['president','coach','athlete'].includes(profile.role)){$('status').textContent='هذا الحساب غير مخوّل للاطلاع على البطاقة التقنية.';return}
+ const {data,error:aErr}=await sb.from('athletes').select('id,full_name,birth_date,gender,category,weight,height,stance,phone,guardian,guardian_phone,registration_date,active,photo_url').order('full_name');
+ if(aErr){$('status').textContent='تعذر تحميل قائمة الملاكمين: '+aErr.message;return}
+ athletes=data||[];const select=$('athleteSelect');
+ select.innerHTML='<option value="">اختاري الملاكم</option>'+athletes.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.full_name)+'</option>').join('');
+ $('status').textContent=athletes.length?'تم التحقق من الدخول. اختاري ملاكماً لعرض بطاقته.':'لا توجد ملفات ملاكمين متاحة لهذا الحساب.';
+ select.onchange=()=>renderCard(select.value);
+}
+$('printBtn').onclick=()=>window.print();
+init();
+</script>
+</body></html>
