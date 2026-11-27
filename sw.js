@@ -1,18 +1,21 @@
-const CACHE = 'codm-digital-v13';
+const CACHE = 'codm-digital-v14';
 const BASE = new URL(self.registration.scope);
-const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=13', BASE).href;
+const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=14', BASE).href;
 
 const MAIN_PATHS = new Set([
   new URL('./', BASE).pathname,
   new URL('./index.html', BASE).pathname
 ]);
 
-// Cache only small, reusable static assets. The large homepage is streamed
-// directly from the network so the browser can render it while it downloads.
+// Small, reusable same-origin files are cached during installation.
+// HTML pages are safe to cache because their live data still comes from Supabase.
 const FILES = [
   new URL('./manifest.json', BASE).href,
   new URL('./assets/codm-logo.jpg', BASE).href,
-  STAFF_SCRIPT
+  new URL('./staff-dashboard.js?v=14', BASE).href,
+  new URL('./staff.html', BASE).href,
+  new URL('./boxer-card.html', BASE).href,
+  new URL('./reset-password.html', BASE).href
 ];
 
 const STATIC_PATHS = new Set([
@@ -29,15 +32,20 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys
-          .filter(key => key.startsWith('codm-digital-') && key !== CACHE)
-          .map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    // Start navigation requests before the service worker finishes waking up.
+    try {
+      await self.registration.navigationPreload.enable();
+    } catch (_) {}
+
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter(key => key.startsWith('codm-digital-') && key !== CACHE)
+        .map(key => caches.delete(key))
+    );
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener('fetch', event => {
@@ -55,7 +63,9 @@ self.addEventListener('fetch', event => {
 
     try {
       if (isMainPage) {
-        const response = await fetch(new Request(request, { cache: 'no-store' }));
+        // Navigation preload overlaps the network request with service-worker startup.
+        const preloaded = await event.preloadResponse;
+        const response = preloaded || await fetch(new Request(request, { cache: 'no-store' }));
         if (!response.ok || response.type !== 'basic' || !response.body) return response;
 
         const headers = new Headers(response.headers);
@@ -94,6 +104,9 @@ self.addEventListener('fetch', event => {
           headers
         });
       }
+
+      // Cache-first for versioned static pages/assets: instant repeat visits.
+      if (cached) return cached;
 
       const response = await fetch(request);
       if (!response.ok || response.type !== 'basic') return response;
