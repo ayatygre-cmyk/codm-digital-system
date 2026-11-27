@@ -1107,7 +1107,8 @@ async function authenticate(){
   const status=document.getElementById('announcementStatus');
   if(status)status.textContent='تم فتح الإدارة، لكن تعذرت مزامنة بعض بيانات النادي: '+(err.message||err);
  });
- await Promise.allSettled([announcementsTask,requestsTask,competitionsTask,videosTask]);
+ // لا نُبقي زر الدخول معطلاً أثناء تحميل الإعلانات والطلبات والفيديوهات؛ تظهر اللوحة فور التحقق من الحساب.
+ void Promise.allSettled([announcementsTask,requestsTask,competitionsTask,videosTask]);
 }
 document.getElementById('loginForm').addEventListener('submit',async e=>{
  e.preventDefault();const b=e.submitter;b.disabled=true;authMsg.textContent='جارٍ التحقق من بيانات الدخول...';
