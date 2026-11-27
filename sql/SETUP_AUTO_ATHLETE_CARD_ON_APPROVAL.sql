@@ -20,8 +20,8 @@ declare
 begin
   -- نفّذ فقط عند الانتقال لأول مرة من قيد الانتظار إلى مقبول.
   if new.status = 'approved'
-     and (tg_op = 'INSERT' or old.status is distinct from 'approved')
-     and new.athlete_id is null then
+     and new.athlete_id is null
+     and (tg_op = 'INSERT' or (tg_op = 'UPDATE' and old.status is distinct from 'approved')) then
 
     insert into public.athletes (
       id,
