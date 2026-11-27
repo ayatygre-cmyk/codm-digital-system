@@ -1,25 +1,35 @@
 (() => {
-  const LINK_MARK = 'data-codm-staff-link';
-  const normalize = value => String(value || '').replace(/\s+/g, ' ').trim();
+  const MARK = 'data-codm-staff-link';
+  const clean = value => String(value || '').replace(/\\s+/g, ' ').trim();
+  const labels = ['حسابات الملاكمين', 'حسابات الملاكم', 'حسابات'];
 
-  function findAccountsButton() {
-    const direct = document.querySelector('main nav button[data-p="accounts"], main [data-p="accounts"]');
-    if (direct) return direct;
-
-    const candidates = [...document.querySelectorAll('main nav button, main nav a, main button, main [role="tab"]')];
-    return candidates.find(el => {
-      const label = normalize(el.textContent);
-      return label.includes('حسابات الملاكمين') || label === 'حسابات';
-    }) || null;
+  function dashboardNav() {
+    const nodes = [...document.querySelectorAll('button,a,[role="tab"],[role="button"],[data-p]')];
+    const account = nodes.find(el => {
+      const t = clean(el.textContent);
+      return labels.some(label => t === label || t.includes(label));
+    });
+    if (account) {
+      const nav = account.closest('nav,[role="tablist"],.tabs,.nav,.sidebar,aside,section,div');
+      return { nav: nav || account.parentElement, account };
+    }
+    const navs = [...document.querySelectorAll('main nav, main [role="tablist"], main .tabs, main .nav, main aside, main section')];
+    const nav = navs.find(el => {
+      const t = clean(el.textContent);
+      return t.includes('الملاكمين') && (t.includes('البطولات') || t.includes('الاشتراكات') || t.includes('لوحة القيادة'));
+    });
+    return { nav: nav || null, account: null };
   }
 
-  function addStaffLink() {
-    if (document.querySelector('[' + LINK_MARK + '="1"]')) return true;
+  function addLink() {
+    if (document.querySelector('[' + MARK + '="1"]')) return true;
+    const { nav, account } = dashboardNav();
+    if (!nav) return false;
 
     const link = document.createElement('a');
     link.href = new URL('./staff.html', document.baseURI).href;
     link.textContent = 'الطاقم الفني';
-    link.setAttribute(LINK_MARK, '1');
+    link.setAttribute(MARK, '1');
     link.setAttribute('aria-label', 'فتح الملف الفني والإداري للطاقم التدريبي');
     Object.assign(link.style, {
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -28,35 +38,23 @@
       font: 'inherit', fontWeight: '700', color: '#24364e',
       background: '#e7ebf1', textDecoration: 'none', cursor: 'pointer'
     });
-
-    const accountsButton = findAccountsButton();
-    if (accountsButton && accountsButton.parentElement) {
-      accountsButton.insertAdjacentElement('afterend', link);
-      return true;
-    }
-
-    const nav = document.querySelector('main nav');
-    if (nav) {
-      nav.appendChild(link);
-      return true;
-    }
-    return false;
+    if (account && account.parentElement === nav) account.insertAdjacentElement('afterend', link);
+    else nav.appendChild(link);
+    return true;
   }
 
   function start() {
-    if (addStaffLink()) return;
+    if (addLink()) return;
     const observer = new MutationObserver(() => {
-      if (addStaffLink()) observer.disconnect();
+      if (addLink()) observer.disconnect();
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     window.addEventListener('load', () => {
-      if (addStaffLink()) observer.disconnect();
+      if (addLink()) observer.disconnect();
     }, { once: true });
+    setTimeout(() => observer.disconnect(), 15000);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start, { once: true });
-  } else {
-    start();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+  else start();
 })();
