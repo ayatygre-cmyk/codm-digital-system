@@ -1,6 +1,6 @@
 (() => {
   const LINK_MARK = 'data-codm-staff-link';
-  const normalize = value => String(value || '').replace(/\\s+/g, ' ').trim();
+  const normalize = value => String(value || '').replace(/\s+/g, ' ').trim();
 
   function findAccountsButton() {
     const direct = document.querySelector('main nav button[data-p="accounts"], main [data-p="accounts"]');
@@ -22,21 +22,11 @@
     link.setAttribute(LINK_MARK, '1');
     link.setAttribute('aria-label', 'فتح الملف الفني والإداري للطاقم التدريبي');
     Object.assign(link.style, {
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxSizing: 'border-box',
-      minHeight: '40px',
-      margin: '4px',
-      padding: '10px 14px',
-      border: '1px solid #d5dbe5',
-      borderRadius: '8px',
-      font: 'inherit',
-      fontWeight: '700',
-      color: '#24364e',
-      background: '#e7ebf1',
-      textDecoration: 'none',
-      cursor: 'pointer'
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      boxSizing: 'border-box', minHeight: '40px', margin: '4px',
+      padding: '10px 14px', border: '1px solid #d5dbe5', borderRadius: '8px',
+      font: 'inherit', fontWeight: '700', color: '#24364e',
+      background: '#e7ebf1', textDecoration: 'none', cursor: 'pointer'
     });
 
     const accountsButton = findAccountsButton();
