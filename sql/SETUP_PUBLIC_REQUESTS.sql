@@ -42,12 +42,12 @@ language sql
 stable
 security definer
 set search_path = public, pg_temp
-as $
+as $$
   select status
   from public.membership_requests
   where tracking_code = upper(trim(p_tracking_code))
   limit 1;
-$;
+$$;
 
 revoke all on function public.check_membership_request_status(text) from public;
 grant execute on function public.check_membership_request_status(text) to anon, authenticated;
