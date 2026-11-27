@@ -57,74 +57,76 @@ self.addEventListener('fetch', event => {
 
   const isMainPage = MAIN_PATHS.has(url.pathname);
 
+  if (!isMainPage) {
+    const cachePromise = caches.open(CACHE);
+    const cachedPromise = cachePromise.then(cache => cache.match(request));
+    const refreshPromise = cachePromise.then(cache =>
+      fetch(request).then(response => {
+        if (response.ok && response.type === 'basic') {
+          return cache.put(request, response.clone()).then(() => response);
+        }
+        return response;
+      })
+    );
+
+    // Extend the fetch event while the cached page is refreshed in the background.
+    event.waitUntil(refreshPromise.then(() => undefined).catch(() => undefined));
+    event.respondWith((async () => {
+      const cached = await cachedPromise;
+      if (cached) return cached;
+      try {
+        return await refreshPromise;
+      } catch (_) {
+        return Response.error();
+      }
+    })());
+    return;
+  }
+
   event.respondWith((async () => {
-    const cache = await caches.open(CACHE);
-    const cached = isMainPage ? null : await cache.match(request);
-
     try {
-      if (isMainPage) {
-        // Navigation preload overlaps the network request with service-worker startup.
-        const preloaded = await event.preloadResponse;
-        const response = preloaded || await fetch(new Request(request, { cache: 'no-store' }));
-        if (!response.ok || response.type !== 'basic' || !response.body) return response;
+      // Navigation preload overlaps the request with service-worker startup.
+      const preloaded = await event.preloadResponse;
+      const response = preloaded || await fetch(new Request(request, { cache: 'no-store' }));
+      if (!response.ok || response.type !== 'basic' || !response.body) return response;
 
-        const headers = new Headers(response.headers);
-        headers.delete('content-length');
-        headers.delete('content-encoding');
-        headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+      const headers = new Headers(response.headers);
+      headers.delete('content-length');
+      headers.delete('content-encoding');
+      headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
 
-        const decoder = new TextDecoder();
-        const encoder = new TextEncoder();
-        let tail = '';
-        let scriptFound = false;
-        const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
+      const decoder = new TextDecoder();
+      const encoder = new TextEncoder();
+      let tail = '';
+      let scriptFound = false;
+      const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
 
-        const stream = response.body.pipeThrough(new TransformStream({
-          transform(chunk, controller) {
-            const text = decoder.decode(chunk, { stream: true });
-            const probe = tail + text;
-            if (/staff-dashboard\.js(?:\?|["'])/i.test(probe)) scriptFound = true;
-            tail = probe.slice(-160);
-            controller.enqueue(encoder.encode(text));
-          },
-          flush(controller) {
-            const finalText = decoder.decode();
-            if (finalText) {
-              const probe = tail + finalText;
-              if (/staff-dashboard\.js(?:\?|["'])/i.test(probe)) scriptFound = true;
-              controller.enqueue(encoder.encode(finalText));
-            }
-            if (!scriptFound) controller.enqueue(encoder.encode(scriptTag));
+      const stream = response.body.pipeThrough(new TransformStream({
+        transform(chunk, controller) {
+          const text = decoder.decode(chunk, { stream: true });
+          const probe = tail + text;
+          if (/staff-dashboard\\.js(?:\\?|["'])/i.test(probe)) scriptFound = true;
+          tail = probe.slice(-160);
+          controller.enqueue(encoder.encode(text));
+        },
+        flush(controller) {
+          const finalText = decoder.decode();
+          if (finalText) {
+            const probe = tail + finalText;
+            if (/staff-dashboard\\.js(?:\\?|["'])/i.test(probe)) scriptFound = true;
+            controller.enqueue(encoder.encode(finalText));
           }
-        }));
+          if (!scriptFound) controller.enqueue(encoder.encode(scriptTag));
+        }
+      }));
 
-        return new Response(stream, {
-          status: response.status,
-          statusText: response.statusText,
-          headers
-        });
-      }
-
-      // Serve cached pages immediately, while refreshing them in the background.
-      if (cached) {
-        event.waitUntil(
-          fetch(request)
-            .then(response => {
-              if (response.ok && response.type === 'basic') {
-                return cache.put(request, response.clone());
-              }
-            })
-            .catch(() => {})
-        );
-        return cached;
-      }
-
-      const response = await fetch(request);
-      if (!response.ok || response.type !== 'basic') return response;
-      await cache.put(request, response.clone());
-      return response;
-    } catch {
-      return cached || Response.error();
+      return new Response(stream, {
+        status: response.status,
+        statusText: response.statusText,
+        headers
+      });
+    } catch (_) {
+      return Response.error();
     }
   })());
 });
