@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الملف الفني والإداري للطاقم التدريبي | CODM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--red:#a90e19;--gold:#c8a45d;--ink:#17191f;--muted:#687080;--line:#e5e7eb;--bg:#f4f5f7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Tahoma,Arial,sans-serif}
+header{background:linear-gradient(120deg,#101319,#68121a);color:#fff;padding:25px 18px;border-bottom:4px solid var(--gold)}
+.wrap{max-width:1100px;margin:auto;padding:18px}
+.brand{display:flex;align-items:center;gap:14px}.clubmark{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#8d1520;border:3px solid var(--gold);font-weight:900;font-size:19px;flex:none}
+h1{font-size:clamp(20px,4vw,30px);margin:0 0 7px}.sub{color:#e9d9b6;font-size:13px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0}
+button,.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:var(--red);color:#fff}.gold{background:var(--gold);color:#211b10}.light{background:#fff;color:#333;border:1px solid var(--line)}.danger{background:#8d1520;color:#fff}
+button:disabled{opacity:.5;cursor:not-allowed}
+.status{padding:12px 14px;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--muted);margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:15px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 5px 18px #1018280b}
+.person{display:flex;gap:13px;align-items:center}.avatar{width:76px;height:76px;border-radius:14px;background:#f0e9dc;display:grid;place-items:center;color:#7b1820;font-size:25px;font-weight:bold;overflow:hidden;flex:none}.avatar img{width:100%;height:100%;object-fit:cover}
+.person h2{font-size:18px;margin:0 0 5px}.fr{color:var(--muted);font-size:13px}
+.meta{font-size:13px;color:var(--muted);margin:14px 0;line-height:1.8}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{padding:8px 11px;font-size:12px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0}
+.panel h2{margin-top:0;font-size:19px}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}
+input,textarea{width:100%;border:1px solid #d7dbe2;border-radius:9px;padding:11px;font:inherit;background:#fff}
+textarea{min-height:90px;resize:vertical}.wide{grid-column:1/-1}
+.help{font-size:12px;color:var(--muted);line-height:1.7}
+.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
+.section-title{font-size:14px;color:#7b1820;border-bottom:1px solid var(--line);padding-bottom:8px;margin:20px 0 12px}
+@media print{header,.toolbar,.actions,#editor,#status,.no-print{display:none!important}body{background:#fff}.wrap{max-width:none;padding:0}.card{break-inside:avoid;box-shadow:none}.grid{display:block}.card{margin-bottom:12px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap brand">
+  <div class="clubmark" aria-label="CODM">CODM</div>
+  <div><h1>الملف الفني والإداري للطاقم التدريبي</h1><div class="sub">جمعية شباب أولمبيك ديدوش مراد للملاكمة · CODM</div></div>
+ </div>
+</header>
+<main class="wrap">
+ <div id="status" class="status">جارٍ التحقق من جلسة الدخول...</div>
+ <div class="toolbar no-print">
+  <a class="btn light" href="./index.html">العودة إلى الموقع</a>
+  <button class="gold" onclick="window.print()">طباعة / حفظ PDF</button>
+  <button id="seedBtn" class="primary hidden">إنشاء ملفات المدربين الثلاثة</button>
+  <button id="newBtn" class="primary hidden">إضافة مدرب</button>
+ </div>
+ <div id="editor" class="panel hidden">
+  <h2 id="editorTitle">بيانات المدرب</h2>
+  <form id="staffForm">
+   <input type="hidden" id="recordId">
+   <div class="formgrid">
+    <div><label for="full_name">الاسم الكامل *</label><input id="full_name" required></div>
+    <div><label for="name_fr">الاسم بالفرنسية</label><input id="name_fr"></div>
+    <div class="wide"><label for="photo_url">رابط الصورة (اختياري)</label><input id="photo_url" type="url" placeholder="https://..."></div>
+    <div><label for="personal_info">المعلومات الشخصية (كل معلومة في سطر)</label><textarea id="personal_info" placeholder="تاريخ الميلاد:\nمكان الإقامة:\n..."></textarea></div>
+    <div><label for="professional_info">المعلومات المهنية (كل معلومة في سطر)</label><textarea id="professional_info" placeholder="الصفة:\nالتخصص:\n..."></textarea></div>
+    <div><label for="certifications">الشهادات والتكوين (كل عنصر في سطر)</label><textarea id="certifications"></textarea></div>
+    <div><label for="experience">الخبرة (كل عنصر في سطر)</label><textarea id="experience"></textarea></div>
+    <div><label for="responsibilities">المهام والمسؤوليات (كل عنصر في سطر)</label><textarea id="responsibilities"></textarea></div>
+    <div><label for="categories">الفئات المشرف عليها (كل عنصر في سطر)</label><textarea id="categories"></textarea></div>
+    <div><label for="achievements">الإنجازات (كل عنصر في سطر)</label><textarea id="achievements"></textarea></div>
+    <div class="wide"><label for="reports">التقارير والملاحظات</label><textarea id="reports"></textarea></div>
+   </div>
+   <p class="help">اتركي الحقول فارغة إلى حين إدخال المعلومات المؤكدة. لا تُضاف أي شهادة أو خبرة تلقائيًا.</p>
+   <div class="toolbar"><button class="primary" type="submit">حفظ البيانات</button><button class="light" type="button" id="cancelBtn">إلغاء</button></div>
+  </form>
+ </div>
+ <div id="staffList" class="grid"></div>
+ <div id="readOnlyNote" class="status hidden">وضع الاطلاع فقط. لا تتوفر لك صلاحية تعديل الملفات.</div>
+</main>
+<footer>CODM · الملف الرسمي للطاقم التدريبي</footer>
+<script>
+const SUPABASE_URL='https://xmbpnjlpwpjwrjspnkro.supabase.co';
+const SUPABASE_KEY='sb_publishable_umoJ2Zu3z5Hg1xrlaGif3w_q3QVwgw0';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let currentUser=null,currentProfile=null,records=[];
+const $=id=>document.getElementById(id);
+const status=(msg)=>$('status').textContent=msg;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const arrText=v=>Array.isArray(v)?v.join('\n'):'';
+const objText=v=>v&&typeof v==='object'?Object.entries(v).map(([k,val])=>`${k}: ${val??''}`).join('\n'):'';
+const lines=v=>v.split('\n').map(x=>x.trim()).filter(Boolean);
+function parseObject(v){const out={};lines(v).forEach(line=>{const i=line.indexOf(':');if(i>0)out[line.slice(0,i).trim()]=line.slice(i+1).trim();else out[line]=true});return out}
+function card(r){
+ const canEdit=['president','coach'].includes(currentProfile.role),canDelete=currentProfile.role==='president';
+ const photo=r.photo_url?`<img src="${esc(r.photo_url)}" alt="">`:esc((r.full_name||'م').trim().slice(0,1));
+ const summary=[...(Array.isArray(r.certifications)?r.certifications:[]),...(Array.isArray(r.responsibilities)?r.responsibilities:[])].slice(0,3).join(' · ');
+ return `<article class="card"><div class="person"><div class="avatar">${photo}</div><div><h2>${esc(r.full_name)}</h2><div class="fr">${esc(r.name_fr||'')}</div></div></div><div class="meta">${summary?esc(summary):'لم تُضف المعلومات المهنية بعد.'}</div><div class="actions"><button class="light" onclick="viewRecord('${r.id}')">عرض الملف</button>${canEdit?`<button class="gold" onclick="editRecord('${r.id}')">تعديل</button>`:''}${canDelete?`<button class="danger" onclick="deleteRecord('${r.id}')">حذف</button>`:''}</div></article>`;
+}
+function render(){ $('staffList').innerHTML=records.length?records.map(card).join(''):'<div class="status">لا توجد ملفات مدربين بعد. يمكن إنشاء الملفات الأساسية من الزر أعلاه.</div>'; }
+async function load(){
+ const {data:{session},error:sErr}=await sb.auth.getSession();
+ if(sErr||!session){status('يجب تسجيل الدخول من الموقع الرئيسي أولًا، ثم فتح صفحة الطاقم من نفس المتصفح.');return}
+ currentUser=session.user;
+ const {data:p,error:pErr}=await sb.from('profiles').select('id,full_name,username,role').eq('user_id',currentUser.id).maybeSingle();
+ if(pErr||!p){status('تعذر تحديد صلاحية الحساب. تأكدي من ربط الحساب بجدول profiles.');return}
+ currentProfile=p;
+ if(!['president','coach','athlete'].includes(p.role)){status('هذا الحساب غير مخوّل لعرض ملفات الطاقم.');return}
+ $('newBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
+ $('seedBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
+ $('readOnlyNote').classList.toggle('hidden',p.role!=='athlete');
+ if(p.role==='athlete') status('تم تسجيل الدخول. إذا ظهرت رسالة منع الوصول، يجب تفعيل سياسة قراءة الملاكمين في Supabase أولًا.');
+ else status(`مرحبًا ${p.full_name||p.username||''} — صلاحية الحساب: ${p.role==='president'?'الرئيس':'المدرب'}.`);
+ const {data,error}=await sb.from('club_staff_profiles').select('*').order('created_at');
+ if(error){status('تعذر تحميل الملفات: '+error.message);return}
+ records=data||[];render();
+}
+function clearForm(){ $('staffForm').reset();$('recordId').value=''; }
+function openEditor(r){$('editor').classList.remove('hidden');$('editorTitle').textContent=r?'تعديل ملف المدرب':'إضافة ملف مدرب';$('recordId').value=r?.id||'';
+ $('full_name').value=r?.full_name||'';$('name_fr').value=r?.name_fr||'';$('photo_url').value=r?.photo_url||'';
+ $('personal_info').value=objText(r?.personal_info);$('professional_info').value=objText(r?.professional_info);
+ ['certifications','experience','responsibilities','categories','achievements','reports'].forEach(k=>$(k).value=arrText(r?.[k]));
+ $('editor').scrollIntoView({behavior:'smooth'});
+}
+window.editRecord=id=>{if(!['president','coach'].includes(currentProfile.role))return;const r=records.find(x=>x.id===id);if(r)openEditor(r)};
+window.viewRecord=id=>{const r=records.find(x=>x.id===id);if(!r)return;const sections=[['المعلومات الشخصية',r.personal_info],['المعلومات المهنية',r.professional_info],['الشهادات والتكوين',r.certifications],['الخبرة',r.experience],['المهام والمسؤوليات',r.responsibilities],['الفئات',r.categories],['الإنجازات',r.achievements],['التقارير',r.reports]];
+ let w=window.open('','_blank');if(!w){alert('يرجى السماح بالنوافذ المنبثقة لعرض الملف.');return}
+ const body=sections.map(([title,v])=>{let t=Array.isArray(v)?v.join('\n'):v&&typeof v==='object'?Object.entries(v).map(([a,b])=>a+': '+b).join('\n'):'';return `<h3>${esc(title)}</h3><p>${esc(t||'لم تتم إضافة بيانات بعد.').replace(/\n/g,'<br>')}</p>`}).join('');
+ w.document.write(`<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>${esc(r.full_name)}</title><style>body{font-family:Tahoma,Arial;max-width:850px;margin:35px auto;padding:20px;line-height:1.9;color:#222}h1{color:#86141d}h3{border-bottom:1px solid #ddd;color:#86141d;padding-bottom:5px}@media print{button{display:none}}</style><h1>${esc(r.full_name)}</h1><h4>${esc(r.name_fr||'')}</h4>${body}<button onclick="print()">طباعة / PDF</button></html>`);w.document.close();
+};
+window.deleteRecord=async id=>{if(currentProfile.role!=='president')return;if(!confirm('هل أنت متأكدة من حذف ملف هذا المدرب؟ لا يمكن التراجع عن الحذف.'))return;
+ const {error}=await sb.from('club_staff_profiles').delete().eq('id',id);if(error){alert('تعذر الحذف: '+error.message);return}records=records.filter(x=>x.id!==id);render();};
+$('newBtn').onclick=()=>openEditor(null);$('cancelBtn').onclick=()=>{$('editor').classList.add('hidden');clearForm()};
+$('staffForm').onsubmit=async e=>{e.preventDefault();if(!['president','coach'].includes(currentProfile.role))return;
+ const id=$('recordId').value;
+ const payload={full_name:$('full_name').value.trim(),name_fr:$('name_fr').value.trim()||null,photo_url:$('photo_url').value.trim()||null,
+ personal_info:parseObject($('personal_info').value),professional_info:parseObject($('professional_info').value),
+ certifications:lines($('certifications').value),experience:lines($('experience').value),responsibilities:lines($('responsibilities').value),
+ categories:lines($('categories').value),achievements:lines($('achievements').value),reports:lines($('reports').value),updated_by:currentUser.id,updated_at:new Date().toISOString()};
+ if(!payload.full_name){alert('يرجى إدخال الاسم الكامل.');return}
+ let result=id?await sb.from('club_staff_profiles').update(payload).eq('id',id).select().single():await sb.from('club_staff_profiles').insert(payload).select().single();
+ if(result.error){alert('تعذر الحفظ: '+result.error.message);return}
+ if(id)records=records.map(x=>x.id===id?result.data:x);else records.push(result.data);
+ render();$('editor').classList.add('hidden');clearForm();status('تم حفظ الملف بنجاح.');
+};
+$('seedBtn').onclick=async()=>{
+ const names=[['مخلفي سمير','Mekhalfi Samir'],['بوطويل آية','Boutouil Aya'],['بوصبح إسكندر','Bousbah Iskander']];
+ const existing=new Set(records.map(x=>x.full_name));
+ const missing=names.filter(x=>!existing.has(x[0]));
+ if(!missing.length){alert('الملفات الثلاثة موجودة بالفعل.');return}
+ if(!confirm('سيتم إنشاء الملفات الناقصة بالأسماء فقط، وستبقى بقية المعلومات فارغة وقابلة للتعديل. متابعة؟'))return;
+ const rows=missing.map(x=>({full_name:x[0],name_fr:x[1]}));
+ const {data,error}=await sb.from('club_staff_profiles').insert(rows).select();
+ if(error){alert('تعذر إنشاء الملفات: '+error.message);return}
+ records=[...records,...(data||[])];render();status('تم إنشاء الملفات الأساسية. أضيفي المعلومات المؤكدة لكل مدرب عند توفرها.');
+};
+load();
+</script>
+</body>
+</html>
