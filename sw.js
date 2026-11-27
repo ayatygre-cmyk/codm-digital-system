@@ -73,7 +73,7 @@ self.addEventListener('fetch', event => {
           transform(chunk, controller) {
             const text = decoder.decode(chunk, { stream: true });
             const probe = tail + text;
-            if (/staff-dashboard\\.js(?:\\?|["'])/i.test(probe)) scriptFound = true;
+            if (/staff-dashboard\.js(?:\?|["'])/i.test(probe)) scriptFound = true;
             tail = probe.slice(-160);
             controller.enqueue(encoder.encode(text));
           },
@@ -81,7 +81,7 @@ self.addEventListener('fetch', event => {
             const finalText = decoder.decode();
             if (finalText) {
               const probe = tail + finalText;
-              if (/staff-dashboard\\.js(?:\\?|["'])/i.test(probe)) scriptFound = true;
+              if (/staff-dashboard\.js(?:\?|["'])/i.test(probe)) scriptFound = true;
               controller.enqueue(encoder.encode(finalText));
             }
             if (!scriptFound) controller.enqueue(encoder.encode(scriptTag));
