@@ -1,4 +1,4 @@
-const CACHE = 'codm-digital-v30';
+const CACHE = 'codm-digital-v31';
 const BASE = new URL(self.registration.scope);
 const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=23', BASE).href;
 const AUTO_ACCOUNT_SCRIPT = new URL('./membership-auto-account.js?v=2', BASE).href;
