@@ -110,7 +110,8 @@ async function load(){
  $('managementBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('newBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('printStaffBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
- $('boxerCardsBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
+ $('boxerCardsBtn').classList.toggle('hidden',!['president','coach','athlete'].includes(p.role));
+ $('boxerCardsBtn').textContent=p.role==='athlete'?'بطاقتي التقنية':'البطاقات التقنية للملاكمين';
  $('seedBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('readOnlyNote').classList.toggle('hidden',p.role!=='athlete');
  if(p.role==='athlete') status('تم تسجيل الدخول. إذا ظهرت رسالة منع الوصول، يجب تفعيل سياسة قراءة الملاكمين في Supabase أولًا.');
