@@ -48,8 +48,9 @@ async function addStaffShortcut(response) {
        ">الطاقم الفني</a>
   `;
 
-  if (/<\\/body\\s*>/i.test(html)) {
-    html = html.replace(/<\\/body\\s*>/i, shortcut + '</body>');
+  const bodyClose = html.toLowerCase().lastIndexOf('</body>');
+  if (bodyClose >= 0) {
+    html = html.slice(0, bodyClose) + shortcut + html.slice(bodyClose);
   } else {
     html += shortcut;
   }
