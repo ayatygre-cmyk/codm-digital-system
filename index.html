@@ -752,7 +752,7 @@ function renderMembershipRequests(){
   const date=r.created_at?new Date(r.created_at).toLocaleString('ar-DZ'):'—';
   return `<article class="card" style="margin:10px 0;border-right:4px solid ${status==='approved'?'#16804a':status==='rejected'?'#a4262c':'#c8a45d'}">
    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(r.full_name||'بدون اسم')}</h3><span class="pill ${statusClass}">${statusLabel}</span></div>
-   ${r.photo_url?`<div style="margin:10px 0"><b>الصورة الشخصية المرفقة:</b><br><a href="${esc(r.photo_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_url)}" alt="الصورة الشخصية لـ ${esc(r.full_name||'المترشح')}" loading="lazy" style="width:120px;height:120px;object-fit:cover;border-radius:50%;border:2px solid var(--line);margin-top:6px"></a></div>`:'<p class="muted">لم تُرفق صورة شخصية.</p>'}
+   ${r.photo_display_url?`<div style="margin:10px 0"><b>الصورة الشخصية المرفقة:</b><br><a href="${esc(r.photo_display_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_display_url)}" alt="الصورة الشخصية لـ ${esc(r.full_name||'المترشح')}" loading="lazy" style="width:120px;height:120px;object-fit:cover;border-radius:50%;border:2px solid var(--line);margin-top:6px"></a></div>`:'<p class="muted">لم تُرفق صورة شخصية.</p>'}
    <div class="grid"><div><b>تاريخ الميلاد:</b> ${esc(r.birth_date||'—')}</div><div><b>الجنس:</b> ${esc(r.gender||'—')}</div><div><b>الفئة:</b> ${esc(r.category||'—')}</div><div><b>هاتف الرياضي:</b> ${esc(r.phone||'—')}</div><div><b>ولي الأمر:</b> ${esc(r.guardian||'—')}</div><div><b>هاتف ولي الأمر:</b> ${esc(r.guardian_phone||'—')}</div><div><b>تاريخ الإرسال:</b> ${esc(date)}</div></div>
    ${r.notes?`<p><b>ملاحظات:</b> ${esc(r.notes)}</p>`:''}
    ${status==='pending'?`<div><button class="btn tiny" type="button" onclick="reviewMembershipRequest('${r.id}','approved')">قبول الطلب</button><button class="btn tiny danger" type="button" onclick="reviewMembershipRequest('${r.id}','rejected')">رفض الطلب</button></div>`:status==='rejected'?`<div><button class="btn tiny danger" type="button" onclick="deleteRejectedMembershipRequest('${r.id}')">حذف الطلب المرفوض</button></div>`:''}
@@ -762,7 +762,7 @@ function renderMembershipRequests(){
 async function loadMembershipRequests(){
  const host=document.getElementById('membershipRequestList');if(!codmUser||!host)return;
  host.innerHTML='<p class="empty">جارٍ تحميل الطلبات...</p>';
- try{const {data,error}=await sb.from('membership_requests').select('*').order('created_at',{ascending:false});if(error)throw error;membershipRequestRows=data||[];renderMembershipRequests();}
+ try{const {data,error}=await sb.from('membership_requests').select('*').order('created_at',{ascending:false});if(error)throw error;membershipRequestRows=await Promise.all((data||[]).map(async r=>{if(!r.photo_url)return r;if(/^https?:\\/\\//i.test(r.photo_url))return {...r,photo_display_url:r.photo_url};try{const {data:photo}=await sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).createSignedUrl(r.photo_url,3600);return {...r,photo_display_url:photo?.signedUrl||''}}catch(_){return {...r,photo_display_url:''}}}));renderMembershipRequests();}
  catch(err){host.innerHTML=`<p class="empty">تعذر تحميل الطلبات: ${esc(err.message)}. تأكدي من صلاحيات جدول membership_requests.</p>`;console.error('Membership requests:',err)}
 }
 window.reviewMembershipRequest=async function(id,status){
@@ -945,7 +945,7 @@ document.getElementById('membershipRequestForm').addEventListener('submit',async
    uploadedPhotoPath=`requests/${crypto.randomUUID()}.jpg`;
    const {error:uploadError}=await sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).upload(uploadedPhotoPath,compressed,{contentType:'image/jpeg',upsert:false});
    if(uploadError)throw uploadError;
-   payload.photo_url=sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).getPublicUrl(uploadedPhotoPath).data.publicUrl;
+   payload.photo_url=uploadedPhotoPath;
   }
   const {error}=await sb.from('membership_requests').insert(payload);if(error)throw error;
   form.reset();membershipPhotoPreview.innerHTML='';
