@@ -35,11 +35,16 @@ create policy "CODM staff delete test definitions"
 on public.test_definitions for delete to authenticated
 using (public.is_club_staff());
 
--- إضافة الجري 1000م كوحدة ثوانٍ كاختبار عام أولي.
+-- ترحيل الاختبار السابق من 1000م إلى 100م إن كان موجوداً.
+update public.test_definitions
+set name = 'الجري 100م', unit = 'ثانية', updated_at = now()
+where name = 'الجري 1000م';
+
+-- إضافة الجري 100م كوحدة ثوانٍ كاختبار عام أولي.
 -- يمكن للرئيس أو المدرب لاحقاً تخصيصه لفئة واحدة أو إيقافه أو حذفه من لوحة الإدارة.
 insert into public.test_definitions (name, unit, category, is_active)
-select 'الجري 1000م', 'ثانية', null, true
+select 'الجري 100م', 'ثانية', null, true
 where not exists (
   select 1 from public.test_definitions
-  where name = 'الجري 1000م' and category is null
+  where name = 'الجري 100م' and category is null
 );
