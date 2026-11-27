@@ -1,6 +1,6 @@
-const CACHE = 'codm-digital-v16';
+const CACHE = 'codm-digital-v17';
 const BASE = new URL(self.registration.scope);
-const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=16', BASE).href;
+const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=17', BASE).href;
 
 const MAIN_PATHS = new Set([
   new URL('./', BASE).pathname,
@@ -12,8 +12,9 @@ const MAIN_PATHS = new Set([
 const FILES = [
   new URL('./manifest.json', BASE).href,
   new URL('./assets/codm-logo.jpg', BASE).href,
-  new URL('./staff-dashboard.js?v=16', BASE).href,
+  new URL('./staff-dashboard.js?v=17', BASE).href,
   new URL('./staff.html', BASE).href,
+  new URL('./club-management.html', BASE).href,
   new URL('./boxer-card.html', BASE).href,
   new URL('./reset-password.html', BASE).href
 ];
