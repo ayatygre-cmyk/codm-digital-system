@@ -1,4 +1,4 @@
-const CACHE = 'codm-digital-v23';
+const CACHE = 'codm-digital-v24';
 const BASE = new URL(self.registration.scope);
 const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=22', BASE).href;
 const AUTO_ACCOUNT_SCRIPT = new URL('./membership-auto-account.js?v=1', BASE).href;
@@ -120,7 +120,7 @@ self.addEventListener('fetch', event => {
 
     const refreshPromise = (async () => {
       const preloaded = await event.preloadResponse;
-      const networkResponse = preloaded || await fetch(new Request(request, { cache: 'no-store' }));
+      const networkResponse = preloaded || await fetch(new Request(request, { cache: 'no-cache' }));
       const pageResponse = await buildMainResponse(networkResponse);
       if (pageResponse.ok && pageResponse.type === 'default') {
         const cache = await cachePromise;
