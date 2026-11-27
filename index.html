@@ -786,10 +786,19 @@ async function loadMembershipRequests(){
  catch(err){host.innerHTML=`<p class="empty">تعذر تحميل الطلبات: ${esc(err.message)}. تأكدي من صلاحيات جدول membership_requests.</p>`;console.error('Membership requests:',err)}
 }
 window.reviewMembershipRequest=async function(id,status){
- if(!codmUser||!['approved','rejected'].includes(status))return;
- const label=status==='approved'?'قبول':'رفض';if(!confirm(`هل تريدين ${label} هذا الطلب؟`))return;
- try{const {error}=await sb.from('membership_requests').update({status,reviewed_at:new Date().toISOString(),reviewed_by:codmUser.id}).eq('id',id);if(error)throw error;await loadMembershipRequests();alert(status==='approved'?'تمت الموافقة على الطلب. يجب إنشاء ملف الملاكم وحساب الدخول بشكل منفصل.':'تم رفض الطلب.');}
- catch(err){alert('تعذر تحديث الطلب: '+err.message)}
+  if(!codmUser||!['approved','rejected'].includes(status))return;
+  const label=status==='approved'?'قبول':'رفض';
+  if(!confirm(status==='approved'?'هل تريدين قبول الطلب وإنشاء البطاقة التقنية تلقائياً؟':'هل تريدين رفض هذا الطلب؟'))return;
+  try{
+    const {data,error}=await sb.from('membership_requests')
+      .update({status,reviewed_at:new Date().toISOString(),reviewed_by:codmUser.id})
+      .eq('id',id).eq('status','pending')
+      .select('id,athlete_id,status').single();
+    if(error)throw error;
+    if(status==='approved'&&!data?.athlete_id)throw new Error('تم تحديث حالة الطلب، لكن لم تُنشأ البطاقة التقنية. تحققي من مشغّل إنشاء البطاقة في Supabase.');
+    await loadMembershipRequests();
+    alert(status==='approved'?'تم قبول الطلب وإنشاء البطاقة التقنية للملاكم بنجاح.':'تم رفض الطلب.');
+  }catch(err){await loadMembershipRequests();alert('تعذر إكمال العملية: '+(err.message||err))}
 };
 
 document.getElementById('refreshMembershipRequests').addEventListener('click',loadMembershipRequests);
