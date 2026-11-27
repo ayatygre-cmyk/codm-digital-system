@@ -1,6 +1,6 @@
 (() => {
   const MARK = 'data-codm-staff-link';
-  const clean = value => String(value || '').replace(/\\s+/g, ' ').trim();
+  const clean = value => String(value || '').replace(/\s+/g, ' ').trim();
   const labels = ['حسابات الملاكمين', 'حسابات الملاكم', 'حسابات'];
 
   function dashboardNav() {
