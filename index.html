@@ -762,7 +762,7 @@ function renderMembershipRequests(){
 async function loadMembershipRequests(){
  const host=document.getElementById('membershipRequestList');if(!codmUser||!host)return;
  host.innerHTML='<p class="empty">جارٍ تحميل الطلبات...</p>';
- try{const {data,error}=await sb.from('membership_requests').select('*').order('created_at',{ascending:false});if(error)throw error;membershipRequestRows=await Promise.all((data||[]).map(async r=>{if(!r.photo_url)return r;if(/^https?:\\/\\//i.test(r.photo_url))return {...r,photo_display_url:r.photo_url};try{const {data:photo}=await sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).createSignedUrl(r.photo_url,3600);return {...r,photo_display_url:photo?.signedUrl||''}}catch(_){return {...r,photo_display_url:''}}}));renderMembershipRequests();}
+ try{const {data,error}=await sb.from('membership_requests').select('*').order('created_at',{ascending:false});if(error)throw error;membershipRequestRows=await Promise.all((data||[]).map(async r=>{if(!r.photo_url)return r;if(String(r.photo_url).startsWith('http'))return {...r,photo_display_url:r.photo_url};try{const {data:photo}=await sb.storage.from(MEMBERSHIP_PHOTO_BUCKET).createSignedUrl(r.photo_url,3600);return {...r,photo_display_url:photo?.signedUrl||''}}catch(_){return {...r,photo_display_url:''}}}));renderMembershipRequests();}
  catch(err){host.innerHTML=`<p class="empty">تعذر تحميل الطلبات: ${esc(err.message)}. تأكدي من صلاحيات جدول membership_requests.</p>`;console.error('Membership requests:',err)}
 }
 window.reviewMembershipRequest=async function(id,status){
