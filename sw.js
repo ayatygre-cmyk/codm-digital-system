@@ -105,8 +105,19 @@ self.addEventListener('fetch', event => {
         });
       }
 
-      // Cache-first for versioned static pages/assets: instant repeat visits.
-      if (cached) return cached;
+      // Serve cached pages immediately, while refreshing them in the background.
+      if (cached) {
+        event.waitUntil(
+          fetch(request)
+            .then(response => {
+              if (response.ok && response.type === 'basic') {
+                return cache.put(request, response.clone());
+              }
+            })
+            .catch(() => {})
+        );
+        return cached;
+      }
 
       const response = await fetch(request);
       if (!response.ok || response.type !== 'basic') return response;
