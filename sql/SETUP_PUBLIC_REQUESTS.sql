@@ -25,6 +25,32 @@ create table if not exists public.membership_requests (
   reviewed_by uuid references auth.users(id)
 );
 
+-- حقول نموذج الانضمام: رمز المتابعة ومسار الصورة (بدون رابط عام).
+alter table public.membership_requests
+  add column if not exists tracking_code text,
+  add column if not exists photo_url text;
+
+create unique index if not exists membership_requests_tracking_code_unique
+  on public.membership_requests (tracking_code)
+  where tracking_code is not null;
+
+-- يعيد حالة الطلب فقط، ولا يكشف الاسم أو الهاتف أو أي بيانات شخصية.
+create or replace function public.check_membership_request_status(p_tracking_code text)
+returns text
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $
+  select status
+  from public.membership_requests
+  where tracking_code = upper(trim(p_tracking_code))
+  limit 1;
+$;
+
+revoke all on function public.check_membership_request_status(text) from public;
+grant execute on function public.check_membership_request_status(text) to anon, authenticated;
+
 alter table public.membership_requests enable row level security;
 grant insert on public.membership_requests to anon, authenticated;
 grant select, update on public.membership_requests to authenticated;
