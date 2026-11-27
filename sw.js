@@ -1,14 +1,14 @@
-const CACHE = 'codm-digital-v11';
+const CACHE = 'codm-digital-v12';
 const BASE = new URL(self.registration.scope);
-const STAFF_SCRIPT = new URL('./staff-dashboard.js', BASE).href;
+const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=12', BASE).href;
 
 const MAIN_PATHS = new Set([
   new URL('./', BASE).pathname,
   new URL('./index.html', BASE).pathname
 ]);
 
-// Keep the large homepage out of Cache Storage so the service worker can
-// install reliably; transform each navigation response as it is requested.
+// Keep the large homepage out of Cache Storage; fetch it fresh and inject
+// the small dashboard enhancement without replacing the original HTML.
 const FILES = [
   new URL('./manifest.json', BASE).href,
   new URL('./assets/codm-logo.jpg', BASE).href,
@@ -33,10 +33,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(key =>
-            key.startsWith('codm-digital-') &&
-            key !== CACHE
-          )
+          .filter(key => key.startsWith('codm-digital-') && key !== CACHE)
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
@@ -52,35 +49,46 @@ self.addEventListener('fetch', event => {
 
   const isMainPage = MAIN_PATHS.has(url.pathname);
 
-  event.respondWith(
-    caches.open(CACHE).then(async cache => {
-      const cached = isMainPage ? null : await cache.match(request);
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    const cached = isMainPage ? null : await cache.match(request);
 
-      try {
-        const response = await fetch(request);
-        if (!response.ok || response.type !== 'basic') return response;
+    try {
+      // The main document must not be served from an older browser HTTP cache.
+      const networkRequest = isMainPage
+        ? new Request(request, { cache: 'no-store' })
+        : request;
+      const response = await fetch(networkRequest);
+      if (!response.ok || response.type !== 'basic') return response;
 
-        if (isMainPage) {
-          const html = await response.text();
-          const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
-          const updatedHtml = html.includes('staff-dashboard.js')
-            ? html
-            : html.replace('</body>', scriptTag + '</body>');
-          const headers = new Headers(response.headers);
-          headers.delete('content-length');
-          headers.delete('content-encoding');
-          return new Response(updatedHtml, {
-            status: response.status,
-            statusText: response.statusText,
-            headers
-          });
+      if (isMainPage) {
+        const html = await response.text();
+        const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
+        let updatedHtml = html;
+
+        if (!/staff-dashboard\\.js(?:\\?|["'])/i.test(updatedHtml)) {
+          if (/<\\/body\\s*>/i.test(updatedHtml)) {
+            updatedHtml = updatedHtml.replace(/<\\/body\\s*>/i, scriptTag + '</body>');
+          } else {
+            updatedHtml += scriptTag;
+          }
         }
 
-        await cache.put(request, response.clone());
-        return response;
-      } catch {
-        return cached || Response.error();
+        const headers = new Headers(response.headers);
+        headers.delete('content-length');
+        headers.delete('content-encoding');
+        headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        return new Response(updatedHtml, {
+          status: response.status,
+          statusText: response.statusText,
+          headers
+        });
       }
-    })
-  );
+
+      await cache.put(request, response.clone());
+      return response;
+    } catch {
+      return cached || Response.error();
+    }
+  })());
 });
