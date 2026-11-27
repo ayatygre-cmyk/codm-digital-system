@@ -1,14 +1,14 @@
-const CACHE = 'codm-digital-v12';
+const CACHE = 'codm-digital-v13';
 const BASE = new URL(self.registration.scope);
-const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=12', BASE).href;
+const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=13', BASE).href;
 
 const MAIN_PATHS = new Set([
   new URL('./', BASE).pathname,
   new URL('./index.html', BASE).pathname
 ]);
 
-// Keep the large homepage out of Cache Storage; fetch it fresh and inject
-// the small dashboard enhancement without replacing the original HTML.
+// Cache only small, reusable static assets. The large homepage is streamed
+// directly from the network so the browser can render it while it downloads.
 const FILES = [
   new URL('./manifest.json', BASE).href,
   new URL('./assets/codm-logo.jpg', BASE).href,
@@ -54,36 +54,49 @@ self.addEventListener('fetch', event => {
     const cached = isMainPage ? null : await cache.match(request);
 
     try {
-      const networkRequest = isMainPage
-        ? new Request(request, { cache: 'no-store' })
-        : request;
-      const response = await fetch(networkRequest);
-      if (!response.ok || response.type !== 'basic') return response;
-
       if (isMainPage) {
-        const html = await response.text();
-        const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
-        let updatedHtml = html;
-
-        if (!/staff-dashboard\.js(?:\?|["'])/i.test(updatedHtml)) {
-          if (/<\/body\s*>/i.test(updatedHtml)) {
-            updatedHtml = updatedHtml.replace(/<\/body\s*>/i, scriptTag + '</body>');
-          } else {
-            updatedHtml += scriptTag;
-          }
-        }
+        const response = await fetch(new Request(request, { cache: 'no-store' }));
+        if (!response.ok || response.type !== 'basic' || !response.body) return response;
 
         const headers = new Headers(response.headers);
         headers.delete('content-length');
         headers.delete('content-encoding');
         headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-        return new Response(updatedHtml, {
+
+        const decoder = new TextDecoder();
+        const encoder = new TextEncoder();
+        let tail = '';
+        let scriptFound = false;
+        const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
+
+        const stream = response.body.pipeThrough(new TransformStream({
+          transform(chunk, controller) {
+            const text = decoder.decode(chunk, { stream: true });
+            const probe = tail + text;
+            if (/staff-dashboard\\.js(?:\\?|["'])/i.test(probe)) scriptFound = true;
+            tail = probe.slice(-160);
+            controller.enqueue(encoder.encode(text));
+          },
+          flush(controller) {
+            const finalText = decoder.decode();
+            if (finalText) {
+              const probe = tail + finalText;
+              if (/staff-dashboard\\.js(?:\\?|["'])/i.test(probe)) scriptFound = true;
+              controller.enqueue(encoder.encode(finalText));
+            }
+            if (!scriptFound) controller.enqueue(encoder.encode(scriptTag));
+          }
+        }));
+
+        return new Response(stream, {
           status: response.status,
           statusText: response.statusText,
           headers
         });
       }
 
+      const response = await fetch(request);
+      if (!response.ok || response.type !== 'basic') return response;
       await cache.put(request, response.clone());
       return response;
     } catch {
