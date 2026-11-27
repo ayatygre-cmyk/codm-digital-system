@@ -47,6 +47,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
  <div id="status" class="status">جارٍ التحقق من جلسة الدخول...</div>
  <div class="toolbar no-print">
   <a class="btn light" href="./index.html">العودة إلى الموقع</a>
+  <a id="boxerCardsBtn" class="btn gold hidden" href="./boxer-card.html">البطاقات التقنية للملاكمين</a>
   <button class="gold" onclick="window.print()">طباعة / حفظ PDF</button>
   <button id="seedBtn" class="primary hidden">إنشاء ملفات المدربين الثلاثة</button>
   <button id="newBtn" class="primary hidden">إضافة مدرب</button>
@@ -104,6 +105,7 @@ async function load(){
  currentProfile=p;
  if(!['president','coach','athlete'].includes(p.role)){status('هذا الحساب غير مخوّل لعرض ملفات الطاقم.');return}
  $('newBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
+ $('boxerCardsBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('seedBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('readOnlyNote').classList.toggle('hidden',p.role!=='athlete');
  if(p.role==='athlete') status('تم تسجيل الدخول. إذا ظهرت رسالة منع الوصول، يجب تفعيل سياسة قراءة الملاكمين في Supabase أولًا.');
