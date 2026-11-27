@@ -25,19 +25,19 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;
 .tablewrap{overflow:auto}.status{padding:12px;border-radius:9px;background:#f6f7f9;color:var(--muted);line-height:1.7}
 .hidden{display:none!important}
 @media(max-width:560px){.wrap{padding:12px}.panel,.card{padding:13px}th,td{padding:8px;font-size:12px}}
-@media print{header,.no-print,#pickerPanel{display:none!important}body{background:#fff}.wrap{max-width:none;padding:0}.panel,.card{box-shadow:none;break-inside:avoid}.hidden{display:none!important}}
+
 </style>
 </head>
 <body>
 <header><div class="wrap brand"><div class="mark">CODM</div><div><h1>البطاقة التقنية للملاكم</h1><div class="sub">جمعية شباب أولمبيك ديدوش مراد للملاكمة</div></div></div></header>
 <main class="wrap">
-<section class="panel" id="pickerPanel"><label for="athleteSelect">اختيار الملاكم</label><select id="athleteSelect"><option value="">جارٍ تحميل قائمة الملاكمين...</option></select><p class="sub" style="color:#687080;margin-bottom:0">هذه البطاقة مخصصة للاطلاع فقط، ولا تتضمن تنزيل أو تعديل بيانات الملاكم.</p></section>
+<section class="panel" id="pickerPanel"><label for="athleteSelect">اختيار الملاكم</label><select id="athleteSelect"><option value="">جارٍ تحميل قائمة الملاكمين...</option></select><p class="sub" style="color:#687080;margin-bottom:0">هذه البطاقة مخصصة للرئيس والمدربين للاطلاع فقط، دون تعديل أو تنزيل.</p></section>
 <div id="status" class="status">جارٍ التحقق من جلسة الدخول...</div>
 <section id="cardContent" class="hidden">
 <div class="card"><div class="profile"><img id="photo" class="avatar hidden" alt="صورة الملاكم"><div><h2 id="athleteName" style="margin-bottom:7px"></h2><div id="athleteMeta" class="sub" style="color:#687080"></div></div></div></div>
 <div class="card"><h2>المعلومات الشخصية والرياضية</h2><div class="grid" id="personalGrid"></div></div>
 <div class="card"><h2>سجل التقييمات والاختبارات</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>المؤشر</th><th>النتيجة</th><th>الوحدة</th><th>ملاحظات المدرب</th></tr></thead><tbody id="progressRows"></tbody></table></div><div id="noProgress" class="status hidden">لا توجد تقييمات مسجلة لهذا الملاكم حتى الآن.</div></div>
-<div class="actions no-print"><button class="primary" id="printBtn" type="button">طباعة البطاقة</button><a class="link light" href="./index.html">العودة إلى النظام</a></div>
+<div class="actions no-print"><a class="link light" href="./index.html">العودة إلى النظام</a></div>
 <div class="note">ملاحظة: المعلومات المعروضة مأخوذة من سجلات النادي. البطاقة للعرض فقط، ولا تسمح بتعديل البيانات أو تحميلها كملف.</div>
 </section>
 </main>
@@ -69,7 +69,7 @@ async function init(){
  const {data:{session},error}=await sb.auth.getSession();
  if(error||!session){$('status').textContent='يجب تسجيل الدخول أولاً من صفحة النظام الرئيسية، ثم فتح البطاقة من نفس المتصفح.';return}
  const {data:profile,error:pErr}=await sb.from('profiles').select('role').eq('user_id',session.user.id).maybeSingle();
- if(pErr||!profile||!['president','coach','athlete'].includes(profile.role)){$('status').textContent='هذا الحساب غير مخوّل للاطلاع على البطاقة التقنية.';return}
+ if(pErr||!profile||!['president','coach'].includes(profile.role)){$('status').textContent='هذه البطاقة متاحة لحساب الرئيس والمدربين فقط.';return}
  const {data,error:aErr}=await sb.from('athletes').select('id,full_name,birth_date,gender,category,weight,height,stance,phone,guardian,guardian_phone,registration_date,active,photo_url').order('full_name');
  if(aErr){$('status').textContent='تعذر تحميل قائمة الملاكمين: '+aErr.message;return}
  athletes=data||[];const select=$('athleteSelect');
@@ -77,7 +77,6 @@ async function init(){
  $('status').textContent=athletes.length?'تم التحقق من الدخول. اختاري ملاكماً لعرض بطاقته.':'لا توجد ملفات ملاكمين متاحة لهذا الحساب.';
  select.onchange=()=>renderCard(select.value);
 }
-$('printBtn').onclick=()=>window.print();
 init();
 </script>
 </body></html>
