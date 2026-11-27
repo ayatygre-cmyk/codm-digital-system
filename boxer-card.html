@@ -33,7 +33,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;
 <body>
 <header><div class="wrap brand"><div class="mark">CODM</div><div><h1>البطاقة التقنية للملاكم</h1><div class="sub">جمعية شباب أولمبيك ديدوش مراد للملاكمة</div></div></div></header>
 <main class="wrap">
-<section class="panel" id="pickerPanel"><label for="athleteSelect">اختيار الملاكم</label><select id="athleteSelect"><option value="">جارٍ تحميل قائمة الملاكمين...</option></select><p class="sub" style="color:#687080;margin-bottom:0">هذه البطاقة مخصصة للرئيس والمدربين للاطلاع فقط، دون تعديل أو تنزيل.</p></section>
+<section class="panel hidden" id="pickerPanel"><label for="athleteSelect">اختيار الملاكم</label><select id="athleteSelect"><option value="">جارٍ تحميل قائمة الملاكمين...</option></select><p class="sub" style="color:#687080;margin-bottom:0">صلاحية الرئيس والمدربين: الاطلاع على بطاقات الملاكمين دون تعديل أو تنزيل.</p></section>
+<section class="panel hidden" id="linkPanel"><h2>ربط حساب ملاكم بملفه الرياضي</h2><p>أدخلي معرّف حساب المستخدم (User UID) من Supabase، ثم اختاري ملف الملاكم. هذه العملية متاحة للطاقم فقط.</p><label for="linkAthlete">ملف الملاكم</label><select id="linkAthlete"></select><label for="linkUid" style="margin-top:10px">معرّف حساب المستخدم (UUID)</label><input id="linkUid" autocomplete="off" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="width:100%;padding:12px;border:1px solid #cfd4dc;border-radius:9px;font:inherit"><div class="actions"><button class="primary" id="linkBtn" type="button">ربط الحساب بالملف</button></div><p class="sub" style="color:#687080">يمكن إيجاد User UID من Supabase ثم Authentication → Users. لا تضعي كلمة المرور هنا.</p></section>
 <div id="status" class="status">جارٍ التحقق من جلسة الدخول...</div>
 <section id="cardContent" class="hidden">
 <div class="card"><div class="profile"><img id="photo" class="avatar hidden" alt="صورة الملاكم" loading="lazy" decoding="async"><div><h2 id="athleteName" style="margin-bottom:7px"></h2><div id="athleteMeta" class="sub" style="color:#687080"></div></div></div></div>
@@ -67,17 +68,37 @@ async function loadProgress(id){
  $('progressRows').innerHTML=(data||[]).map(p=>'<tr><td>'+esc(p.progress_date||'')+'</td><td>'+esc(p.metric||'')+'</td><td>'+esc(p.value??'')+'</td><td>'+esc(p.unit||'')+'</td><td>'+esc(p.goal||'—')+'</td><td>'+esc(p.notes||'—')+'</td></tr>').join('');
  $('noProgress').classList.toggle('hidden',!!(data&&data.length));
 }
+const athleteColumns='id,full_name,birth_date,gender,category,weight,height,stance,phone,guardian,guardian_phone,registration_date,active,photo_url';
 async function init(){
  const {data:{session},error}=await sb.auth.getSession();
- if(error||!session){$('status').textContent='يجب تسجيل الدخول أولاً من صفحة النظام الرئيسية، ثم فتح البطاقة من نفس المتصفح.';return}
- const {data:profile,error:pErr}=await sb.from('profiles').select('role').eq('user_id',session.user.id).maybeSingle();
- if(pErr||!profile||!['president','coach'].includes(profile.role)){$('status').textContent='هذه البطاقة متاحة لحساب الرئيس والمدربين فقط.';return}
- const {data,error:aErr}=await sb.from('athletes').select('id,full_name,birth_date,gender,category,weight,height,stance,phone,guardian,guardian_phone,registration_date,active,photo_url').order('full_name');
+ if(error||!session){$('status').textContent='يجب تسجيل الدخول أولاً من صفحة النظام الرئيسية.';return}
+ const {data:profile,error:pErr}=await sb.from('profiles').select('role,athlete_id').eq('user_id',session.user.id).maybeSingle();
+ if(pErr||!profile){$('status').textContent='تعذر تحديد صلاحية الحساب. تأكدي من إعداد جدول profiles.';return}
+ if(profile.role==='athlete'){
+   $('pickerPanel').classList.add('hidden');$('linkPanel').classList.add('hidden');
+   if(!profile.athlete_id){$('status').textContent='حسابك غير مربوط بملف ملاكم بعد. يرجى التواصل مع إدارة النادي لربط حسابك ببطاقتك التقنية.';return}
+   const {data:a,error:aErr}=await sb.from('athletes').select(athleteColumns).eq('id',profile.athlete_id).maybeSingle();
+   if(aErr||!a){$('status').textContent='تعذر عرض بطاقتك. تحققي من تنفيذ ملف إعداد صلاحيات بطاقات الملاكمين في Supabase.';return}
+   athletes=[a];$('status').textContent='مرحباً '+(a.full_name||'بك')+' — هذه بطاقتك التقنية الخاصة، للعرض فقط.';renderCard(a.id);return;
+ }
+ if(!['president','coach'].includes(profile.role)){$('status').textContent='هذا الحساب غير مخوّل لعرض البطاقات التقنية.';return}
+ $('pickerPanel').classList.remove('hidden');$('linkPanel').classList.remove('hidden');
+ const {data,error:aErr}=await sb.from('athletes').select(athleteColumns).order('full_name');
  if(aErr){$('status').textContent='تعذر تحميل قائمة الملاكمين: '+aErr.message;return}
- athletes=data||[];const select=$('athleteSelect');
- select.innerHTML='<option value="">اختاري الملاكم</option>'+athletes.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.full_name)+'</option>').join('');
- $('status').textContent=athletes.length?'تم التحقق من الدخول. اختاري ملاكماً لعرض بطاقته.':'لا توجد ملفات ملاكمين متاحة لهذا الحساب.';
- select.onchange=()=>renderCard(select.value);
+ athletes=data||[];const options='<option value="">اختاري الملاكم</option>'+athletes.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.full_name)+'</option>').join('');
+ $('athleteSelect').innerHTML=options;$('linkAthlete').innerHTML=options;
+ $('status').textContent=athletes.length?'تم التحقق من الدخول. اختاري ملاكماً لعرض بطاقته أو اربطي حساب ملاكم.':'لا توجد ملفات ملاكمين متاحة لهذا الحساب.';
+ $('athleteSelect').onchange=()=>renderCard($('athleteSelect').value);
+ $('linkBtn').onclick=async()=>{
+   const uid=$('linkUid').value.trim(),athleteId=$('linkAthlete').value;
+   if(!uid||!athleteId){alert('أدخلي UUID واختاري ملف الملاكم.');return}
+   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uid)){alert('صيغة UUID غير صحيحة.');return}
+   if(!confirm('تأكيد ربط هذا الحساب بملف الملاكم المختار؟'))return;
+   const {error}=await sb.rpc('codm_link_athlete_account',{p_user_id:uid,p_athlete_id:athleteId});
+   if(error){alert('تعذر الربط: '+error.message+' — تأكدي من تنفيذ ملف SQL أولاً.');return}
+   alert('تم ربط الحساب بالملف الرياضي بنجاح.');
+   $('linkUid').value='';
+ };
 }
 init();
 </script>
