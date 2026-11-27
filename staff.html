@@ -49,6 +49,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
  <div id="status" class="status">جارٍ التحقق من جلسة الدخول...</div>
  <div class="toolbar no-print">
   <a class="btn light" href="./index.html">العودة إلى الموقع</a>
+  <a id="managementBtn" class="btn primary hidden" href="./club-management.html">إدارة النادي والاختبارات</a>
   <a id="boxerCardsBtn" class="btn gold hidden" href="./boxer-card.html">البطاقات التقنية للملاكمين</a>
   <button id="printStaffBtn" class="gold hidden" onclick="window.print()">طباعة / حفظ PDF</button>
   <button id="seedBtn" class="primary hidden">إنشاء ملفات المدربين الثلاثة</button>
@@ -106,6 +107,7 @@ async function load(){
  if(pErr||!p){status('تعذر تحديد صلاحية الحساب. تأكدي من ربط الحساب بجدول profiles.');return}
  currentProfile=p;
  if(!['president','coach','athlete'].includes(p.role)){status('هذا الحساب غير مخوّل لعرض ملفات الطاقم.');return}
+ $('managementBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('newBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('printStaffBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
  $('boxerCardsBtn').classList.toggle('hidden',!['president','coach'].includes(p.role));
