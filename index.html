@@ -234,6 +234,7 @@ input::placeholder,textarea::placeholder{color:#828b99}
  <div><label>رقم هاتف الرياضي</label><input name="phone" maxlength="30" inputmode="tel"></div>
  <div><label>اسم ولي الأمر (للقصر)</label><input name="guardian" maxlength="120"></div>
  <div><label>هاتف ولي الأمر</label><input name="guardian_phone" maxlength="30" inputmode="tel"></div>
+ <div><label>البريد الإلكتروني * (للقاصر: بريد ولي الأمر)</label><input name="email" type="email" required maxlength="254" autocomplete="email" placeholder="name@example.com"></div>
  <div><label>ملاحظات</label><input name="notes" maxlength="500"></div>
  <div><label for="membershipPhoto">الصورة الشخصية (اختياري)</label><input id="membershipPhoto" name="photo" type="file" accept="image/jpeg,image/png,image/webp"><small class="muted">JPG أو PNG أو WEBP، بحد أقصى 5 ميغابايت. ستظهر الصورة للإدارة لمراجعة الطلب.</small><div id="membershipPhotoPreview" style="margin-top:8px"></div></div>
  </div><button class="btn" id="requestSubmit" type="submit">إرسال طلب الانضمام</button><p id="requestStatus" class="muted" role="status"></p></form></div>
@@ -346,7 +347,7 @@ input::placeholder,textarea::placeholder{color:#828b99}
 <section class="panel" id="p-accounts">
  <div class="card">
   <h2>إنشاء حساب ملاكم</h2>
-  <p class="muted">اختاري ملاكمًا مسجلًا بلا حساب، ثم أدخلي بريده الإلكتروني وكلمة مرور مؤقتة. سيُربط الحساب بملفه الرياضي تلقائيًا.</p>
+  <p class="muted">اختاري ملاكمًا مسجلًا بلا حساب، ثم أدخلي بريده الإلكتروني وكلمة مرور أولية. سيُربط الحساب بملفه وتُرسل بيانات الدخول إلى بريده.</p>
   <form id="athleteAccountForm">
    <div class="grid">
     <div><label for="accountAthlete">الملاكم</label><select id="accountAthlete" required><option value="">جارٍ تحميل قائمة الملاكمين...</option></select></div>
@@ -774,8 +775,9 @@ function renderMembershipRequests(){
    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(r.full_name||'بدون اسم')}</h3><span class="pill ${statusClass}">${statusLabel}</span></div>
    ${r.photo_display_url?`<div style="margin:10px 0"><b>الصورة الشخصية المرفقة:</b><br><a href="${esc(r.photo_display_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_display_url)}" alt="الصورة الشخصية لـ ${esc(r.full_name||'المترشح')}" loading="lazy" style="width:120px;height:120px;object-fit:cover;border-radius:50%;border:2px solid var(--line);margin-top:6px"></a></div>`:'<p class="muted">لم تُرفق صورة شخصية.</p>'}
    <div class="grid"><div><b>تاريخ الميلاد:</b> ${esc(r.birth_date||'—')}</div><div><b>الجنس:</b> ${esc(r.gender||'—')}</div><div><b>الفئة:</b> ${esc(r.category||'—')}</div><div><b>هاتف الرياضي:</b> ${esc(r.phone||'—')}</div><div><b>ولي الأمر:</b> ${esc(r.guardian||'—')}</div><div><b>هاتف ولي الأمر:</b> ${esc(r.guardian_phone||'—')}</div><div><b>تاريخ الإرسال:</b> ${esc(date)}</div></div>
+   ${r.email?`<p><b>البريد الإلكتروني:</b> <span dir="ltr">${esc(r.email)}</span></p>`:'<p class="muted">لم يُسجل بريد إلكتروني.</p>'}
    ${r.notes?`<p><b>ملاحظات:</b> ${esc(r.notes)}</p>`:''}
-   ${status==='pending'?`<div><button class="btn tiny" type="button" onclick="reviewMembershipRequest('${r.id}','approved')">قبول الطلب</button><button class="btn tiny danger" type="button" onclick="reviewMembershipRequest('${r.id}','rejected')">رفض الطلب</button></div>`:status==='rejected'?`<div><button class="btn tiny danger" type="button" onclick="deleteRejectedMembershipRequest('${r.id}')">حذف الطلب المرفوض</button></div>`:''}
+   ${status==='pending'?`<div><button class="btn tiny" type="button" onclick="reviewMembershipRequest('${r.id}','approved')">قبول الطلب</button><button class="btn tiny danger" type="button" onclick="reviewMembershipRequest('${r.id}','rejected')">رفض الطلب</button></div>`:status==='approved'&&r.athlete_id?`<div><button class="btn tiny secondary" type="button" onclick="resendAthleteAccess('${r.id}')">إرسال / إعادة إرسال بيانات الدخول</button></div>`:status==='rejected'?`<div><button class="btn tiny danger" type="button" onclick="deleteRejectedMembershipRequest('${r.id}')">حذف الطلب المرفوض</button></div>`:''}
   </article>`;
  }).join('');
 }
@@ -787,8 +789,9 @@ async function loadMembershipRequests(){
 }
 window.reviewMembershipRequest=async function(id,status){
   if(!codmUser||!['approved','rejected'].includes(status))return;
-  const label=status==='approved'?'قبول':'رفض';
-  if(!confirm(status==='approved'?'هل تريدين قبول الطلب وإنشاء البطاقة التقنية تلقائياً؟':'هل تريدين رفض هذا الطلب؟'))return;
+  const request=membershipRequestRows.find(r=>String(r.id)===String(id));
+  if(status==='approved'&&!request?.email){alert('لا يمكن قبول الطلب قبل تسجيل بريد إلكتروني صحيح للملاكم أو ولي أمره.');return;}
+  if(!confirm(status==='approved'?'هل تريدين قبول الطلب وإنشاء البطاقة والحساب وإرسال رقم CODM وكلمة المرور إلى البريد المسجل؟':'هل تريدين رفض هذا الطلب؟'))return;
   try{
     const {data,error}=await sb.from('membership_requests')
       .update({status,reviewed_at:new Date().toISOString(),reviewed_by:codmUser.id})
@@ -796,9 +799,36 @@ window.reviewMembershipRequest=async function(id,status){
       .select('id,athlete_id,status').single();
     if(error)throw error;
     if(status==='approved'&&!data?.athlete_id)throw new Error('تم تحديث حالة الطلب، لكن لم تُنشأ البطاقة التقنية. تحققي من مشغّل إنشاء البطاقة في Supabase.');
-    await loadMembershipRequests();
-    alert(status==='approved'?'تم قبول الطلب وإنشاء البطاقة التقنية للملاكم بنجاح.':'تم رفض الطلب.');
+    if(status==='approved'){
+      try{
+        const {error:accessError}=await sb.functions.invoke('create-athlete-account',{body:{membership_request_id:id}});
+        if(accessError)throw accessError;
+        await loadMembershipRequests();
+        alert('تم قبول الطلب وإنشاء البطاقة والحساب وإرسال بيانات الدخول إلى البريد الإلكتروني.');
+      }catch(mailErr){
+        await loadMembershipRequests();
+        let message=mailErr.message||String(mailErr);
+        try{const body=await mailErr.context?.json?.();if(body?.error)message=body.error;}catch{}
+        alert('تم قبول الطلب وإنشاء البطاقة التقنية، لكن تعذر تأكيد إرسال بيانات الدخول: '+message+' يمكنك إعادة الإرسال من بطاقة الطلب المقبول بعد تفعيل خدمة البريد.');
+      }
+    }else{
+      await loadMembershipRequests();
+      alert('تم رفض الطلب.');
+    }
   }catch(err){await loadMembershipRequests();alert('تعذر إكمال العملية: '+(err.message||err))}
+};
+window.resendAthleteAccess=async function(id){
+  if(!codmUser)return;
+  if(!confirm('سيتم إنشاء كلمة مرور جديدة وإرسالها إلى البريد المسجل. هل تريدين المتابعة؟'))return;
+  try{
+    const {error}=await sb.functions.invoke('create-athlete-account',{body:{membership_request_id:id}});
+    if(error)throw error;
+    alert('تم إرسال بيانات الدخول الجديدة إلى البريد الإلكتروني المسجل.');
+  }catch(err){
+    let message=err.message||String(err);
+    try{const body=await err.context?.json?.();if(body?.error)message=body.error;}catch{}
+    alert('تعذر إرسال بيانات الدخول: '+message);
+  }
 };
 
 document.getElementById('refreshMembershipRequests').addEventListener('click',loadMembershipRequests);
@@ -963,8 +993,8 @@ document.getElementById('membershipRequestForm').addEventListener('submit',async
  e.preventDefault();const form=e.currentTarget,btn=document.getElementById('requestSubmit'),status=document.getElementById('requestStatus'),fd=new FormData(form);
  const photoFile=membershipPhotoInput.files?.[0]||null;
  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const randomBytes=new Uint8Array(10);crypto.getRandomValues(randomBytes);const trackingCode=Array.from(randomBytes,b=>alphabet[b%alphabet.length]).join('');
- const payload={full_name:String(fd.get('full_name')||'').trim(),birth_date:String(fd.get('birth_date')||''),gender:String(fd.get('gender')||''),category:String(fd.get('category')||''),phone:String(fd.get('phone')||'').trim()||null,guardian:String(fd.get('guardian')||'').trim()||null,guardian_phone:String(fd.get('guardian_phone')||'').trim()||null,notes:String(fd.get('notes')||'').trim()||null,tracking_code:trackingCode};
- if(!payload.full_name||!payload.birth_date){status.textContent='يرجى ملء الاسم وتاريخ الميلاد.';return}
+ const payload={full_name:String(fd.get('full_name')||'').trim(),birth_date:String(fd.get('birth_date')||''),gender:String(fd.get('gender')||''),category:String(fd.get('category')||''),phone:String(fd.get('phone')||'').trim()||null,guardian:String(fd.get('guardian')||'').trim()||null,guardian_phone:String(fd.get('guardian_phone')||'').trim()||null,notes:String(fd.get('notes')||'').trim()||null,email:String(fd.get('email')||'').trim().toLowerCase(),tracking_code:trackingCode};
+ if(!payload.full_name||!payload.birth_date||!payload.email){status.textContent='يرجى ملء الاسم وتاريخ الميلاد والبريد الإلكتروني الصحيح.';return}
  if(photoFile&&(!['image/jpeg','image/png','image/webp'].includes(photoFile.type)||photoFile.size>5*1024*1024)){status.textContent='الصورة يجب أن تكون JPG أو PNG أو WEBP وألا تتجاوز 5 ميغابايت.';return}
  btn.disabled=true;status.textContent='جارٍ إرسال الطلب...';
  let uploadedPhotoPath=null;
@@ -1054,7 +1084,7 @@ document.getElementById('athleteAccountForm').addEventListener('submit',async e=
  try{
   const {data,error}=await sb.functions.invoke('create-athlete-account',{body:{athlete_id:athleteId,email,password}});
   if(error)throw error;
-  status.textContent=`تم إنشاء الحساب وربطه بنجاح للملاكم: ${data.athlete_name}. البريد: ${data.email}. سلّميه كلمة المرور المؤقتة بطريقة خاصة.`;
+  status.textContent=`تم إنشاء الحساب وربطه للملاكم: ${data.athlete_name}. أُرسلت بيانات الدخول إلى: ${data.email}.`;
   document.getElementById('accountEmail').value='';
   document.getElementById('accountTempPassword').value='';
   await loadUnlinkedAthletes();
