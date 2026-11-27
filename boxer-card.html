@@ -38,7 +38,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;
 <section id="cardContent" class="hidden">
 <div class="card"><div class="profile"><img id="photo" class="avatar hidden" alt="صورة الملاكم" loading="lazy" decoding="async"><div><h2 id="athleteName" style="margin-bottom:7px"></h2><div id="athleteMeta" class="sub" style="color:#687080"></div></div></div></div>
 <div class="card"><h2>المعلومات الشخصية والرياضية</h2><div class="grid" id="personalGrid"></div></div>
-<div class="card"><h2>سجل التقييمات والاختبارات</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>المؤشر</th><th>النتيجة</th><th>الوحدة</th><th>ملاحظات المدرب</th></tr></thead><tbody id="progressRows"></tbody></table></div><div id="noProgress" class="status hidden">لا توجد تقييمات مسجلة لهذا الملاكم حتى الآن.</div></div>
+<div class="card"><h2>سجل التقييمات والاختبارات</h2><div class="tablewrap"><table><thead><tr><th>التاريخ</th><th>الاختبار</th><th>النتيجة</th><th>الوحدة</th><th>الهدف</th><th>ملاحظات المدرب</th></tr></thead><tbody id="progressRows"></tbody></table></div><div id="noProgress" class="status hidden">لا توجد تقييمات مسجلة لهذا الملاكم حتى الآن.</div></div>
 <div class="actions no-print"><a class="link light" href="./index.html">العودة إلى النظام</a></div>
 <div class="note">ملاحظة: المعلومات المعروضة مأخوذة من سجلات النادي. البطاقة للعرض فقط، ولا تسمح بتعديل البيانات أو تحميلها كملف.</div>
 </section>
@@ -61,10 +61,10 @@ function renderCard(id){
  loadProgress(id);
 }
 async function loadProgress(id){
- $('progressRows').innerHTML='<tr><td colspan="5">جارٍ تحميل التقييمات...</td></tr>';$('noProgress').classList.add('hidden');
+ $('progressRows').innerHTML='<tr><td colspan="6">جارٍ تحميل التقييمات...</td></tr>';$('noProgress').classList.add('hidden');
  const {data,error}=await sb.from('progress').select('progress_date,metric,value,unit,notes,goal').eq('athlete_id',id).order('progress_date',{ascending:false});
- if(error){$('progressRows').innerHTML='<tr><td colspan="5">تعذر تحميل التقييمات: '+esc(error.message)+'</td></tr>';return}
- $('progressRows').innerHTML=(data||[]).map(p=>'<tr><td>'+esc(p.progress_date||'')+'</td><td>'+esc(p.metric||'')+'</td><td>'+esc(p.value??'')+'</td><td>'+esc(p.unit||'')+'</td><td>'+esc([p.goal,p.notes].filter(Boolean).join(' — '))+'</td></tr>').join('');
+ if(error){$('progressRows').innerHTML='<tr><td colspan="6">تعذر تحميل التقييمات: '+esc(error.message)+'</td></tr>';return}
+ $('progressRows').innerHTML=(data||[]).map(p=>'<tr><td>'+esc(p.progress_date||'')+'</td><td>'+esc(p.metric||'')+'</td><td>'+esc(p.value??'')+'</td><td>'+esc(p.unit||'')+'</td><td>'+esc(p.goal||'—')+'</td><td>'+esc(p.notes||'—')+'</td></tr>').join('');
  $('noProgress').classList.toggle('hidden',!!(data&&data.length));
 }
 async function init(){
