@@ -75,10 +75,6 @@ Deno.serve(async (req) => {
     if (!athleteId || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new Error("رقم ملف الملاكم أو البريد الإلكتروني غير صالح.");
     }
-    if (suppliedPassword && suppliedPassword.length < 12) {
-      throw new Error("كلمة المرور يجب أن تتكون من 12 حرفًا على الأقل.");
-    }
-
     const { data: athlete, error: athleteError } = await admin
       .from("athletes")
       .select("id,athlete_code,full_name,profile_id")
