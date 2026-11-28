@@ -1,6 +1,6 @@
 // CODM: create/link boxer login and email credentials after membership approval.
 // Required Edge Function secrets: SUPABASE_URL, SUPABASE_ANON_KEY,
-// SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, EMAIL_FROM.
+// SUPABASE_SERVICE_ROLE_KEY, CODM_MAILER_URL, CODM_MAILER_SECRET.
 // Deploy as: supabase functions deploy create-athlete-account
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -48,10 +48,10 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    const emailFrom = Deno.env.get("EMAIL_FROM");
+    const mailerUrl = Deno.env.get("CODM_MAILER_URL");
+    const mailerSecret = Deno.env.get("CODM_MAILER_SECRET");
     if (!supabaseUrl || !anonKey || !serviceKey) throw new Error("إعدادات Supabase السرية غير مكتملة.");
-    if (!resendKey || !emailFrom) throw new Error("خدمة البريد غير مهيأة: يلزم ضبط RESEND_API_KEY و EMAIL_FROM.");
+    if (!mailerUrl || !mailerSecret) throw new Error("خدمة Gmail غير مهيأة: يلزم ضبط CODM_MAILER_URL و CODM_MAILER_SECRET.");
 
     const authorization = req.headers.get("Authorization") || "";
     if (!authorization.startsWith("Bearer ")) return json({ error: "يلزم تسجيل الدخول." }, 401);
@@ -185,20 +185,22 @@ Deno.serve(async (req) => {
     const safeCode = escapeHtml(athleteCode);
     const safeEmail = escapeHtml(email);
     const safePassword = escapeHtml(password);
-    const emailResponse = await fetch("https://api.resend.com/emails", {
+    const emailText = `مرحبًا ${athleteName}\nتم قبول انضمامك إلى شباب أولمبيك ديدوش مراد للملاكمة.\nرقم CODM: ${athleteCode}\nالبريد الإلكتروني: ${email}\nكلمة المرور: ${password}\nرابط الموقع: ${siteUrl}\nيمكنك الاحتفاظ بكلمة المرور أو تغييرها من حسابك بعد الدخول.\nيرجى عدم مشاركة بيانات الدخول مع أي شخص.`;
+    const emailHtml = `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.9;color:#171b22;max-width:620px;margin:auto"><div style="background:#101319;color:white;padding:22px;border-bottom:4px solid #c8a45d"><h2 style="margin:0">شباب أولمبيك ديدوش مراد للملاكمة</h2><p style="margin:5px 0 0">CODM DIGITAL SYSTEM</p></div><div style="padding:22px;border:1px solid #ddd"><h3>مرحبًا ${safeName}</h3><p>تم قبول طلب انضمامك إلى النادي. هذه بيانات الدخول الخاصة بك:</p><p><b>رقم CODM (اسم الدخول):</b> <span dir="ltr">${safeCode}</span><br><b>البريد الإلكتروني:</b> <span dir="ltr">${safeEmail}</span><br><b>كلمة المرور:</b> <span dir="ltr" style="font-size:18px;font-weight:bold">${safePassword}</span></p><p>يمكنك الاحتفاظ بكلمة المرور كما هي أو تغييرها من حسابك بعد تسجيل الدخول.</p><p><a href="${siteUrl}" style="display:inline-block;background:#c51f2b;color:white;padding:12px 20px;text-decoration:none;border-radius:7px">الدخول إلى الموقع</a></p><p style="color:#666;font-size:12px">يرجى الحفاظ على سرية بيانات الدخول وعدم مشاركتها.</p></div></div>`;
+    const emailResponse = await fetch(mailerUrl, {
       method: "POST",
-      headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: emailFrom,
-        to: [email],
+        secret: mailerSecret,
+        to: email,
         subject: "بيانات الدخول إلى نظام CODM DIGITAL SYSTEM",
-        text: `مرحبًا ${athleteName}\nتم قبول انضمامك إلى شباب أولمبيك ديدوش مراد للملاكمة.\nرقم CODM: ${athleteCode}\nالبريد الإلكتروني: ${email}\nكلمة المرور: ${password}\nرابط الموقع: ${siteUrl}\nيمكنك الاحتفاظ بكلمة المرور أو تغييرها من حسابك بعد الدخول.\nيرجى عدم مشاركة بيانات الدخول مع أي شخص.`,
-        html: `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.9;color:#171b22;max-width:620px;margin:auto"><div style="background:#101319;color:white;padding:22px;border-bottom:4px solid #c8a45d"><h2 style="margin:0">شباب أولمبيك ديدوش مراد للملاكمة</h2><p style="margin:5px 0 0">CODM DIGITAL SYSTEM</p></div><div style="padding:22px;border:1px solid #ddd"><h3>مرحبًا ${safeName}</h3><p>تم قبول طلب انضمامك إلى النادي. هذه بيانات الدخول الخاصة بك:</p><p><b>رقم CODM (اسم الدخول):</b> <span dir="ltr">${safeCode}</span><br><b>البريد الإلكتروني:</b> <span dir="ltr">${safeEmail}</span><br><b>كلمة المرور:</b> <span dir="ltr" style="font-size:18px;font-weight:bold">${safePassword}</span></p><p>يمكنك الاحتفاظ بكلمة المرور كما هي أو تغييرها من حسابك بعد تسجيل الدخول.</p><p><a href="${siteUrl}" style="display:inline-block;background:#c51f2b;color:white;padding:12px 20px;text-decoration:none;border-radius:7px">الدخول إلى الموقع</a></p><p style="color:#666;font-size:12px">يرجى الحفاظ على سرية بيانات الدخول وعدم مشاركتها.</p></div></div>`,
+        text: emailText,
+        html: emailHtml,
       }),
     });
     const emailResult = await emailResponse.json().catch(() => ({}));
-    if (!emailResponse.ok) {
-      throw new Error("تم إنشاء الحساب وربطه، لكن فشل إرسال البريد: " + (emailResult.message || emailResponse.statusText));
+    if (!emailResponse.ok || !emailResult.success) {
+      throw new Error("تم إنشاء الحساب وربطه، لكن فشل إرسال البريد عبر Gmail: " + (emailResult.error || emailResponse.statusText));
     }
 
     return json({
