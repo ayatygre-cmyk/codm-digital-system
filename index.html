@@ -347,14 +347,14 @@ input::placeholder,textarea::placeholder{color:#828b99}
 <section class="panel" id="p-accounts">
  <div class="card">
   <h2>إنشاء حساب ملاكم</h2>
-  <p class="muted">اختاري ملاكمًا مسجلًا بلا حساب، ثم أدخلي بريده الإلكتروني وكلمة مرور أولية. سيُربط الحساب بملفه وتُرسل بيانات الدخول إلى بريده.</p>
+  <p class="muted">اختاري ملاكمًا مسجلًا بلا حساب وأدخلي بريده الإلكتروني. سيُربط الحساب بملفه ويُرسل رابط التفعيل إلى بريده ليختار كلمة المرور بنفسه.</p>
   <form id="athleteAccountForm">
    <div class="grid">
     <div><label for="accountAthlete">الملاكم</label><select id="accountAthlete" required><option value="">جارٍ تحميل قائمة الملاكمين...</option></select></div>
     <div><label for="accountEmail">البريد الإلكتروني للملاكم</label><input id="accountEmail" type="email" autocomplete="off" required maxlength="254" placeholder="athlete@example.com"></div>
-    <div><label for="accountTempPassword">كلمة المرور الأولية</label><input id="accountTempPassword" type="password" minlength="12" autocomplete="new-password" required placeholder="12 حرفًا على الأقل"></div>
+    
    </div>
-   <p class="muted">استخدمي كلمة مرور مؤقتة قوية، وسلّميها للمتدرب أو ولي أمره بطريقة خاصة. يمكن للمتدرب تغييرها بعد الدخول.</p>
+   <p class="muted">بعد إدخال البريد الإلكتروني، سيصل إلى الملاكم أو ولي أمره رابط آمن لتفعيل الحساب واختيار كلمة المرور بنفسه.</p>
    <button class="btn" id="createAthleteAccountBtn" type="submit">إنشاء حساب الملاكم</button>
    <button class="btn light" id="refreshUnlinkedAthletes" type="button">تحديث قائمة الملاكمين</button>
    <p id="athleteAccountStatus" class="muted" role="status" aria-live="polite"></p>
@@ -804,7 +804,7 @@ window.reviewMembershipRequest=async function(id,status){
         const {error:accessError}=await sb.functions.invoke('create-athlete-account',{body:{membership_request_id:id}});
         if(accessError)throw accessError;
         await loadMembershipRequests();
-        alert('تم قبول الطلب وإنشاء البطاقة والحساب وإرسال بيانات الدخول إلى البريد الإلكتروني.');
+        alert('تم قبول الطلب وإنشاء البطاقة والحساب وإرسال رابط التفعيل إلى البريد الإلكتروني المسجل.');
       }catch(mailErr){
         await loadMembershipRequests();
         let message=mailErr.message||String(mailErr);
@@ -819,15 +819,15 @@ window.reviewMembershipRequest=async function(id,status){
 };
 window.resendAthleteAccess=async function(id){
   if(!codmUser)return;
-  if(!confirm('سيتم إنشاء كلمة مرور جديدة وإرسالها إلى البريد المسجل. هل تريدين المتابعة؟'))return;
+  if(!confirm('سيتم إرسال رابط تفعيل أو إعادة تعيين كلمة المرور إلى البريد المسجل. هل تريدين المتابعة؟'))return;
   try{
     const {error}=await sb.functions.invoke('create-athlete-account',{body:{membership_request_id:id}});
     if(error)throw error;
-    alert('تم إرسال بيانات الدخول الجديدة إلى البريد الإلكتروني المسجل.');
+    alert('تم إرسال رابط التفعيل أو تعيين كلمة المرور إلى البريد الإلكتروني المسجل.');
   }catch(err){
     let message=err.message||String(err);
     try{const body=await err.context?.json?.();if(body?.error)message=body.error;}catch{}
-    alert('تعذر إرسال بيانات الدخول: '+message);
+    alert('تعذر إرسال رابط التفعيل: '+message);
   }
 };
 
@@ -1075,18 +1075,15 @@ document.getElementById('athleteAccountForm').addEventListener('submit',async e=
  e.preventDefault();
  const athleteId=document.getElementById('accountAthlete').value;
  const email=document.getElementById('accountEmail').value.trim().toLowerCase();
- const password=document.getElementById('accountTempPassword').value;
  const button=document.getElementById('createAthleteAccountBtn');
  const status=document.getElementById('athleteAccountStatus');
  if(!athleteId){status.textContent='اختاري ملاكمًا من القائمة أولًا.';return;}
- if(password.length<12){status.textContent='كلمة المرور يجب أن تكون 12 حرفًا على الأقل.';return;}
  button.disabled=true;status.textContent='جارٍ إنشاء الحساب وربطه بملف الملاكم...';
  try{
-  const {data,error}=await sb.functions.invoke('create-athlete-account',{body:{athlete_id:athleteId,email,password}});
+  const {data,error}=await sb.functions.invoke('create-athlete-account',{body:{athlete_id:athleteId,email}});
   if(error)throw error;
-  status.textContent=`تم إنشاء الحساب وربطه للملاكم: ${data.athlete_name}. أُرسلت بيانات الدخول إلى: ${data.email}.`;
+  status.textContent=`تم ربط الحساب للملاكم: ${data.athlete_name}. أُرسل رابط التفعيل أو تعيين كلمة المرور إلى: ${data.email}.`;
   document.getElementById('accountEmail').value='';
-  document.getElementById('accountTempPassword').value='';
   await loadUnlinkedAthletes();
   await loadLinkedAthletes();
  }catch(err){
