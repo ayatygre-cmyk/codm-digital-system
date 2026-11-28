@@ -584,7 +584,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
 const SUPABASE_URL='https://xmbpnjlpwpjwrjspnkro.supabase.co';
 const SUPABASE_KEY='sb_publishable_umoJ2Zu3z5Hg1xrlaGif3w_q3QVwgw0';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let codmUser=null, codmProfile=null, syncing=false;
+let codmUser=null, codmProfile=null, syncing=false, remoteLoading=null;
 const gate=document.getElementById('authGate'), authMsg=document.getElementById('authMessage');
 function showGate(msg=''){gate.style.display='flex';authMsg.textContent=msg;document.querySelector('main').style.display='none';document.querySelector('header').style.display='none';document.getElementById('publicPortal').style.display='none';document.getElementById('athletePortal').style.display='none';document.getElementById('athletePreviewPortal').style.display='none'}
 function showApp(){gate.style.display='none';document.getElementById('athletePortal').style.display='none';document.querySelector('main').style.display='';document.querySelector('header').style.display=''}
@@ -1128,7 +1128,15 @@ async function showAthletePortal(profile){
 }
 document.getElementById('athleteLogoutBtn').addEventListener('click',async()=>{
  const button=document.getElementById('athleteLogoutBtn');button.disabled=true;
- try{const {error}=await sb.auth.signOut();if(error)throw error;codmUser=null;codmProfile=null;document.getElementById('athletePortal').style.display='none';document.getElementById('loginPassword').value='';showGate('تم تسجيل الخروج.');}
+ try{
+  const {error}=await sb.auth.signOut();if(error)throw error;
+  codmUser=null;codmProfile=null;
+  localStorage.removeItem(KEY);
+  document.getElementById('athletePortal').style.display='none';
+  document.getElementById('loginPassword').value='';
+  showGate('تم تسجيل الخروج. أُزيلت أي نسخة محلية حساسة من هذا الجهاز.');
+  window.location.reload();
+ }
  catch(err){document.getElementById('athletePortalStatus').textContent='تعذر تسجيل الخروج: '+(err.message||err);}
  finally{button.disabled=false;}
 });
@@ -1158,11 +1166,12 @@ async function authenticate(){
  const competitionsTask=loadClubCompetitions();
  const videosTask=loadVideos();
  // تحميل ومزامنة بيانات النادي في الخلفية دون تعطيل عرض الإعلانات.
- loadRemote().then(()=>syncAll()).catch(err=>{
+ remoteLoading=loadRemote().then(()=>syncAll()).catch(err=>{
   console.error('CODM remote data loading:',err);
   const status=document.getElementById('announcementStatus');
   if(status)status.textContent='تم فتح الإدارة، لكن تعذرت مزامنة بعض بيانات النادي: '+(err.message||err);
- });
+  return false;
+ }).finally(()=>{remoteLoading=null;});
  // لا نُبقي زر الدخول معطلاً أثناء تحميل الإعلانات والطلبات والفيديوهات؛ تظهر اللوحة فور التحقق من الحساب.
  void Promise.allSettled([announcementsTask,requestsTask,competitionsTask,videosTask]);
 }
@@ -1185,17 +1194,25 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
 document.getElementById('logoutBtn').onclick=async()=>{
  const button=document.getElementById('logoutBtn');
  if(!codmUser)return;
- if(!confirm('تسجيل الخروج الآن؟ ستبقى نسخة البيانات المحفوظة محلياً كما هي.'))return;
+ if(!confirm('قبل تسجيل الخروج، سيحاول النظام مزامنة جميع بيانات النادي. بعد نجاحها ستُمسح النسخة المحلية الحساسة من هذا الجهاز. متابعة؟'))return;
  button.disabled=true;
- authMsg.textContent='جارٍ تسجيل الخروج...';
+ authMsg.textContent='جارٍ التأكد من المزامنة وحماية البيانات المحلية...';
  try{
-  // لا ننتظر المزامنة عند الخروج؛ بيانات النادي محفوظة محلياً ولا نحذفها.
+  if(remoteLoading){
+   const initialSync=await remoteLoading;
+   if(initialSync===false)throw new Error('تعذرت المزامنة الأولية. لم يتم تسجيل الخروج أو مسح البيانات المحلية.');
+  }
+  if(syncing)throw new Error('المزامنة ما زالت جارية. انتظري قليلاً ثم أعيدي محاولة تسجيل الخروج.');
+  const synced=await syncAll();
+  if(!synced)throw new Error('تعذرت مزامنة البيانات. لم يتم تسجيل الخروج أو مسح النسخة المحلية حتى لا نفقد أي سجلات.');
   const {error}=await sb.auth.signOut();
   if(error)throw error;
   codmUser=null;codmProfile=null;
+  localStorage.removeItem(KEY);
   document.getElementById('loginPassword').value='';
-  showGate('تم تسجيل الخروج. بقيت النسخة المحلية محفوظة.');
- }catch(err){authMsg.textContent='تعذر إنهاء الجلسة: '+(err.message||err);}
+  showGate('تم تسجيل الخروج ومَسح النسخة المحلية الحساسة بعد نجاح المزامنة.');
+  window.location.reload();
+ }catch(err){authMsg.textContent='لم يكتمل تسجيل الخروج حفاظاً على البيانات: '+(err.message||err);}
  finally{button.disabled=false;}
 };
 document.getElementById('forgotPassword').onclick=async()=>{const identifier=document.getElementById('loginIdentifier').value.trim();const email=identifier.includes('@')?identifier:'';if(!email)return authMsg.textContent='لاستعادة كلمة المرور، أدخلي البريد الإلكتروني المرتبط بالحساب.';const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:new URL('./reset-password.html',window.location.href).toString()});authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
