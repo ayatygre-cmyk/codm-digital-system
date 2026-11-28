@@ -1201,7 +1201,7 @@ document.getElementById('logoutBtn').onclick=async()=>{
  }catch(err){authMsg.textContent='تعذر إنهاء الجلسة: '+(err.message||err);}
  finally{button.disabled=false;}
 };
-document.getElementById('forgotPassword').onclick=async()=>{const identifier=document.getElementById('loginIdentifier').value.trim();const email=identifier.includes('@')?identifier:'';if(!email)return authMsg.textContent='لاستعادة كلمة المرور، أدخلي البريد الإلكتروني المرتبط بالحساب.';const {error}=await sb.auth.resetPasswordForEmail(email);authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
+document.getElementById('forgotPassword').onclick=async()=>{const identifier=document.getElementById('loginIdentifier').value.trim();const email=identifier.includes('@')?identifier:'';if(!email)return authMsg.textContent='لاستعادة كلمة المرور، أدخلي البريد الإلكتروني المرتبط بالحساب.';const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:new URL('./reset-password.html',window.location.href).toString()});authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
 showGate();authenticate().catch(err=>{console.error(err);showGate('تعذر الاتصال بـ Supabase: '+err.message)});
 
 </script></body></html>
