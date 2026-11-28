@@ -1188,27 +1188,31 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
 document.getElementById('logoutBtn').onclick=async()=>{
  const button=document.getElementById('logoutBtn');
  if(!codmUser)return;
- if(!confirm('قبل تسجيل الخروج، سيُزامَن العمل مع قاعدة بيانات النادي. بعد نجاح المزامنة ستُمسح النسخة المحلية من هذا الجهاز لحماية بيانات الملاكمين. إذا لم يتوفر الاتصال أو فشلت المزامنة فلن يتم تسجيل الخروج ولن تُمسح البيانات المحلية. متابعة؟'))return;
+ if(!confirm('سيحاول الموقع مزامنة البيانات أولاً. إذا فشلت المزامنة، سيتم تسجيل الخروج مع الاحتفاظ بالنسخة المحلية حتى لا نفقد أي بيانات. متابعة؟'))return;
  button.disabled=true;
- authMsg.textContent='جارٍ إنهاء المزامنة ثم تسجيل الخروج...';
+ authMsg.textContent='جارٍ حفظ البيانات وتسجيل الخروج...';
+ let syncOk=false, syncMessage='';
  try{
-  // انتظر أي مزامنة تلقائية بدأت قبل الضغط على زر الخروج.
   const waitStarted=Date.now();
-  while(syncing&&Date.now()-waitStarted<30000){
-   await new Promise(resolve=>setTimeout(resolve,250));
-  }
-  if(syncing)throw new Error('ما زالت المزامنة قيد التنفيذ. انتظري قليلاً ثم حاولي مجدداً.');
-  const synced=await syncAll();
-  if(!synced){authMsg.textContent='لم يتم تسجيل الخروج: تعذرت مزامنة البيانات. بقيت النسخة المحلية محفوظة لحمايتها. عالجي رسالة المزامنة ثم حاولي مجدداً.';return;}
+  while(syncing&&Date.now()-waitStarted<30000) await new Promise(resolve=>setTimeout(resolve,250));
+  if(syncing) throw new Error('انتهت مهلة انتظار المزامنة.');
+  syncOk=await syncAll();
+  if(!syncOk) syncMessage='تعذرت مزامنة بعض البيانات؛ احتفظنا بالنسخة المحلية ولم نحذفها.';
+ }catch(err){syncMessage='تعذرت المزامنة: '+(err.message||err)+'؛ احتفظنا بالنسخة المحلية.';}
+ try{
   const {error}=await sb.auth.signOut();
   if(error)throw error;
   codmUser=null;codmProfile=null;
-  localStorage.removeItem(KEY);
-  db={athletes:[],dues:[],progress:[],events:[],attendance:[]};
   document.getElementById('loginPassword').value='';
-  render();
-  showGate('تم تسجيل الخروج بنجاح ومزامنة البيانات.');
- }catch(err){authMsg.textContent='تعذر تسجيل الخروج بأمان: '+(err.message||err)+' . بقيت النسخة المحلية محفوظة.'}
+  if(syncOk){
+   localStorage.removeItem(KEY);
+   db={athletes:[],dues:[],progress:[],events:[],attendance:[]};
+   render();
+   showGate('تم تسجيل الخروج ومزامنة البيانات بنجاح.');
+  }else{
+   showGate('تم تسجيل الخروج. '+syncMessage+' لا تمسحي بيانات المتصفح قبل استكمال المزامنة.');
+  }
+ }catch(err){authMsg.textContent='تعذر إنهاء الجلسة: '+(err.message||err);}
  finally{button.disabled=false;}
 };
 document.getElementById('forgotPassword').onclick=async()=>{const identifier=document.getElementById('loginIdentifier').value.trim();const email=identifier.includes('@')?identifier:'';if(!email)return authMsg.textContent='لاستعادة كلمة المرور، أدخلي البريد الإلكتروني المرتبط بالحساب.';const {error}=await sb.auth.resetPasswordForEmail(email);authMsg.textContent=error?'تعذر إرسال رابط الاستعادة: '+error.message:'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.'};
