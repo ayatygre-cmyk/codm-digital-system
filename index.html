@@ -1188,30 +1188,16 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
 document.getElementById('logoutBtn').onclick=async()=>{
  const button=document.getElementById('logoutBtn');
  if(!codmUser)return;
- if(!confirm('سيحاول الموقع مزامنة البيانات أولاً. إذا فشلت المزامنة، سيتم تسجيل الخروج مع الاحتفاظ بالنسخة المحلية حتى لا نفقد أي بيانات. متابعة؟'))return;
+ if(!confirm('تسجيل الخروج الآن؟ ستبقى نسخة البيانات المحفوظة محلياً كما هي.'))return;
  button.disabled=true;
- authMsg.textContent='جارٍ حفظ البيانات وتسجيل الخروج...';
- let syncOk=false, syncMessage='';
+ authMsg.textContent='جارٍ تسجيل الخروج...';
  try{
-  const waitStarted=Date.now();
-  while(syncing&&Date.now()-waitStarted<30000) await new Promise(resolve=>setTimeout(resolve,250));
-  if(syncing) throw new Error('انتهت مهلة انتظار المزامنة.');
-  syncOk=await syncAll();
-  if(!syncOk) syncMessage='تعذرت مزامنة بعض البيانات؛ احتفظنا بالنسخة المحلية ولم نحذفها.';
- }catch(err){syncMessage='تعذرت المزامنة: '+(err.message||err)+'؛ احتفظنا بالنسخة المحلية.';}
- try{
+  // لا ننتظر المزامنة عند الخروج؛ بيانات النادي محفوظة محلياً ولا نحذفها.
   const {error}=await sb.auth.signOut();
   if(error)throw error;
   codmUser=null;codmProfile=null;
   document.getElementById('loginPassword').value='';
-  if(syncOk){
-   localStorage.removeItem(KEY);
-   db={athletes:[],dues:[],progress:[],events:[],attendance:[]};
-   render();
-   showGate('تم تسجيل الخروج ومزامنة البيانات بنجاح.');
-  }else{
-   showGate('تم تسجيل الخروج. '+syncMessage+' لا تمسحي بيانات المتصفح قبل استكمال المزامنة.');
-  }
+  showGate('تم تسجيل الخروج. بقيت النسخة المحلية محفوظة.');
  }catch(err){authMsg.textContent='تعذر إنهاء الجلسة: '+(err.message||err);}
  finally{button.disabled=false;}
 };
