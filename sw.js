@@ -1,7 +1,6 @@
-const CACHE = 'codm-digital-v32';
+const CACHE = 'codm-digital-v33';
 const BASE = new URL(self.registration.scope);
-const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=23', BASE).href;
-const AUTO_ACCOUNT_SCRIPT = new URL('./membership-auto-account.js?v=2', BASE).href;
+const STAFF_SCRIPT = new URL('./staff-dashboard.js?v=24', BASE).href;
 
 const MAIN_PATHS = new Set([
   new URL('./', BASE).pathname,
@@ -12,8 +11,7 @@ const MAIN_PATHS = new Set([
 const FILES = [
   new URL('./manifest.json', BASE).href,
   new URL('./assets/codm-logo.jpg', BASE).href,
-  new URL('./staff-dashboard.js?v=22', BASE).href,
-  AUTO_ACCOUNT_SCRIPT,
+  STAFF_SCRIPT,
   new URL('./staff.html', BASE).href,
   new URL('./club-management.html', BASE).href,
   new URL('./boxer-card.html', BASE).href,
@@ -61,16 +59,13 @@ async function buildMainResponse(response) {
   const encoder = new TextEncoder();
   let tail = '';
   let scriptFound = false;
-  let autoScriptFound = false;
   const scriptTag = '<script src="' + STAFF_SCRIPT + '" defer><' + '/script>';
-  const autoScriptTag = '<script src="' + AUTO_ACCOUNT_SCRIPT + '" defer><' + '/script>';
 
   const stream = response.body.pipeThrough(new TransformStream({
     transform(chunk, controller) {
       const text = decoder.decode(chunk, { stream: true });
       const probe = tail + text;
       if (/staff-dashboard\.js(?:\?|["'])/i.test(probe)) scriptFound = true;
-      if (/membership-auto-account\.js(?:\?|["'])/i.test(probe)) autoScriptFound = true;
       tail = probe.slice(-160);
       controller.enqueue(encoder.encode(text));
     },
@@ -79,11 +74,9 @@ async function buildMainResponse(response) {
       if (finalText) {
         const probe = tail + finalText;
         if (/staff-dashboard\.js(?:\?|["'])/i.test(probe)) scriptFound = true;
-        if (/membership-auto-account\.js(?:\?|["'])/i.test(probe)) autoScriptFound = true;
         controller.enqueue(encoder.encode(finalText));
       }
       if (!scriptFound) controller.enqueue(encoder.encode(scriptTag));
-      if (!autoScriptFound) controller.enqueue(encoder.encode(autoScriptTag));
     }
   }));
 
