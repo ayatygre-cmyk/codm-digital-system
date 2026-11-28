@@ -97,7 +97,9 @@ Deno.serve(async (req) => {
       .from("profiles").select("id,user_id").eq("athlete_id", athleteId).maybeSingle();
     if (profileLookupError) throw profileLookupError;
 
-    const siteUrl = Deno.env.get("SITE_URL") || "https://ayatygre-cmyk.github.io/codm-digital-system/";
+    const configuredSiteUrl = Deno.env.get("SITE_URL") || "https://ayatygre-cmyk.github.io/codm-digital-system/";
+    const siteBase = configuredSiteUrl.endsWith("/") ? configuredSiteUrl : configuredSiteUrl + "/";
+    const siteUrl = new URL("reset-password.html", siteBase).toString();
     let authUserId: string;
     let profileId: string;
 
