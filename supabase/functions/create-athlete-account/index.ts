@@ -170,7 +170,8 @@ Deno.serve(async (req) => {
       athlete_code: athleteCode,
       email,
       message: "تم إرسال رابط التفعيل أو استعادة كلمة المرور إلى البريد الإلكتروني المسجل.",
-    });) {
+    });
+  } catch (error) {
     console.error("create-athlete-account:", error);
     return json({ error: error instanceof Error ? error.message : "حدث خطأ غير متوقع." }, 400);
   }
